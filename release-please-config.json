@@ -1,0 +1,8 @@
+{
+  "release-type": "python",
+  "packages": {
+    ".": {
+      "package-name": "aws-bedrock-a2a-proxy"
+    }
+  }
+}

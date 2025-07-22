@@ -29,6 +29,11 @@ format: # format code
 build: # build Docker image
 	docker build -t aws-bedrock-a2a-proxy:latest .
 
+.PHONY: cicd
+cicd: # run the CI/CD workflow locally
+	act -P ubuntu-24.04=ghcr.io/catthehacker/ubuntu:act-latest \
+		--artifact-server-path $$PWD/.artifacts
+
 .PHONY: clean
 clean: # clean up build artifacts and cache
 	rm -rf .pytest_cache/

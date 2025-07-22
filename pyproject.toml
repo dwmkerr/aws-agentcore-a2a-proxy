@@ -30,8 +30,8 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project.scripts]
 aws-bedrock-a2a-proxy = "aws_bedrock_a2a_proxy.__main__:main"
