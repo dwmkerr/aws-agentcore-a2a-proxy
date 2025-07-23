@@ -1,0 +1,12 @@
+# Example Terraform variables file
+# Copy to terraform.tfvars and customize as needed
+
+aws_region = "us-east-1"
+role_name  = "AgentCoreExecutionRole"
+
+tags = {
+  Project     = "aws-bedrock-a2a-proxy"
+  Environment = "demo"
+  Owner       = "your-name"
+  ManagedBy   = "terraform"
+}

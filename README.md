@@ -46,9 +46,9 @@ Requires IAM permissions:
 
 ## TODO
 
-- [ ] Extract AgentCoreHTTPClient from AgentCoreExecutor
-- [ ] Add unit tests with mocked HTTP responses  
-- [ ] Update to a2a-sdk>=0.2.12 to match agents-at-scale
+- [x] Extract AgentCoreHTTPClient from AgentCoreExecutor
+- [x] Add unit tests with mocked HTTP responses  
+- [x] Update to a2a-sdk>=0.2.12 to match agents-at-scale
 - [ ] Simplify Makefile to follow AI Developer Guide patterns
 - [ ] Add OIDC authentication support
 - [ ] Add retry logic for AgentCore API calls
