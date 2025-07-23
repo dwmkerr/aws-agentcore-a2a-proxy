@@ -6,28 +6,28 @@ help: # show help for each of the Makefile recipes
 
 .PHONY: init
 init: # install dependencies
-	uv sync --dev
+	cd aws-bedrock-a2a-proxy && uv sync --dev
 
 .PHONY: dev
 dev: # run in development mode
-	uv run python -m aws_bedrock_a2a_proxy
+	cd aws-bedrock-a2a-proxy && uv run python -m aws_bedrock_a2a_proxy
 
 .PHONY: test
 test: # run tests with coverage
-	uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=term-missing
+	cd aws-bedrock-a2a-proxy && uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=term-missing
 
 .PHONY: lint
 lint: # run linting and type checking
-	uv run ruff check src/ tests/
-	uv run mypy src/
+	cd aws-bedrock-a2a-proxy && uv run ruff check src/ tests/
+	cd aws-bedrock-a2a-proxy && uv run mypy src/
 
 .PHONY: format
 format: # format code
-	uv run ruff format src/ tests/
+	cd aws-bedrock-a2a-proxy && uv run ruff format src/ tests/
 
 .PHONY: build
 build: # build Python wheel
-	uv build
+	cd aws-bedrock-a2a-proxy && uv build
 
 .PHONY: build-docker
 build-docker: # build Docker image
@@ -40,10 +40,10 @@ cicd: # run the CI/CD workflow locally
 
 .PHONY: clean
 clean: # clean up build artifacts and cache
-	rm -rf .pytest_cache/
-	rm -rf htmlcov/
-	rm -rf .coverage
-	rm -rf dist/
-	rm -rf build/
-	find . -type d -name __pycache__ -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
+	rm -rf aws-bedrock-a2a-proxy/.pytest_cache/
+	rm -rf aws-bedrock-a2a-proxy/htmlcov/
+	rm -rf aws-bedrock-a2a-proxy/.coverage
+	rm -rf aws-bedrock-a2a-proxy/dist/
+	rm -rf aws-bedrock-a2a-proxy/build/
+	find aws-bedrock-a2a-proxy -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find aws-bedrock-a2a-proxy -type f -name "*.pyc" -delete 2>/dev/null || true

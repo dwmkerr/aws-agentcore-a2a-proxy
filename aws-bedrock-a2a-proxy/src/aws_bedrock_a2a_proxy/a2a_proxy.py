@@ -11,6 +11,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
 from .agentcore_client import AgentCoreClient
+from .agentcore_http_client import AgentCoreHTTPClient
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +19,8 @@ logger = logging.getLogger(__name__)
 class AgentCoreExecutor:
     """Agent executor that bridges A2A requests to AWS Bedrock AgentCore agents"""
     
-    def __init__(self, client: AgentCoreClient, agent_id: str):
-        self.client = client
+    def __init__(self, http_client: AgentCoreHTTPClient, agent_id: str):
+        self.http_client = http_client
         self.agent_id = agent_id
     
     async def execute(self, context, event_queue):
@@ -34,12 +35,18 @@ class AgentCoreExecutor:
             
             logger.info(f"Executing agent {self.agent_id} with message: {message_text[:100]}...")
             
-            # Call AgentCore agent
-            payload = {"prompt": message_text}
-            result = await self.client.invoke_agent(self.agent_id, payload)
+            # Call AgentCore agent via HTTP client
+            result = await self.http_client.invoke_agent(self.agent_id, message_text)
             
-            # Extract response text
-            response_text = result.get("response", str(result))
+            # Extract response text from AgentCore format
+            if isinstance(result, dict) and "result" in result and "content" in result["result"]:
+                text_parts = []
+                for content_item in result["result"]["content"]:
+                    if isinstance(content_item, dict) and "text" in content_item:
+                        text_parts.append(content_item["text"])
+                response_text = "".join(text_parts).strip()
+            else:
+                response_text = str(result)
             
             # Create A2A response message
             response_message = Message(
@@ -285,8 +292,11 @@ class A2AProxy:
                     ]
                 )
                 
+                # Create HTTP client for this agent
+                http_client = AgentCoreHTTPClient(region="us-east-1")
+                
                 # Create agent executor
-                executor = AgentCoreExecutor(self.client, agent_id)
+                executor = AgentCoreExecutor(http_client, agent_id)
                 
                 # Create request handler
                 handler = DefaultRequestHandler(
