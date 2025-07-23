@@ -26,7 +26,11 @@ format: # format code
 	uv run ruff format src/ tests/
 
 .PHONY: build
-build: # build Docker image
+build: # build Python wheel
+	uv build
+
+.PHONY: build-docker
+build-docker: # build Docker image
 	docker build -t aws-bedrock-a2a-proxy:latest .
 
 .PHONY: cicd

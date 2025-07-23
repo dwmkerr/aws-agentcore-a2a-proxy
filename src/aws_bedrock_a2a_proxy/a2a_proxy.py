@@ -89,8 +89,23 @@ class A2AProxy:
                 raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
             
             try:
-                result = await self.client.invoke_agent(agent_id, payload)
-                return result
+                # Call AgentCore directly
+                raw_result = await self.client.invoke_agent(agent_id, payload)
+                
+                # Translate AgentCore response to A2A format
+                # AgentCore returns: {"result": {"role": "assistant", "content": [{"text": "..."}]}}
+                if isinstance(raw_result, dict) and "result" in raw_result and "content" in raw_result["result"]:
+                    # Extract text from AgentCore format
+                    text_parts = []
+                    for content_item in raw_result["result"]["content"]:
+                        if isinstance(content_item, dict) and "text" in content_item:
+                            text_parts.append(content_item["text"])
+                    response_text = "".join(text_parts).strip()
+                    
+                    # Return A2A-compatible response
+                    return {"response": response_text}
+                
+                return raw_result
             except Exception as e:
                 logger.error(f"Failed to invoke agent {agent_id}: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
@@ -202,11 +217,24 @@ class A2AProxy:
             # Since we're in FastAPI, we need to delegate to the Starlette app
             # This is a simplified version - we may need to handle ASGI properly
             try:
-                # For now, just invoke the agent directly
-                # TODO: Implement proper JSON-RPC handling via A2A SDK
+                # Call AgentCore directly
                 payload = {"prompt": str(request)}
-                result = await self.client.invoke_agent(agent_id, payload)
-                return result
+                raw_result = await self.client.invoke_agent(agent_id, payload)
+                
+                # Translate AgentCore response to JSON-RPC format
+                # AgentCore returns: {"result": {"role": "assistant", "content": [{"text": "..."}]}}
+                if isinstance(raw_result, dict) and "result" in raw_result and "content" in raw_result["result"]:
+                    # Extract text from AgentCore format
+                    text_parts = []
+                    for content_item in raw_result["result"]["content"]:
+                        if isinstance(content_item, dict) and "text" in content_item:
+                            text_parts.append(content_item["text"])
+                    response_text = "".join(text_parts).strip()
+                    
+                    # Return JSON-RPC response format - ARK expects direct text in result field
+                    return {"result": response_text}
+                
+                return raw_result
             except Exception as e:
                 logger.error(f"JSON-RPC request failed for agent {agent_id}: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
@@ -287,6 +315,7 @@ class A2AProxy:
             raise ValueError(f"Agent {agent_id} not found")
         
         try:
+            # Return raw AgentCore response - endpoints handle their own translation
             result = await self.client.invoke_agent(agent_id, payload)
             return result
             

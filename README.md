@@ -43,3 +43,18 @@ Requires IAM permissions:
 - `bedrock-agentcore:ListAgentRuntimes`
 - `bedrock-agentcore:DescribeAgentRuntime` 
 - `bedrock-agentcore:InvokeAgentRuntime`
+
+## TODO
+
+- [ ] Extract AgentCoreHTTPClient from AgentCoreExecutor
+- [ ] Add unit tests with mocked HTTP responses  
+- [ ] Update to a2a-sdk>=0.2.12 to match agents-at-scale
+- [ ] Simplify Makefile to follow AI Developer Guide patterns
+- [ ] Add OIDC authentication support
+- [ ] Add retry logic for AgentCore API calls
+- [ ] Add request/response logging and metrics
+- [ ] Add configuration validation and error handling
+- [ ] Add health check endpoint for AgentCore connectivity
+- [ ] Add support for streaming responses
+- [ ] Add rate limiting for agent invocations
+- [ ] Add caching for agent discovery results
