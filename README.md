@@ -5,13 +5,16 @@ A2A proxy server for AWS Bedrock AgentCore agents.
 ## Quickstart
 
 ```bash
-# Show all available recipes
-make help
+# Setup AWS infrastructure
+cd demo/infrastructure/
+terraform init && terraform apply
 
-# Install dependencies
+# Configure environment
+cp .env.example .env
+# Add IAM_ROLE_ARN from terraform output to .env
+
+# Install dependencies and run
 make init
-
-# Run in development mode
 make dev
 ```
 
@@ -38,6 +41,21 @@ Usage:
 ## How It Works
 
 Uses direct HTTPS calls to AgentCore (boto3 SDK not available yet). Discovers agents via `bedrock-agentcore-control` client and exposes them through standard A2A protocol endpoints. Supports both explicit credentials and default AWS credential chain.
+
+## Infrastructure
+
+Demo infrastructure uses Terraform to create:
+- IAM execution role for AgentCore agents
+- User policies for agent invocation
+- CloudWatch log groups with retention
+- Bedrock model logging configuration
+
+```bash
+cd demo/infrastructure/
+terraform destroy  # cleanup when done
+```
+
+## Permissions
 
 Requires IAM permissions:
 - `bedrock-agentcore:ListAgentRuntimes`
