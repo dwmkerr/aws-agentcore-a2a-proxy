@@ -4,6 +4,16 @@ A2A proxy server for AWS Bedrock AgentCore agents.
 
 ## Quickstart
 
+Setup your AWS credentials by editing `.env`:
+
+```bash
+# Configure environment
+cp .env.example .env
+vi .env
+```
+
+Any agents available for the user with the given credentials will be exposed. If you need to create demo agents, check [Setting Up Demo AWS Resources](#setting-up-demo-aws-resources).
+
 ```bash
 # Setup AWS infrastructure
 cd demo/infrastructure/
@@ -42,13 +52,42 @@ Usage:
 
 Uses direct HTTPS calls to AgentCore (boto3 SDK not available yet). Discovers agents via `bedrock-agentcore-control` client and exposes them through standard A2A protocol endpoints. Supports both explicit credentials and default AWS credential chain.
 
-## Infrastructure
+## Setting Up Demo AWS Resources
 
-Demo infrastructure uses Terraform to create:
+You can set up resources on your AWS account to run the demo. These resources are in `demo/infrastructure` and include:
+
 - IAM execution role for AgentCore agents
 - User policies for agent invocation
 - CloudWatch log groups with retention
 - Bedrock model logging configuration
+
+You can configure the details of resources by editing `./demo/infrastructure/terraform.tfvars`. Note that these resources will incur cost, check AWS pricing for details.
+
+Create demo resources with:
+
+```bash
+cd demo/infrastructure
+terraform init
+terraform apply
+```
+
+To clean up these resources use:
+
+```bash
+terraform destroy
+```
+
+## Setting Up Demo Agents
+
+Once you have demo infrastructure you can create demo agents with:
+
+TODO
+
+This will create TODO
+
+To delete these agents, run TODO
+
+## Infrastructure
 
 ```bash
 cd demo/infrastructure/

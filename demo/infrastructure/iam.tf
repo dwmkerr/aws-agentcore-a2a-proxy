@@ -29,7 +29,10 @@ data "aws_iam_policy_document" "agentcore_permissions" {
       "bedrock:GetFoundationModel",
       "bedrock:ListFoundationModels"
     ]
-    resources = ["*"]
+    resources = [
+      "arn:aws:bedrock:${data.aws_region.current.name}::foundation-model/${var.bedrock_model_id}",
+      "arn:aws:bedrock:${data.aws_region.current.name}::foundation-model/*"
+    ]
   }
 
   statement {
