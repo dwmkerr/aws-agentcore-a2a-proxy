@@ -3,8 +3,8 @@ data "aws_bedrock_foundation_model" "selected" {
   model_id = var.bedrock_model_id
 }
 
-# Request model access (this creates a request that may need approval)
-resource "aws_bedrock_model_invocation_logging_configuration" "model_access" {
+# Bedrock model invocation logging configuration
+resource "aws_bedrock_model_invocation_logging_configuration" "agentcore" {
   count = var.enable_bedrock_logging ? 1 : 0
   
   logging_config {
@@ -20,6 +20,7 @@ resource "aws_bedrock_model_invocation_logging_configuration" "model_access" {
 
   depends_on = [
     aws_cloudwatch_log_group.bedrock_agentcore,
-    aws_iam_role.agentcore_execution
+    aws_iam_role.agentcore_execution,
+    aws_iam_role_policy_attachment.agentcore_execution
   ]
 }
