@@ -66,10 +66,19 @@ curl http://localhost:2972/a2a/agents
 # [{"agent_id": "Bedrock_Customer_Support_Agent-jQwAm25rmZ", "name": "Bedrock_Customer_Support_Agent", "host": "localhost:2972", "endpoint": "/a2a/agent/Bedrock_Customer_Support_Agent-jQwAm25rmZ", ...}]
 ```
 
+# Note: jq is required for the following commands. Install with: brew install jq (Mac) or apt-get install jq (Linux)
+
+Get the agent ID dynamically:
+
+```bash
+AGENT_ID=$(curl -s http://localhost:2972/a2a/agents | jq -r '.[0].agent_id')
+echo "Using agent ID: $AGENT_ID"
+```
+
 Get an agent's card:
 
 ```bash
-curl http://localhost:2972/a2a/agent/Bedrock_Customer_Support_Agent-jQwAm25rmZ/.well-known/agent.json
+curl http://localhost:2972/a2a/agent/$AGENT_ID/.well-known/agent.json
 
 # {"name": "Bedrock_Customer_Support_Agent", "description": "Customer support agent powered by AWS Bedrock AgentCore", "capabilities": {...}}
 ```
@@ -77,7 +86,7 @@ curl http://localhost:2972/a2a/agent/Bedrock_Customer_Support_Agent-jQwAm25rmZ/.
 Invoke an agent via A2A:
 
 ```bash
-curl -X POST http://localhost:2972/a2a/agent/Bedrock_Customer_Support_Agent-f48aKO5EGS/jsonrpc \
+curl -X POST http://localhost:2972/a2a/agent/$AGENT_ID/jsonrpc \
   -H "Content-Type: application/json" \
   -d '{"method": "query", "params": {"query": "Hello, I need help with my order"}, "id": 1}'
 
@@ -96,10 +105,17 @@ curl http://localhost:2972/agentcore/agents
 # [{"agentRuntimeId": "Bedrock_Customer_Support_Agent-XLA7bpGvk5", "agentRuntimeName": "Bedrock_Customer_Support_Agent", "status": "READY", ...}]
 ```
 
+Get the agent runtime ID for direct AgentCore calls:
+
+```bash
+AGENT_RUNTIME_ID=$(curl -s http://localhost:2972/agentcore/agents | jq -r '.[0].agentRuntimeId')
+echo "Using agent runtime ID: $AGENT_RUNTIME_ID"
+```
+
 Then invoke:
 
 ```bash
-curl -X POST http://localhost:2972/agentcore/agents/Bedrock_Customer_Support_Agent-XLA7bpGvk5/invoke \
+curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke \
   -H "Content-Type: application/json" \
   -d '{"prompt": "Hello, I need help with my order"}'
 
@@ -125,7 +141,11 @@ The A2A proxy supports streaming responses through both the A2A protocol and dir
 You can make a streaming call like so:
 
 ```bash
-curl -X POST http://localhost:2972/agentcore/agents/Bedrock_Customer_Support_Agent-XLA7bpGvk5/invoke-stream \
+# Get the agent runtime ID (using jq to extract dynamically)
+AGENT_RUNTIME_ID=$(curl -s http://localhost:2972/agentcore/agents | jq -r '.[0].agentRuntimeId')
+
+# Make streaming call
+curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke-stream \
   -H "Content-Type: application/json" \
   -H "Accept: text/event-stream" \
   -d '{"prompt": "Tell me a very long and detailed story about Agent-to-Agent (A2A) protocol, including its history, how it works, its benefits, and real-world applications. Please make it comprehensive and engaging."}'
