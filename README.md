@@ -16,6 +16,14 @@ This server connects to a given AWS account, discovers AgentCore agents, and the
                    Exposes A2A endpoints
 ```
 
+Features:
+
+- Expose any Bedrock agent via A2A
+- Automatic polling to discover Bedrock agents
+- Endpoints to show all agents available
+- Invoke agent via A2A
+- Streaming responses
+
 ## Quickstart
 
 Setup your AWS credentials by editing `.env`:
@@ -85,13 +93,13 @@ List the Agentcore agents first:
 ```bash
 curl http://localhost:2972/agentcore/agents
 
-# [{"agentRuntimeId": "Bedrock_Customer_Support_Agent-f48aKO5EGS", "agentRuntimeName": "Bedrock_Customer_Support_Agent", "status": "READY", ...}]
+# [{"agentRuntimeId": "Bedrock_Customer_Support_Agent-XLA7bpGvk5", "agentRuntimeName": "Bedrock_Customer_Support_Agent", "status": "READY", ...}]
 ```
 
 Then invoke:
 
 ```bash
-curl -X POST http://localhost:2972/agentcore/agents/Bedrock_Customer_Support_Agent-f48aKO5EGS/invoke \
+curl -X POST http://localhost:2972/agentcore/agents/Bedrock_Customer_Support_Agent-XLA7bpGvk5/invoke \
   -H "Content-Type: application/json" \
   -d '{"prompt": "Hello, I need help with my order"}'
 
@@ -114,26 +122,26 @@ The A2A proxy supports streaming responses through both the A2A protocol and dir
 }
 ```
 
-**Current Implementation:**
-- Streaming is enabled in agent capabilities
-- Direct streaming endpoint available at `/agentcore/agents/{agent_id}/invoke-stream`
-- A2A protocol supports streaming through event queues
-- Compatible with Server-Sent Events (SSE) for real-time responses
-
-**Direct Streaming Usage:**
-Test streaming responses directly:
+You can make a streaming call like so:
 
 ```bash
-# Stream responses via Server-Sent Events
-curl -X POST http://localhost:2972/agentcore/agents/Bedrock_Customer_Support_Agent-f48aKO5EGS/invoke-stream \
+curl -X POST http://localhost:2972/agentcore/agents/Bedrock_Customer_Support_Agent-XLA7bpGvk5/invoke-stream \
   -H "Content-Type: application/json" \
   -H "Accept: text/event-stream" \
-  -d '{"prompt": "Hello, tell me a story"}'
+  -d '{"prompt": "Tell me a very long and detailed story about Agent-to-Agent (A2A) protocol, including its history, how it works, its benefits, and real-world applications. Please make it comprehensive and engaging."}'
 
-# Output (streaming):
+# Output (streaming in real-time):
 # data: {"text": "Once"}
 # data: {"text": " upon"}
-# data: {"text": " a time"}
+# data: {"text": " a"}
+# data: {"text": " time"}
+# data: {"text": " in"}
+# data: {"text": " the"}
+# data: {"text": " world"}
+# data: {"text": " of"}
+# data: {"text": " distributed"}
+# data: {"text": " systems"}
+# data: {"text": "..."}
 # data: [DONE]
 ```
 

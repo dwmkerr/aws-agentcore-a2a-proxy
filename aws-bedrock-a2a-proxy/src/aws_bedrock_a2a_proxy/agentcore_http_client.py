@@ -155,8 +155,9 @@ class AgentCoreHTTPClient:
             request_payload = json.dumps({'prompt': prompt})
             headers = {
                 'Content-Type': 'application/json',
-                'Accept': 'text/event-stream',  # Request streaming response
-                'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': session_id
+                'Accept': 'application/json',  # Use standard JSON for now
+                'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': session_id,
+                'X-Amzn-Bedrock-AgentCore-Enable-Streaming': 'true'  # Request streaming
             }
             
             # Create signed request for streaming
@@ -172,14 +173,23 @@ class AgentCoreHTTPClient:
                 ) as response:
                     
                     logger.info(f"Streaming response status: {response.status_code}")
+                    logger.info(f"Response headers: {dict(response.headers)}")
                     
                     if response.status_code != 200:
                         error_text = await response.aread()
                         logger.error(f"Streaming invocation failed: {response.status_code} - {error_text}")
                         raise Exception(f"Streaming invocation failed: {response.status_code} - {error_text}")
                     
+                    # First, let's see what we get in the response
+                    content_type = response.headers.get('content-type', '')
+                    logger.info(f"Response Content-Type: {content_type}")
+                    
                     # Process Server-Sent Events or streaming JSON
+                    line_count = 0
                     async for line in response.aiter_lines():
+                        line_count += 1
+                        logger.info(f"Line {line_count}: {line[:200]}...")
+                        
                         if line.strip():
                             try:
                                 # Try to parse as JSON chunk
@@ -189,13 +199,16 @@ class AgentCoreHTTPClient:
                                     break
                                 
                                 chunk_data = json.loads(line)
-                                logger.debug(f"Received streaming chunk: {str(chunk_data)[:100]}...")
+                                logger.info(f"Received streaming chunk: {str(chunk_data)[:100]}...")
                                 yield chunk_data
                                 
                             except json.JSONDecodeError:
                                 # Handle non-JSON streaming data
-                                logger.debug(f"Received non-JSON chunk: {line[:100]}...")
+                                logger.info(f"Received non-JSON chunk: {line[:100]}...")
                                 yield {"text": line.strip()}
+                    
+                    if line_count == 0:
+                        logger.warning("No lines received from streaming response")
                                 
         except Exception as e:
             logger.error(f"Error in streaming invocation for agent {agent_id}: {e}")
