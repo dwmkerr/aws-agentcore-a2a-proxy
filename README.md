@@ -102,7 +102,7 @@ curl -X POST http://localhost:2972/agentcore/agents/Bedrock_Customer_Support_Age
 
 ### Streaming Responses
 
-The A2A proxy supports streaming responses through the A2A protocol. Agents declare streaming capability in their agent cards:
+The A2A proxy supports streaming responses through both the A2A protocol and direct HTTP endpoints. Agents declare streaming capability in their agent cards:
 
 ```json
 {
@@ -116,11 +116,29 @@ The A2A proxy supports streaming responses through the A2A protocol. Agents decl
 
 **Current Implementation:**
 - Streaming is enabled in agent capabilities
-- AgentCore responses are processed as single messages
-- Suitable for most use cases where AgentCore returns complete responses
+- Direct streaming endpoint available at `/agentcore/agents/{agent_id}/invoke-stream`
+- A2A protocol supports streaming through event queues
+- Compatible with Server-Sent Events (SSE) for real-time responses
 
-**Future Streaming Enhancement:**
-For true token-by-token streaming, the implementation would:
+**Direct Streaming Usage:**
+Test streaming responses directly:
+
+```bash
+# Stream responses via Server-Sent Events
+curl -X POST http://localhost:2972/agentcore/agents/Bedrock_Customer_Support_Agent-f48aKO5EGS/invoke-stream \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream" \
+  -d '{"prompt": "Hello, tell me a story"}'
+
+# Output (streaming):
+# data: {"text": "Once"}
+# data: {"text": " upon"}
+# data: {"text": " a time"}
+# data: [DONE]
+```
+
+**A2A Streaming Implementation:**
+The A2A protocol automatically handles streaming when supported by the underlying AgentCore runtime:
 
 1. **AgentCore Streaming**: Modify HTTP client to handle streaming responses
    ```python

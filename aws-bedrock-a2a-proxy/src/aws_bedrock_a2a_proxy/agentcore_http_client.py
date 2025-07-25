@@ -3,10 +3,11 @@
 import json
 import logging
 import urllib.parse
-from typing import Dict, Any, List
+from typing import Dict, Any, List, AsyncIterator
 
 import boto3
 import requests
+import httpx
 from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest as BotocoreAWSRequest
 
@@ -130,6 +131,74 @@ class AgentCoreHTTPClient:
                     
         except Exception as e:
             logger.error(f"Error invoking agent {agent_id}: {e}")
+            raise
+    
+    async def invoke_agent_stream(self, agent_id: str, prompt: str) -> AsyncIterator[Dict[str, Any]]:
+        """Invoke an AgentCore agent with streaming response"""
+        try:
+            # Get agent ARN from stored agents or construct it
+            agent_arn = self._get_agent_arn(agent_id)
+            
+            # Generate session ID for this invocation
+            import uuid
+            session_id = str(uuid.uuid4())
+            
+            logger.info(f"Streaming invoke agent {agent_id} with prompt: {prompt[:100]}...")
+            logger.info(f"Agent ARN: {agent_arn}")
+            logger.info(f"Session ID: {session_id}")
+            
+            # Create direct HTTPS request for streaming
+            base_url = f'https://bedrock-agentcore.{self.region}.amazonaws.com'
+            escaped_agent_arn = urllib.parse.quote(agent_arn, safe='')
+            url = f'{base_url}/runtimes/{escaped_agent_arn}/invocations'
+            
+            request_payload = json.dumps({'prompt': prompt})
+            headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'text/event-stream',  # Request streaming response
+                'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': session_id
+            }
+            
+            # Create signed request for streaming
+            request = self._create_signed_request('POST', url, request_payload, headers)
+            
+            # Use httpx for async streaming
+            async with httpx.AsyncClient(timeout=120) as client:
+                async with client.stream(
+                    'POST',
+                    request.url,
+                    headers=dict(request.headers),
+                    content=request.data
+                ) as response:
+                    
+                    logger.info(f"Streaming response status: {response.status_code}")
+                    
+                    if response.status_code != 200:
+                        error_text = await response.aread()
+                        logger.error(f"Streaming invocation failed: {response.status_code} - {error_text}")
+                        raise Exception(f"Streaming invocation failed: {response.status_code} - {error_text}")
+                    
+                    # Process Server-Sent Events or streaming JSON
+                    async for line in response.aiter_lines():
+                        if line.strip():
+                            try:
+                                # Try to parse as JSON chunk
+                                if line.startswith('data: '):
+                                    line = line[6:]  # Remove 'data: ' prefix
+                                if line == '[DONE]':
+                                    break
+                                
+                                chunk_data = json.loads(line)
+                                logger.debug(f"Received streaming chunk: {str(chunk_data)[:100]}...")
+                                yield chunk_data
+                                
+                            except json.JSONDecodeError:
+                                # Handle non-JSON streaming data
+                                logger.debug(f"Received non-JSON chunk: {line[:100]}...")
+                                yield {"text": line.strip()}
+                                
+        except Exception as e:
+            logger.error(f"Error in streaming invocation for agent {agent_id}: {e}")
             raise
     
     def _get_agent_arn(self, agent_id: str) -> str:

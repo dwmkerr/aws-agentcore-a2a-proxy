@@ -16,7 +16,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "click>=8.0.0",
     "a2a-sdk[sqlite]>=0.2.12",
-    "requests>=2.31.0"
+    "requests>=2.31.0",
 ]
 
 [project.optional-dependencies]

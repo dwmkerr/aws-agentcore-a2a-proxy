@@ -35,32 +35,13 @@ class AgentCoreExecutor:
             
             logger.info(f"Executing agent {self.agent_id} with message: {message_text[:100]}...")
             
-            # Call AgentCore agent via HTTP client
-            result = await self.http_client.invoke_agent(self.agent_id, message_text)
+            # Check if streaming is requested (look for streaming capability in context)
+            should_stream = self._should_use_streaming(context)
             
-            # Extract response text from AgentCore format
-            if isinstance(result, dict) and "result" in result and "content" in result["result"]:
-                text_parts = []
-                for content_item in result["result"]["content"]:
-                    if isinstance(content_item, dict) and "text" in content_item:
-                        text_parts.append(content_item["text"])
-                response_text = "".join(text_parts).strip()
+            if should_stream:
+                await self._execute_streaming(context, event_queue, message_text)
             else:
-                response_text = str(result)
-            
-            # Create A2A response message
-            response_message = Message(
-                messageId=str(uuid.uuid4()),
-                contextId=context.message.contextId if context.message else str(uuid.uuid4()),
-                taskId=context.task_id,
-                role=Role.agent,
-                parts=[Part(root=TextPart(kind="text", text=response_text))],
-            )
-            
-            # Send response back via event queue
-            await event_queue.enqueue_event(response_message)
-            
-            logger.info(f"Agent {self.agent_id} execution completed")
+                await self._execute_single_response(context, event_queue, message_text)
             
         except Exception as e:
             logger.error(f"Failed to execute agent {self.agent_id}: {e}")
@@ -73,6 +54,99 @@ class AgentCoreExecutor:
                 parts=[Part(root=TextPart(kind="text", text=f"Error: {str(e)}"))],
             )
             await event_queue.enqueue_event(error_message)
+    
+    def _should_use_streaming(self, context) -> bool:
+        """Determine if streaming should be used based on context"""
+        # Check if streaming is explicitly requested in the context
+        # This could be via headers, task preferences, or agent capabilities
+        if hasattr(context, 'preferences') and context.preferences:
+            return context.preferences.get('streaming', False)
+        
+        # For now, we'll default to non-streaming to maintain compatibility
+        # In the future, this could be configurable or auto-detected
+        return False
+    
+    async def _execute_streaming(self, context, event_queue, message_text: str):
+        """Execute with streaming response"""
+        logger.info(f"Using streaming execution for agent {self.agent_id}")
+        
+        try:
+            # Stream response from AgentCore
+            async for chunk in self.http_client.invoke_agent_stream(self.agent_id, message_text):
+                # Extract text from chunk
+                chunk_text = self._extract_chunk_text(chunk)
+                
+                if chunk_text:
+                    # Create streaming message
+                    stream_message = Message(
+                        messageId=str(uuid.uuid4()),
+                        contextId=context.message.contextId if context.message else str(uuid.uuid4()),
+                        taskId=context.task_id,
+                        role=Role.agent,
+                        parts=[Part(root=TextPart(kind="text", text=chunk_text))],
+                    )
+                    
+                    # Send chunk via event queue
+                    await event_queue.enqueue_event(stream_message)
+                    logger.debug(f"Sent streaming chunk: {chunk_text[:50]}...")
+            
+            logger.info(f"Streaming execution completed for agent {self.agent_id}")
+            
+        except Exception as e:
+            logger.error(f"Streaming execution failed for agent {self.agent_id}: {e}")
+            raise
+    
+    async def _execute_single_response(self, context, event_queue, message_text: str):
+        """Execute with single response (original behavior)"""
+        # Call AgentCore agent via HTTP client
+        result = await self.http_client.invoke_agent(self.agent_id, message_text)
+        
+        # Extract response text from AgentCore format
+        if isinstance(result, dict) and "result" in result and "content" in result["result"]:
+            text_parts = []
+            for content_item in result["result"]["content"]:
+                if isinstance(content_item, dict) and "text" in content_item:
+                    text_parts.append(content_item["text"])
+            response_text = "".join(text_parts).strip()
+        else:
+            response_text = str(result)
+        
+        # Create A2A response message
+        response_message = Message(
+            messageId=str(uuid.uuid4()),
+            contextId=context.message.contextId if context.message else str(uuid.uuid4()),
+            taskId=context.task_id,
+            role=Role.agent,
+            parts=[Part(root=TextPart(kind="text", text=response_text))],
+        )
+        
+        # Send response back via event queue
+        await event_queue.enqueue_event(response_message)
+        
+        logger.info(f"Agent {self.agent_id} execution completed")
+    
+    def _extract_chunk_text(self, chunk: Dict[str, Any]) -> str:
+        """Extract text content from streaming chunk"""
+        if isinstance(chunk, dict):
+            # Handle various chunk formats
+            if "text" in chunk:
+                return chunk["text"]
+            elif "result" in chunk and isinstance(chunk["result"], dict):
+                if "content" in chunk["result"]:
+                    # Similar to single response format
+                    content = chunk["result"]["content"]
+                    if isinstance(content, list) and content:
+                        first_item = content[0]
+                        if isinstance(first_item, dict) and "text" in first_item:
+                            return first_item["text"]
+                elif "text" in chunk["result"]:
+                    return chunk["result"]["text"]
+            elif "delta" in chunk and isinstance(chunk["delta"], dict):
+                # Handle delta-style streaming
+                if "text" in chunk["delta"]:
+                    return chunk["delta"]["text"]
+        
+        return str(chunk) if chunk else ""
     
     async def cancel(self, context, event_queue):
         """Cancel agent execution (not implemented for AgentCore)"""
@@ -233,6 +307,44 @@ class A2AProxy:
             except Exception as e:
                 logger.error(f"Failed to invoke AgentCore agent {agent_id}: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
+
+        @self.a2a_router.post("/agentcore/agents/{agent_id}/invoke-stream")
+        async def invoke_agentcore_agent_stream(agent_id: str, payload: Dict[str, Any]):
+            """Direct AgentCore streaming invocation endpoint"""
+            if agent_id not in self.agents:
+                raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+            
+            from fastapi.responses import StreamingResponse
+            import json
+            
+            async def stream_generator():
+                try:
+                    prompt = payload.get("prompt", "")
+                    # Create HTTP client for streaming
+                    from .agentcore_http_client import AgentCoreHTTPClient
+                    http_client = AgentCoreHTTPClient(region="us-east-1")
+                    
+                    async for chunk in http_client.invoke_agent_stream(agent_id, prompt):
+                        # Send each chunk as Server-Sent Event
+                        chunk_json = json.dumps(chunk)
+                        yield f"data: {chunk_json}\n\n"
+                    
+                    yield "data: [DONE]\n\n"
+                    
+                except Exception as e:
+                    logger.error(f"Failed to stream AgentCore agent {agent_id}: {e}")
+                    error_json = json.dumps({"error": str(e)})
+                    yield f"data: {error_json}\n\n"
+            
+            return StreamingResponse(
+                stream_generator(),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "Access-Control-Allow-Origin": "*",
+                }
+            )
 
     async def initialize_agents(self, agents: List[Dict[str, Any]]) -> None:
         logger.info(f"Registering {len(agents)} agents for A2A proxy")
