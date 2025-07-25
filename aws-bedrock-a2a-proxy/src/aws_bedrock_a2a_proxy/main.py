@@ -45,17 +45,6 @@ logger.propagate = False
 AGENT_POLL_INTERVAL = int(os.getenv("AGENT_POLL_INTERVAL", "30"))  # seconds
 
 
-class AgentInfo(BaseModel):
-    agent_id: str
-    name: str
-    status: str
-    arn: str
-
-
-class ServerStatus(BaseModel):
-    agents_discovered: int
-    a2a_servers_running: int
-    agents: List[AgentInfo]
 
 
 async def discover_and_refresh_agents(app: FastAPI, is_startup: bool = False) -> Dict[str, Any]:
@@ -194,26 +183,6 @@ async def ready():
         raise HTTPException(status_code=503, detail=f"Not ready: {str(e)}")
 
 
-@app.get("/status", response_model=ServerStatus)
-async def get_status():
-    if not hasattr(app.state, 'agents'):
-        raise HTTPException(status_code=503, detail="Server not initialized")
-    
-    agents_info = [
-        AgentInfo(
-            agent_id=agent["agentId"],
-            name=agent.get("agentName", ""),
-            status=agent.get("status", "unknown"),
-            arn=agent.get("agentArn", "")
-        )
-        for agent in app.state.agents
-    ]
-    
-    return ServerStatus(
-        agents_discovered=len(app.state.agents),
-        a2a_servers_running=len(app.state.proxy.agents) if hasattr(app.state, 'proxy') else 0,
-        agents=agents_info
-    )
 
 
 
