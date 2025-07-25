@@ -99,6 +99,7 @@ class A2AProxy:
             """A2A agents list endpoint with agent cards"""
             return [
                 {
+                    "agent_id": agent_id,
                     "name": agent.get("agentRuntimeName", f"agent-{agent_id}"),
                     "description": agent.get("description", "AgentCore agent"),
                     "capabilities": {
@@ -115,22 +116,6 @@ class A2AProxy:
                         "version": agent.get("agentRuntimeVersion", "1"),
                         "runtime_id": agent_id
                     }
-                }
-                for agent_id, agent in self.agents.items()
-            ]
-
-        @self.a2a_router.get("/agentcore/agents")
-        async def list_agentcore_agents():
-            """AgentCore raw agents list endpoint"""
-            return [
-                {
-                    "agentRuntimeId": agent_id,
-                    "agentRuntimeName": agent.get("agentRuntimeName"),
-                    "agentRuntimeArn": agent.get("agentRuntimeArn"),
-                    "description": agent.get("description"),
-                    "status": agent.get("status"),
-                    "version": agent.get("agentRuntimeVersion"),
-                    "lastUpdatedAt": agent.get("lastUpdatedAt")
                 }
                 for agent_id, agent in self.agents.items()
             ]
@@ -221,6 +206,36 @@ class A2AProxy:
                 return raw_result
             except Exception as e:
                 logger.error(f"JSON-RPC request failed for agent {agent_id}: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
+
+        @self.a2a_router.get("/agentcore/agents")
+        async def list_agentcore_agents():
+            """AgentCore raw agents list endpoint"""
+            return [
+                {
+                    "agentRuntimeId": agent_id,
+                    "agentRuntimeName": agent.get("agentRuntimeName"),
+                    "agentRuntimeArn": agent.get("agentRuntimeArn"),
+                    "description": agent.get("description"),
+                    "status": agent.get("status"),
+                    "version": agent.get("agentRuntimeVersion"),
+                    "lastUpdatedAt": agent.get("lastUpdatedAt")
+                }
+                for agent_id, agent in self.agents.items()
+            ]
+
+        @self.a2a_router.post("/agentcore/agents/{agent_id}/invoke")
+        async def invoke_agentcore_agent(agent_id: str, payload: Dict[str, Any]):
+            """Direct AgentCore invocation endpoint (bypasses A2A protocol)"""
+            if agent_id not in self.agents:
+                raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+            
+            try:
+                # Call AgentCore directly
+                raw_result = await self.client.invoke_agent(agent_id, payload)
+                return raw_result
+            except Exception as e:
+                logger.error(f"Failed to invoke AgentCore agent {agent_id}: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
 
     async def initialize_agents(self, agents: List[Dict[str, Any]]) -> None:
