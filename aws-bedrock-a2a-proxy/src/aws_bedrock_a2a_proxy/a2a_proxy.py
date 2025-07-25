@@ -88,10 +88,6 @@ class A2AProxy:
         self.a2a_router = APIRouter()
         self.setup_a2a_routes()
     
-    def get_router(self):
-        """Get the FastAPI router for A2A endpoints"""
-        return self.a2a_router
-    
     def setup_a2a_routes(self):
         """Set up A2A routing endpoints"""
         @self.a2a_router.get("/a2a/agents")

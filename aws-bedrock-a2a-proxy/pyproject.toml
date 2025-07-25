@@ -62,3 +62,9 @@ disallow_untyped_defs = true
 warn_return_any = true
 warn_unused_configs = true
 no_implicit_optional = true
+
+[dependency-groups]
+dev = [
+    "pytest-asyncio>=1.1.0",
+    "pytest-cov>=6.2.1",
+]
