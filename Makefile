@@ -38,12 +38,21 @@ cicd: # run the CI/CD workflow locally
 	act -P ubuntu-24.04=ghcr.io/catthehacker/ubuntu:act-latest \
 		--artifact-server-path $$PWD/.artifacts
 
-.PHONY: clean
-clean: # clean up build artifacts and cache
-	rm -rf aws-bedrock-a2a-proxy/.pytest_cache/
-	rm -rf aws-bedrock-a2a-proxy/htmlcov/
-	rm -rf aws-bedrock-a2a-proxy/.coverage
-	rm -rf aws-bedrock-a2a-proxy/dist/
-	rm -rf aws-bedrock-a2a-proxy/build/
-	find aws-bedrock-a2a-proxy -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
-	find aws-bedrock-a2a-proxy -type f -name "*.pyc" -delete 2>/dev/null || true
+.PHONY: install-demo-infrastructure
+install-demo-infrastructure: # create demo AWS infrastructure
+	cd demo/infrastructure && terraform init && terraform apply
+
+.PHONY: uninstall-demo-infrastructure
+uninstall-demo-infrastructure: # destroy demo AWS infrastructure
+	cd demo/infrastructure && terraform destroy
+
+.PHONY: install-demo-agents
+install-demo-agents: # deploy demo agents using demo infrastructure
+	(cd demo/agents/customer-support-agents && \
+	IAM_ROLE_ARN=$$(cd ../../infrastructure && terraform output -raw agentcore_execution_role_arn) \
+	ECR_REPOSITORY_URL=$$(cd ../../infrastructure && terraform output -raw ecr_repository_url) \
+	make install)
+
+.PHONY: uninstall-demo-agents
+uninstall-demo-agents: # remove demo agents from AWS
+	cd demo/agents/customer-support-agents && make uninstall

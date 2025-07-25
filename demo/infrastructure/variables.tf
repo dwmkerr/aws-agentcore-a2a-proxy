@@ -22,8 +22,14 @@ variable "log_retention_days" {
   default     = 14
 }
 
+variable "create_cloudwatch_logs" {
+  description = "Create CloudWatch log group for AgentCore"
+  type        = bool
+  default     = true
+}
+
 variable "enable_bedrock_logging" {
-  description = "Enable Bedrock model invocation logging"
+  description = "Enable Bedrock model invocation logging (requires create_cloudwatch_logs=true)"
   type        = bool
   default     = true
 }

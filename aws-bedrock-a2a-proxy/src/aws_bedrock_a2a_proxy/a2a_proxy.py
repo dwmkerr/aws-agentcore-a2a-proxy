@@ -88,35 +88,12 @@ class A2AProxy:
         self.a2a_router = APIRouter()
         self.setup_a2a_routes()
     
+    def get_router(self):
+        """Get the FastAPI router for A2A endpoints"""
+        return self.a2a_router
+    
     def setup_a2a_routes(self):
         """Set up A2A routing endpoints"""
-        @self.a2a_router.post("/a2a/agent/{agent_id}")
-        async def handle_agent_request(agent_id: str, payload: Dict[str, Any]):
-            if agent_id not in self.agents:
-                raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
-            
-            try:
-                # Call AgentCore directly
-                raw_result = await self.client.invoke_agent(agent_id, payload)
-                
-                # Translate AgentCore response to A2A format
-                # AgentCore returns: {"result": {"role": "assistant", "content": [{"text": "..."}]}}
-                if isinstance(raw_result, dict) and "result" in raw_result and "content" in raw_result["result"]:
-                    # Extract text from AgentCore format
-                    text_parts = []
-                    for content_item in raw_result["result"]["content"]:
-                        if isinstance(content_item, dict) and "text" in content_item:
-                            text_parts.append(content_item["text"])
-                    response_text = "".join(text_parts).strip()
-                    
-                    # Return A2A-compatible response
-                    return {"response": response_text}
-                
-                return raw_result
-            except Exception as e:
-                logger.error(f"Failed to invoke agent {agent_id}: {e}")
-                raise HTTPException(status_code=500, detail=str(e))
-        
         @self.a2a_router.get("/a2a/agents")
         async def list_a2a_agents():
             """A2A agents list endpoint with agent cards"""

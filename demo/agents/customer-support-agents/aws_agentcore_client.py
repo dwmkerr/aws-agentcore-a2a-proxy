@@ -9,7 +9,7 @@ import hashlib
 import hmac
 import requests
 from datetime import datetime, timezone
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 
 
 class AWSRequest:
@@ -143,10 +143,6 @@ class AgentCoreWebClient:
             },
             "protocolConfiguration": {
                 "serverProtocol": "HTTP"
-            },
-            # Explicitly configure for IAM authentication (not OAuth)
-            "authorizerConfiguration": {
-                "type": "IAM"  # Explicit IAM auth instead of default OAuth
             }
         }
         
@@ -187,20 +183,32 @@ class AgentCoreWebClient:
     
     def get_agent_status(self, agent_id):
         """Get agent runtime status"""
-        url = f"{self.base_url}/runtimes/{agent_id}"
+        # URL encode the agent ID to handle special characters
+        encoded_agent_id = quote(agent_id, safe='')
+        url = f"{self.base_url}/runtimes/{encoded_agent_id}"
         headers = {'Content-Type': 'application/json'}
         
         signed_headers = self.signer.sign_request('GET', url, headers, '')
         
         try:
             response = requests.get(url, headers=signed_headers, timeout=30)
+            
             if response.status_code == 200:
-                return response.json().get('agentRuntime', {})
+                result = response.json()
+                # API returns the agent data directly, not nested under 'agentRuntime'
+                return result
             else:
-                print(f"❌ Status check failed: {response.status_code}")
+                print(f"❌ Status check failed: HTTP {response.status_code}")
+                print(f"❌ Response body: {response.text}")
+                print(f"❌ Request URL was: {url}")
                 return None
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Network error checking status: {e}")
+            print(f"❌ Request URL was: {url}")
+            return None
         except Exception as e:
-            print(f"❌ Error checking status: {e}")
+            print(f"❌ Unexpected error checking status: {e}")
+            print(f"❌ Request URL was: {url}")
             return None
     
     def find_agent_by_name(self, agent_name):

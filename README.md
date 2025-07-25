@@ -52,47 +52,52 @@ Usage:
 
 Uses direct HTTPS calls to AgentCore (boto3 SDK not available yet). Discovers agents via `bedrock-agentcore-control` client and exposes them through standard A2A protocol endpoints. Supports both explicit credentials and default AWS credential chain.
 
-## Setting Up Demo AWS Resources
+## Demo Setup (Complete Infrastructure + Agents)
 
-You can set up resources on your AWS account to run the demo. These resources are in `demo/infrastructure` and include:
+If you want to try the complete demo with managed infrastructure and agents:
 
+```bash
+# Set up demo infrastructure (IAM roles, ECR, CloudWatch, etc.)
+make install-demo-infrastructure
+
+# Deploy demo agents using the infrastructure
+make install-demo-agents
+
+# Clean up everything when done
+make uninstall-demo-infrastructure
+```
+
+The demo infrastructure includes:
 - IAM execution role for AgentCore agents
-- User policies for agent invocation
+- ECR repository for container images
+- User policies for agent invocation  
 - CloudWatch log groups with retention
 - Bedrock model logging configuration
 
-You can configure the details of resources by editing `./demo/infrastructure/terraform.tfvars`. Note that these resources will incur cost, check AWS pricing for details.
+Configure resources by editing `./demo/infrastructure/terraform.tfvars`. Note these resources incur AWS costs.
 
-Create demo resources with:
+## Custom Infrastructure Setup
 
-```bash
-cd demo/infrastructure
-terraform init
-terraform apply
-```
+If you have your own AWS infrastructure and want to deploy agents to it:
 
-To clean up these resources use:
+1. **Set environment variables:**
+   ```bash
+   export AWS_ACCESS_KEY_ID=your_key
+   export AWS_SECRET_ACCESS_KEY=your_secret
+   export AWS_REGION=us-east-1
+   export IAM_ROLE_ARN=arn:aws:iam::123456789012:role/YourAgentRole
+   export ECR_REPOSITORY_URL=123456789012.dkr.ecr.us-east-1.amazonaws.com/your-repo
+   ```
 
-```bash
-terraform destroy
-```
+2. **Deploy specific agents:**
+   ```bash
+   cd demo/agents/customer-support-agents
+   make install    # deploy agent
+   make uninstall  # remove agent
+   ```
 
-## Setting Up Demo Agents
+This creates a customer support agent with order lookup and knowledge base capabilities.
 
-Once you have demo infrastructure you can create demo agents with:
-
-TODO
-
-This will create TODO
-
-To delete these agents, run TODO
-
-## Infrastructure
-
-```bash
-cd demo/infrastructure/
-terraform destroy  # cleanup when done
-```
 
 ## Permissions
 

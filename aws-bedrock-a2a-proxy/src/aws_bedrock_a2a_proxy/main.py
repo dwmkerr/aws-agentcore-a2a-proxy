@@ -1,5 +1,6 @@
 import os
 import logging
+import asyncio
 from typing import Dict, List, Any
 from contextlib import asynccontextmanager
 
@@ -14,8 +15,34 @@ from .a2a_proxy import A2AProxy
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
+# Configure logging with custom format
+class ColoredFormatter(logging.Formatter):
+    def format(self, record):
+        if record.levelname == 'INFO':
+            return f"\033[32mINFO\033[0m:     {record.getMessage()}"
+        elif record.levelname == 'ERROR':
+            return f"\033[31mERROR\033[0m:    {record.getMessage()}"
+        else:
+            return f"{record.levelname}:    {record.getMessage()}"
+
+# Configure logging - suppress verbose logs from other modules
+logging.basicConfig(level=logging.WARNING)
+logging.getLogger("uvicorn").setLevel(logging.WARNING)
+logging.getLogger("uvicorn.access").setLevel(logging.WARNING) 
+logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
+logging.getLogger("aws_bedrock_a2a_proxy.agentcore_client").setLevel(logging.WARNING)
+logging.getLogger("aws_bedrock_a2a_proxy.a2a_proxy").setLevel(logging.WARNING)
+
+# Our main logger with custom format
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+handler.setFormatter(ColoredFormatter())
+logger.handlers = [handler]
+logger.propagate = False
+
+# Configuration
+AGENT_POLL_INTERVAL = int(os.getenv("AGENT_POLL_INTERVAL", "30"))  # seconds
 
 
 class AgentInfo(BaseModel):
@@ -31,61 +58,60 @@ class ServerStatus(BaseModel):
     agents: List[AgentInfo]
 
 
-async def initialize_agents(app: FastAPI) -> Dict[str, Any]:
-    """Initialize AWS client and discover agents"""
+async def discover_and_refresh_agents(app: FastAPI, is_startup: bool = False) -> Dict[str, Any]:
+    """Discover agents and refresh proxy configuration"""
+    
     aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
     aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
     aws_region = os.getenv("AWS_REGION", "us-east-1")
     
-    logger.info(f"Using AWS region: {aws_region}")
-    
-    # Use explicit credentials if provided, otherwise fall back to default credential chain
-    if aws_access_key_id and aws_secret_access_key:
-        logger.info("Using explicit AWS credentials from environment variables")
-        client = AgentCoreClient(
-            access_key_id=aws_access_key_id,
-            secret_access_key=aws_secret_access_key,
-            region=aws_region
-        )
+    # Use existing client if available, otherwise create new one
+    if hasattr(app.state, 'client'):
+        client = app.state.client
     else:
-        logger.info("Using default AWS credential chain (AWS CLI, IAM roles, etc.)")
-        # Pass empty strings to trigger default credential chain usage
-        client = AgentCoreClient(
-            access_key_id="",
-            secret_access_key="",
-            region=aws_region
-        )
+        if aws_access_key_id and aws_secret_access_key:
+            client = AgentCoreClient(
+                access_key_id=aws_access_key_id,
+                secret_access_key=aws_secret_access_key,
+                region=aws_region
+            )
+        else:
+            client = AgentCoreClient(
+                access_key_id="",
+                secret_access_key="",
+                region=aws_region
+            )
+        app.state.client = client
     
+    # Discover agents
     agents = await client.list_agents()
-    logger.info(f"Discovered {len(agents)} AgentCore agents")
     
-    proxy = A2AProxy(client)
+    # Clear existing agents and reinitialize
+    if hasattr(app.state, 'proxy'):
+        proxy = app.state.proxy
+        # Clear existing agents from proxy
+        proxy.agents.clear()
+        proxy.a2a_apps.clear()
+    else:
+        proxy = A2AProxy(client)
+        app.state.proxy = proxy
+        # Include A2A routes on first setup
+        if not hasattr(app.state, 'a2a_routes_added'):
+            app.include_router(proxy.get_router())
+            app.state.a2a_routes_added = True
+    
+    # Initialize agents in proxy
     await proxy.initialize_agents(agents)
-    
-    # Store in app state
-    app.state.client = client
-    app.state.proxy = proxy
     app.state.agents = agents
     
-    # Include A2A routes if not already included
-    if not hasattr(app.state, 'a2a_routes_added'):
-        app.include_router(proxy.get_router())
-        app.state.a2a_routes_added = True
-    
-    # Log discovery info with correct A2A endpoints
-    logger.info("=" * 60)
-    logger.info(f"🤖 Discovered {len(agents)} AgentCore agents")
-    logger.info("🔗 A2A Endpoints available:")
-    for agent in agents:
-        agent_id = agent.get('agentRuntimeId')
-        agent_name = agent.get('agentRuntimeName', f'agent-{agent_id}')
-        logger.info(f"   • {agent_name}:")
-        logger.info(f"     Agent Card: \033[34mhttp://localhost:2972/a2a/agent/{agent_id}/.well-known/agent.json\033[0m")
-        logger.info(f"     JSON-RPC:   \033[34mhttp://localhost:2972/a2a/agent/{agent_id}/jsonrpc\033[0m")
-    logger.info("📋 AgentCore endpoints:")
-    logger.info(f"   List agents:   \033[34mhttp://localhost:2972/agentcore/agents\033[0m")
-    logger.info(f"   A2A agents:    \033[34mhttp://localhost:2972/a2a/agents\033[0m")
-    logger.info("=" * 60)
+    # Show polling result in one line
+    if agents:
+        agent_names = [agent.get('agentRuntimeName', f"agent-{agent.get('agentRuntimeId')}") for agent in agents]
+        # Format agent names in bright white
+        formatted_names = [f"\033[1;37m{name}\033[0m" for name in agent_names]
+        logger.info(f"polling: discovered {len(agents)} agents: {', '.join(formatted_names)}")
+    else:
+        logger.info("polling: discovered 0 agents")
     
     return {
         "message": "Agent discovery completed",
@@ -95,23 +121,41 @@ async def initialize_agents(app: FastAPI) -> Dict[str, Any]:
     }
 
 
+async def agent_polling_task(app: FastAPI):
+    """Background task that polls for agent changes"""
+    
+    while True:
+        try:
+            await asyncio.sleep(AGENT_POLL_INTERVAL)
+            await discover_and_refresh_agents(app, is_startup=False)
+        except Exception as e:
+            logger.error(f"error during agent polling: {e}")
+            # Continue polling even if one iteration fails
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting AWS Bedrock AgentCore A2A Server")
-    logger.info("=" * 60)
-    logger.info("\033[1;37mAWS Bedrock AgentCore A2A Server Started!\033[0m")
-    logger.info("=" * 60)
-    logger.info(f"API Server:     \033[34mhttp://localhost:2972\033[0m")
-    logger.info(f"API Docs:       \033[34mhttp://localhost:2972/docs\033[0m")
-    logger.info(f"Redoc:          \033[34mhttp://localhost:2972/redoc\033[0m")
-    logger.info(f"Status:         \033[34mhttp://localhost:2972/status\033[0m")
-    logger.info(f"A2A Addresses:  \033[34mhttp://localhost:2972/a2a-addresses\033[0m")
-    logger.info(f"Discover:       \033[34mhttp://localhost:2972/rpc/discover\033[0m")
-    logger.info("=" * 60)
+    # Clean splash message with INFO style
+    print(f"\033[32mINFO\033[0m:     \033[1;37mAWS Bedrock AgentCore A2A Proxy\033[0m")
+    print(f"\033[32mINFO\033[0m:     API Server:  \033[34mhttp://localhost:2972\033[0m")
+    print(f"\033[32mINFO\033[0m:     API Docs:    \033[34mhttp://localhost:2972/docs\033[0m")
+    
+    # Initial agent discovery
+    await discover_and_refresh_agents(app, is_startup=True)
+    
+    # Start background polling task
+    polling_task = asyncio.create_task(agent_polling_task(app))
+    app.state.polling_task = polling_task
     
     yield
     
-    logger.info("Shutting down A2A servers")
+    # Cancel polling task
+    if hasattr(app.state, 'polling_task'):
+        app.state.polling_task.cancel()
+        try:
+            await app.state.polling_task
+        except asyncio.CancelledError:
+            pass
     
     # Shutdown the A2A proxy
     if hasattr(app.state, 'proxy'):
@@ -126,20 +170,28 @@ app = FastAPI(
 )
 
 
-@app.get("/")
-async def root():
-    return {"message": "AWS Bedrock AgentCore A2A Server is running"}
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
 
 
-@app.post("/rpc/discover")
-async def discover():
-    """Discover AWS AgentCore agents"""
+@app.get("/ready")
+async def ready():
+    """Check if server can connect to AWS"""
     try:
-        result = await initialize_agents(app)
-        return result
+        if not hasattr(app.state, 'client'):
+            raise HTTPException(status_code=503, detail="AWS client not initialized")
+        
+        # Test AWS connectivity by listing agents
+        agents = await app.state.client.list_agents()
+        return {
+            "status": "ready",
+            "aws_connection": "ok",
+            "agents_available": len(agents)
+        }
     except Exception as e:
-        logger.error(f"Failed to discover agents: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"AWS connectivity check failed: {e}")
+        raise HTTPException(status_code=503, detail=f"Not ready: {str(e)}")
 
 
 @app.get("/status", response_model=ServerStatus)
@@ -164,37 +216,6 @@ async def get_status():
     )
 
 
-@app.get("/agents")
-async def list_agents():
-    if not hasattr(app.state, 'agents'):
-        raise HTTPException(status_code=503, detail="Server not initialized")
-    
-    return app.state.agents
-
-
-@app.get("/a2a-addresses")
-async def get_a2a_addresses():
-    if not hasattr(app.state, 'proxy'):
-        raise HTTPException(status_code=503, detail="Server not initialized")
-    
-    return {
-        "message": "A2A addresses for AgentCore agents",
-        "base_url": "localhost:2972",
-        "agents": app.state.proxy.get_agent_addresses()
-    }
-
-
-@app.post("/agents/{agent_id}/invoke")
-async def invoke_agent(agent_id: str, payload: Dict[str, Any]):
-    if not hasattr(app.state, 'proxy'):
-        raise HTTPException(status_code=503, detail="Server not initialized")
-    
-    try:
-        result = await app.state.proxy.invoke_agent(agent_id, payload)
-        return result
-    except Exception as e:
-        logger.error(f"Failed to invoke agent {agent_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

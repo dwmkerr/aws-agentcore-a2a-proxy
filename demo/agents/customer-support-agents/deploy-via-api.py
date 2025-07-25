@@ -17,50 +17,49 @@ def main():
     image_uri = sys.argv[2]
     execution_role_arn = sys.argv[3]
     
-    print(f"🚀 Creating AgentCore runtime via web API...")
-    print(f"📋 Agent: {agent_name}")
-    print(f"📋 Image: {image_uri}")
-    print(f"🔐 Role: {execution_role_arn}")
-    
-    # Create client and deploy
+    # Create client
     client = AgentCoreWebClient()
+    
+    # Check if agent already exists and remove it
+    existing_agent = client.find_agent_by_name(agent_name)
+    if existing_agent:
+        agent_id = existing_agent.get('agentRuntimeId')
+        print(f"\033[1;37minfo:\033[0m agent '{agent_name}' already exists (id: {agent_id}), removing first")
+        
+        if client.delete_agent_runtime(agent_id):
+            print(f"\033[1;37minfo:\033[0m existing agent removed successfully")
+            # Wait a moment for cleanup
+            time.sleep(5)
+        else:
+            print(f"\033[1;31merror:\033[0m failed to remove existing agent")
+            sys.exit(1)
+    
+    print(f"\033[1;37minfo:\033[0m creating agent {agent_name}")
     
     result = client.create_agent_runtime(agent_name, image_uri, execution_role_arn)
     
     if result:
         agent_id = result['agent_id']
         
-        print(f"✅ Agent runtime created successfully!")
-        print(f"🆔 Agent ID: {agent_id}")
-        print(f"🔗 Agent ARN: {result['agent_arn']}")
-        
         # Wait for deployment
-        print(f"⏳ Waiting for agent {agent_id} to be ready...")
-        
         for i in range(30):  # Wait up to 15 minutes
             time.sleep(30)
             status_info = client.get_agent_status(agent_id)
             
             if status_info:
                 status = status_info.get('status', 'UNKNOWN')
-                print(f"🔄 Status: {status}")
                 
                 if status == 'READY':
-                    print(f"✅ Agent {agent_id} is ready!")
-                    print(f"🌐 A2A Address: localhost:2972/a2a/agent/{agent_id}")
+                    print(f"\033[1;37minfo:\033[0m agent {agent_name} is ready")
                     break
                 elif status in ['FAILED', 'DELETED']:
-                    print(f"❌ Agent deployment failed with status: {status}")
+                    print(f"\033[1;31merror:\033[0m agent deployment failed with status: {status.lower()}")
                     sys.exit(1)
             else:
-                print("⚠️ Could not check status")
-        
-        print(f"\n🎯 Next steps:")
-        print(f"1. Call POST http://localhost:2972/rpc/initialize to discover this agent")
-        print(f"2. Use A2A endpoint: localhost:2972/a2a/agent/{agent_id}")
+                print("could not check status")
         
     else:
-        print("❌ Failed to create agent runtime")
+        print(f"\033[1;31merror:\033[0m failed to create agent runtime")
         sys.exit(1)
 
 

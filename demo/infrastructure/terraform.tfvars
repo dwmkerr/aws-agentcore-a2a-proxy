@@ -12,6 +12,7 @@ bedrock_model_id = "anthropic.claude-3-5-sonnet-20241022-v2:0"
 # bedrock_model_id = "anthropic.claude-3-sonnet-20240229-v1:0"   # Previous version
 
 # Logging Configuration
+create_cloudwatch_logs = false # Create CloudWatch log group for AgentCore
 log_retention_days     = 14    # CloudWatch log retention (1-3653 days)
 enable_bedrock_logging = true  # Enable Bedrock model invocation logging
 
