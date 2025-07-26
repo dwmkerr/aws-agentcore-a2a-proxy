@@ -1,3 +1,4 @@
 {
-  "aws-bedrock-a2a-proxy": "0.1.0"
+  "aws-bedrock-a2a-proxy": "0.1.0",
+  ".": "0.1.1"
 }
