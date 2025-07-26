@@ -3,8 +3,9 @@ name = "aws-bedrock-a2a-proxy"
 version = "0.1.0"
 description = "A2A server for AWS Bedrock AgentCore agents"
 authors = [
-    {name = "Dave Kerr", email = "dave@example.com"}
+    {name = "Dave Kerr"}
 ]
+homepage = "https://github.com/dwmkerr"
 readme = "../README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -21,7 +22,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.8.2",
+    "flake8>=6.0.0",
+    "black>=23.0.0",
     "mypy>=1.11.2",
     "pytest>=8.0.0",
     "pytest-asyncio>=0.25.0",
@@ -33,27 +35,10 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[project.scripts]
-aws-bedrock-a2a-proxy = "aws_bedrock_a2a_proxy.__main__:main"
 
-[tool.ruff]
-target-version = "py311"
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501",  # line too long
-    "B008",  # do not perform function calls in argument defaults
-]
-
-[tool.ruff.isort]
-known-first-party = ["aws_bedrock_a2a_proxy"]
+[tool.black]
+line-length = 120
+target-version = ['py311']
 
 [tool.mypy]
 python_version = "3.11"

@@ -4,26 +4,23 @@
 help: # show help for each of the Makefile recipes
 	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
 
-.PHONY: init
-init: # install dependencies
-	cd aws-bedrock-a2a-proxy && uv sync --dev
-
 .PHONY: dev
 dev: # run in development mode
-	cd aws-bedrock-a2a-proxy && uv run python -m aws_bedrock_a2a_proxy
+	cd aws-bedrock-a2a-proxy && HOST=$${HOST:-0.0.0.0} PORT=$${PORT:-2972} uv run uvicorn aws_bedrock_a2a_proxy.main:app --host $$HOST --port $$PORT --reload
 
 .PHONY: test
 test: # run tests with coverage
-	cd aws-bedrock-a2a-proxy && uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=term-missing
+	mkdir -p aws-bedrock-a2a-proxy/artifacts/coverage
+	cd aws-bedrock-a2a-proxy && uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=term-missing --cov-report=html:artifacts/coverage/html --cov-report=lcov:artifacts/coverage/coverage.lcov
 
 .PHONY: lint
 lint: # run linting and type checking
-	cd aws-bedrock-a2a-proxy && uv run ruff check src/ tests/
+	cd aws-bedrock-a2a-proxy && uv run flake8 src/ tests/
 	cd aws-bedrock-a2a-proxy && uv run mypy src/
 
-.PHONY: format
-format: # format code
-	cd aws-bedrock-a2a-proxy && uv run ruff format src/ tests/
+.PHONY: lint-fix
+lint-fix: # lint and fix the code
+	cd aws-bedrock-a2a-proxy && uv run black .
 
 .PHONY: build
 build: # build Python wheel

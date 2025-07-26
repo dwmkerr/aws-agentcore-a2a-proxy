@@ -14,17 +14,17 @@ def mock_app_state():
             "agentId": "test-agent-1",
             "agentName": "Test Agent 1",
             "status": "READY",
-            "agentArn": "arn:aws:bedrock-agentcore:us-east-1:123456789:agent-runtime/test-agent-1"
+            "agentArn": "arn:aws:bedrock-agentcore:us-east-1:123456789:agent-runtime/test-agent-1",
         }
     ]
-    
+
     app.state.client = mock_client
     app.state.proxy = mock_proxy
     app.state.agents = mock_agents
-    
+
     mock_proxy.running_servers = {"test-agent-1": Mock()}
     mock_proxy.invoke_agent = AsyncMock(return_value={"response": "test response"})
-    
+
     return mock_client, mock_proxy, mock_agents
 
 
@@ -37,7 +37,7 @@ def test_root():
 
 def test_status_endpoint(mock_app_state):
     mock_client, mock_proxy, mock_agents = mock_app_state
-    
+
     with TestClient(app) as client:
         response = client.get("/status")
         assert response.status_code == 200
@@ -50,7 +50,7 @@ def test_status_endpoint(mock_app_state):
 
 def test_list_agents(mock_app_state):
     mock_client, mock_proxy, mock_agents = mock_app_state
-    
+
     with TestClient(app) as client:
         response = client.get("/agents")
         assert response.status_code == 200
