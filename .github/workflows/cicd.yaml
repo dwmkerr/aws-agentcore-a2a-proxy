@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -25,21 +25,21 @@ jobs:
       run: uv python install ${{ matrix.python-version }}
 
     - name: Install dependencies
-      run: uv sync --dev
+      run: cd aws-bedrock-a2a-proxy && uv sync --dev
 
     - name: Lint
       run: |
-        uv run ruff check src/ tests/
-        uv run mypy src/
+        cd aws-bedrock-a2a-proxy && uv run flake8 src/ tests/
+        cd aws-bedrock-a2a-proxy && uv run pyright src/
 
     - name: Test
-      run: uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=xml --cov-report=term-missing
+      run: cd aws-bedrock-a2a-proxy && uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=xml --cov-report=term-missing
 
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.12'
       uses: codecov/codecov-action@v4
       with:
-        file: ./coverage.xml
+        file: ./aws-bedrock-a2a-proxy/coverage.xml
         fail_ci_if_error: true
 
   release:
@@ -72,8 +72,10 @@ jobs:
 
     - name: Build package
       if: steps.release.outputs.release_created
-      run: uv build
+      run: cd aws-bedrock-a2a-proxy && uv build
 
     - name: Publish to PyPI
       if: steps.release.outputs.release_created
       uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: aws-bedrock-a2a-proxy/dist/

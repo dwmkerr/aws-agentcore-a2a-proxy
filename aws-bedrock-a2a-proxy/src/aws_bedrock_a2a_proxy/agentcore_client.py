@@ -122,6 +122,8 @@ class AgentCoreClient:
             SigV4Auth(credentials, "bedrock-agentcore", self.region).add_auth(request)
 
             # Make the request
+            if not request.url:
+                raise ValueError("Request URL is None")
             response = requests.post(request.url, headers=dict(request.headers), data=request.data, timeout=60)
 
             logger.info(f"Response status: {response.status_code}")

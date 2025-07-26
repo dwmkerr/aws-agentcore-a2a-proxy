@@ -21,7 +21,7 @@ class AgentCoreExecutor:
         self.http_client = http_client
         self.agent_id = agent_id
 
-    async def execute(self, context, event_queue):
+    async def execute(self, context: Any, event_queue: Any) -> None:
         """Execute agent request and stream response back"""
         try:
             # Extract message text from A2A context
@@ -45,15 +45,17 @@ class AgentCoreExecutor:
             logger.error(f"Failed to execute agent {self.agent_id}: {e}")
             # Send error response
             error_message = Message(
-                messageId=str(uuid.uuid4()),
-                contextId=context.message.contextId if context.message else str(uuid.uuid4()),
-                taskId=context.task_id,
+                message_id=str(uuid.uuid4()),
+                context_id=(
+                    context.message.context_id if context.message and context.message.context_id else str(uuid.uuid4())
+                ),
+                task_id=context.task_id,
                 role=Role.agent,
                 parts=[Part(root=TextPart(kind="text", text=f"Error: {str(e)}"))],
             )
             await event_queue.enqueue_event(error_message)
 
-    def _should_use_streaming(self, context) -> bool:
+    def _should_use_streaming(self, context: Any) -> bool:
         """Determine if streaming should be used based on context"""
         # Check if streaming is explicitly requested in the context
         # This could be via headers, task preferences, or agent capabilities
@@ -64,7 +66,7 @@ class AgentCoreExecutor:
         # In the future, this could be configurable or auto-detected
         return False
 
-    async def _execute_streaming(self, context, event_queue, message_text: str):
+    async def _execute_streaming(self, context: Any, event_queue: Any, message_text: str) -> None:
         """Execute with streaming response"""
         logger.info(f"Using streaming execution for agent {self.agent_id}")
 
@@ -77,9 +79,13 @@ class AgentCoreExecutor:
                 if chunk_text:
                     # Create streaming message
                     stream_message = Message(
-                        messageId=str(uuid.uuid4()),
-                        contextId=context.message.contextId if context.message else str(uuid.uuid4()),
-                        taskId=context.task_id,
+                        message_id=str(uuid.uuid4()),
+                        context_id=(
+                            context.message.context_id
+                            if context.message and context.message.context_id
+                            else str(uuid.uuid4())
+                        ),
+                        task_id=context.task_id,
                         role=Role.agent,
                         parts=[Part(root=TextPart(kind="text", text=chunk_text))],
                     )
@@ -94,7 +100,7 @@ class AgentCoreExecutor:
             logger.error(f"Streaming execution failed for agent {self.agent_id}: {e}")
             raise
 
-    async def _execute_single_response(self, context, event_queue, message_text: str):
+    async def _execute_single_response(self, context: Any, event_queue: Any, message_text: str) -> None:
         """Execute with single response (original behavior)"""
         # Call AgentCore agent via HTTP client
         result = await self.http_client.invoke_agent(self.agent_id, message_text)
@@ -111,9 +117,11 @@ class AgentCoreExecutor:
 
         # Create A2A response message
         response_message = Message(
-            messageId=str(uuid.uuid4()),
-            contextId=context.message.contextId if context.message else str(uuid.uuid4()),
-            taskId=context.task_id,
+            message_id=str(uuid.uuid4()),
+            context_id=(
+                context.message.context_id if context.message and context.message.context_id else str(uuid.uuid4())
+            ),
+            task_id=context.task_id,
             role=Role.agent,
             parts=[Part(root=TextPart(kind="text", text=response_text))],
         )
@@ -146,7 +154,7 @@ class AgentCoreExecutor:
 
         return str(chunk) if chunk else ""
 
-    async def cancel(self, context, event_queue):
+    async def cancel(self, context: Any, event_queue: Any) -> None:
         """Cancel agent execution (not implemented for AgentCore)"""
         logger.info(f"Cancel requested for agent {self.agent_id}")
         pass
@@ -343,10 +351,10 @@ class A2AProxy:
                     description=agent.get("description", "AWS Bedrock AgentCore agent"),
                     url=f"http://localhost:2972/a2a/agent/{agent_id}",
                     version=agent.get("agentRuntimeVersion", "1"),
-                    defaultInputModes=["text/plain"],
-                    defaultOutputModes=["text/plain"],
+                    default_input_modes=["text/plain"],
+                    default_output_modes=["text/plain"],
                     capabilities=AgentCapabilities(
-                        streaming=True, pushNotifications=False, stateTransitionHistory=False
+                        streaming=True, push_notifications=False, state_transition_history=False
                     ),
                     skills=[
                         AgentSkill(

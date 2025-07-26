@@ -16,7 +16,7 @@ test: # run tests with coverage
 .PHONY: lint
 lint: # run linting and type checking
 	cd aws-bedrock-a2a-proxy && uv run flake8 src/ tests/
-	cd aws-bedrock-a2a-proxy && uv run mypy src/
+	cd aws-bedrock-a2a-proxy && uv run pyright src/
 
 .PHONY: lint-fix
 lint-fix: # lint and fix the code

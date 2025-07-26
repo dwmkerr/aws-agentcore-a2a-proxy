@@ -3,7 +3,7 @@
 import json
 import logging
 import urllib.parse
-from typing import Dict, Any, List, AsyncIterator
+from typing import Dict, Any, List, AsyncIterator, Optional
 
 import boto3
 import requests
@@ -17,11 +17,13 @@ logger = logging.getLogger(__name__)
 class AgentCoreHTTPClient:
     """HTTP client for AWS Bedrock AgentCore API communication"""
 
-    def __init__(self, region: str = "us-east-1", access_key_id: str = None, secret_access_key: str = None):
+    def __init__(
+        self, region: str = "us-east-1", access_key_id: Optional[str] = None, secret_access_key: Optional[str] = None
+    ):
         self.region = region
         self.access_key_id = access_key_id
         self.secret_access_key = secret_access_key
-        self._session = None
+        self._session: Optional[boto3.Session] = None
 
     def _get_session(self) -> boto3.Session:
         """Get or create boto3 session"""
@@ -37,8 +39,8 @@ class AgentCoreHTTPClient:
         return self._session
 
     def _create_signed_request(
-        self, method: str, url: str, data: str = None, headers: Dict[str, str] = None
-    ) -> requests.Request:
+        self, method: str, url: str, data: Optional[str] = None, headers: Optional[Dict[str, str]] = None
+    ) -> BotocoreAWSRequest:
         """Create a signed AWS request"""
         headers = headers or {}
         request = BotocoreAWSRequest(method=method, url=url, data=data, headers=headers)
@@ -58,6 +60,8 @@ class AgentCoreHTTPClient:
             request = self._create_signed_request("GET", url)
 
             logger.info(f"Listing AgentCore agents from {url}")
+            if not request.url:
+                raise ValueError("Request URL is None")
             response = requests.get(request.url, headers=dict(request.headers), timeout=30)
 
             logger.info(f"List agents response status: {response.status_code}")
@@ -102,6 +106,8 @@ class AgentCoreHTTPClient:
             request = self._create_signed_request("POST", url, request_payload, headers)
 
             # Make the request
+            if not request.url:
+                raise ValueError("Request URL is None")
             response = requests.post(request.url, headers=dict(request.headers), data=request.data, timeout=60)
 
             logger.info(f"Agent invocation response status: {response.status_code}")
@@ -151,6 +157,8 @@ class AgentCoreHTTPClient:
             request = self._create_signed_request("POST", url, request_payload, headers)
 
             # Use httpx for async streaming
+            if not request.url:
+                raise ValueError("Request URL is None")
             async with httpx.AsyncClient(timeout=120) as client:
                 async with client.stream(
                     "POST", request.url, headers=dict(request.headers), content=request.data
