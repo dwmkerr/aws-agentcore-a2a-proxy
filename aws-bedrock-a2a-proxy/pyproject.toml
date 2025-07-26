@@ -1,6 +1,6 @@
 [project]
 name = "aws-bedrock-a2a-proxy"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A2A server for AWS Bedrock AgentCore agents"
 authors = [
     {name = "Dave Kerr"}
@@ -38,6 +38,9 @@ build-backend = "hatchling.build"
 [tool.hatchling.build]
 sources = ["src"]
 include = ["../README.md"]
+
+[tool.hatchling.version]
+path = "src/aws_bedrock_a2a_proxy/__init__.py"
 
 
 [tool.black]
