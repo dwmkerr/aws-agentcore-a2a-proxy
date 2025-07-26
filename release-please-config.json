@@ -2,7 +2,14 @@
   "release-type": "python",
   "packages": {
     "aws-bedrock-a2a-proxy": {
-      "package-name": "aws-bedrock-a2a-proxy"
+      "package-name": "aws-bedrock-a2a-proxy",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true
     }
-  }
+  },
+  "changelog-sections": [
+    {"type": "feat", "section": "Features"},
+    {"type": "fix", "section": "Bug Fixes"},
+    {"type": "chore", "section": "Miscellaneous", "hidden": false}
+  ]
 }
