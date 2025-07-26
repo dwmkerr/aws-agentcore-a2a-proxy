@@ -54,6 +54,8 @@ jobs:
       contents: write
       pull-requests: write
       id-token: write
+      issues: write
+      repository-projects: write
 
     steps:
     - uses: actions/checkout@v4
