@@ -7,7 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  test-lint-build:
+    name: Test, Lint & Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -38,6 +39,10 @@ jobs:
       working-directory: aws-bedrock-a2a-proxy
       run: uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=xml --cov-report=term-missing
 
+    - name: Build package
+      working-directory: aws-bedrock-a2a-proxy
+      run: uv build
+
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.12'
       uses: codecov/codecov-action@v4
@@ -46,9 +51,17 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
 
+    - name: Upload build artifacts
+      if: matrix.python-version == '3.12'
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-package-distributions
+        path: aws-bedrock-a2a-proxy/dist/
+
   release:
+    name: Create Release
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: test
+    needs: test-lint-build
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -74,31 +87,10 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         release-type: python
 
-  build:
-    if: needs.release.outputs.release_created
-    needs: release
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v4
-
-    - name: Build package
-      working-directory: aws-bedrock-a2a-proxy
-      run: uv build
-
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-package-distributions
-        path: aws-bedrock-a2a-proxy/dist/
-
   publish-test-pypi:
     name: Publish to TestPyPI
     if: needs.release.outputs.release_created
-    needs: [release, build]
+    needs: [release]
     runs-on: ubuntu-latest
     environment: test-release
 
@@ -118,7 +110,7 @@ jobs:
   publish-production-pypi:
     name: Publish to Production PyPI
     if: needs.release.outputs.release_created
-    needs: [release, build, publish-test-pypi]
+    needs: [release]
     runs-on: ubuntu-latest
     environment: production-release
 
