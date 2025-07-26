@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/compare/v0.1.2...v0.1.3) (2025-07-26)
+
+
+### Bug Fixes
+
+* use hatchling include to reference parent README without duplication ([c8d976f](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/commit/c8d976f18081ec83de1153a1074a2c60c1f28ab4))
+
 ## [0.1.2](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/compare/v0.1.1...v0.1.2) (2025-07-26)
 
 
