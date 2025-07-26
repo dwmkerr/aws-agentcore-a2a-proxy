@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.2](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/compare/v0.1.1...v0.1.2) (2025-07-26)
+
+
+### Bug Fixes
+
+* add content-type for README in pyproject.toml ([dc49be2](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/commit/dc49be2616c32fc27a1832427e3ec79f0d686e02))
+* add README.md to package directory for build ([7f71db4](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/commit/7f71db49262b3292ae39a9e457bee1ca0f1d9013))
+* update README path in pyproject.toml to resolve build failure ([71c1738](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/commit/71c1738e19b49a85bf4643b238266df073647312))
+* use parent README.md and remove duplicate ([3f09d32](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/commit/3f09d32f91e9d5b44b14cb38c4a3f61442837b68))
+
 ## [0.1.1](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/compare/v0.1.0...v0.1.1) (2025-07-26)
 
 
