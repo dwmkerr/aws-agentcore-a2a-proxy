@@ -39,7 +39,7 @@ build-backend = "hatchling.build"
 sources = ["src"]
 include = ["../README.md"]
 
-[tool.hatchling.version]
+[tool.hatch.version]
 path = "src/aws_bedrock_a2a_proxy/__init__.py"
 
 
