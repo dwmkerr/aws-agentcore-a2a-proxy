@@ -150,6 +150,34 @@ app = FastAPI(
 )
 
 
+@app.get("/")
+async def root():
+    return {"message": "AWS Bedrock AgentCore A2A Server is running"}
+
+
+@app.get("/status")
+async def status():
+    """Get server status"""
+    agents = getattr(app.state, 'agents', [])
+    proxy = getattr(app.state, 'proxy', None)
+    running_servers = 0
+    
+    if proxy and hasattr(proxy, 'running_servers'):
+        running_servers = len(proxy.running_servers)
+    
+    return {
+        "agents_discovered": len(agents),
+        "a2a_servers_running": running_servers,
+        "agents": [{"agent_id": agent.get("agentId", "")} for agent in agents]
+    }
+
+
+@app.get("/agents")
+async def list_agents():
+    """List all discovered agents"""
+    return getattr(app.state, 'agents', [])
+
+
 @app.get("/health")
 async def health():
     return {"status": "healthy"}

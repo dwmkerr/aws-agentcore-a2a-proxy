@@ -1,10 +1,16 @@
 """Tests for AgentCoreExecutor"""
 
+import os
 import pytest
 from unittest.mock import Mock, AsyncMock
 
 from aws_bedrock_a2a_proxy.a2a_proxy import AgentCoreExecutor
 from aws_bedrock_a2a_proxy.agentcore_http_client import AgentCoreHTTPClient
+
+# Mock AWS credentials for testing
+os.environ["AWS_ACCESS_KEY_ID"] = "test-access-key"
+os.environ["AWS_SECRET_ACCESS_KEY"] = "test-secret-key"
+os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
 
 
 @pytest.fixture
@@ -12,6 +18,11 @@ def mock_http_client():
     """Mock AgentCoreHTTPClient"""
     client = Mock(spec=AgentCoreHTTPClient)
     client.invoke_agent = AsyncMock()
+    # Mock the streaming method as an empty async generator
+    async def mock_stream(agent_id, prompt):
+        return
+        yield  # This makes it an async generator but yields nothing
+    client.invoke_agent_stream = mock_stream
     return client
 
 
@@ -20,10 +31,12 @@ def mock_context():
     """Mock A2A context"""
     context = Mock()
     context.task_id = "test-task-id"
+    # Ensure no streaming preferences
+    context.preferences = None
 
     # Mock message with text parts
     message = Mock()
-    message.contextId = "test-context-id"
+    message.context_id = "test-context-id"
 
     part = Mock()
     text_part = Mock()
@@ -79,8 +92,8 @@ class TestAgentCoreExecutor:
         call_args = mock_event_queue.enqueue_event.call_args[0][0]
 
         # Check the response message
-        assert call_args.taskId == "test-task-id"
-        assert call_args.contextId == "test-context-id"
+        assert call_args.task_id == "test-task-id"
+        assert call_args.context_id == "test-context-id"
         assert len(call_args.parts) == 1
         assert call_args.parts[0].root.text == "Agent response text"
 
@@ -120,6 +133,7 @@ class TestAgentCoreExecutor:
         context = Mock()
         context.task_id = "test-task-id"
         context.message = None
+        context.preferences = None
 
         mock_http_client.invoke_agent.return_value = {
             "result": {"role": "assistant", "content": [{"text": "Response"}]}
@@ -143,7 +157,7 @@ class TestAgentCoreExecutor:
         call_args = mock_event_queue.enqueue_event.call_args[0][0]
 
         assert "Error: HTTP request failed" in call_args.parts[0].root.text
-        assert call_args.taskId == "test-task-id"
+        assert call_args.task_id == "test-task-id"
 
     @pytest.mark.asyncio
     async def test_cancel(self, executor, mock_context, mock_event_queue):
@@ -161,7 +175,8 @@ class TestAgentCoreExecutor:
         context.task_id = "test-task-id"
         context.message = Mock()
         context.message.parts = []
-        context.message.contextId = "test-context-id"
+        context.message.context_id = "test-context-id"
+        context.preferences = None
 
         mock_http_client.invoke_agent.return_value = {
             "result": {"role": "assistant", "content": [{"text": "Response"}]}
@@ -194,4 +209,4 @@ class TestAgentCoreExecutor:
         call2_message = mock_event_queue.enqueue_event.call_args_list[1][0][0]
 
         # Message IDs should be different
-        assert call1_message.messageId != call2_message.messageId
+        assert call1_message.message_id != call2_message.message_id

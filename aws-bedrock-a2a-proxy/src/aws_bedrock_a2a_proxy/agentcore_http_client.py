@@ -3,6 +3,7 @@
 import json
 import logging
 import urllib.parse
+import uuid
 from typing import Dict, Any, List, AsyncIterator, Optional
 
 import boto3
@@ -87,8 +88,6 @@ class AgentCoreHTTPClient:
             agent_arn = self._get_agent_arn(agent_id)
 
             # Generate session ID for this invocation
-            import uuid
-
             session_id = str(uuid.uuid4())
 
             logger.info(f"Invoking agent {agent_id} with prompt: {prompt[:100]}...")
@@ -132,8 +131,6 @@ class AgentCoreHTTPClient:
             agent_arn = self._get_agent_arn(agent_id)
 
             # Generate session ID for this invocation
-            import uuid
-
             session_id = str(uuid.uuid4())
 
             logger.info(f"Streaming invoke agent {agent_id} with prompt: {prompt[:100]}...")
