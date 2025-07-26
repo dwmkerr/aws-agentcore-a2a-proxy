@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.4](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/compare/v0.1.3...v0.1.4) (2025-07-26)
+
+
+### Bug Fixes
+
+* add missing newline at end of __init__.py for flake8 compliance ([44b2dd2](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/commit/44b2dd20ea7dce94cdcd1ab2e01c00e5f0a87361))
+* configure dynamic versioning and separate publish jobs ([e623b19](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/commit/e623b19588e436720bbe0a7a3d4e9d86ff39b27c))
+* correct hatchling version configuration section name ([4dcccc2](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/commit/4dcccc29920f21ad2eb7259079bfe22385d3273f))
+* restructure workflow with proper stage separation ([7100177](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/commit/7100177aa05378c32773759c1c371e2f3612bed9))
+* separate publish jobs with clear names and sequential execution ([6a426b0](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/commit/6a426b083901dc7a9f43e25db8c5c9f3355f4d41))
+
 ## [0.1.3](https://github.com/dwmkerr/aws-bedrock-a2a-proxy/compare/v0.1.2...v0.1.3) (2025-07-26)
 
 
