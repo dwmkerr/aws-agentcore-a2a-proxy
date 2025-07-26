@@ -25,21 +25,24 @@ jobs:
       run: uv python install ${{ matrix.python-version }}
 
     - name: Install dependencies
-      run: cd aws-bedrock-a2a-proxy && uv sync --extra dev
+      working-directory: aws-bedrock-a2a-proxy
+      run: uv sync --extra dev
 
     - name: Lint
+      working-directory: aws-bedrock-a2a-proxy
       run: |
-        cd aws-bedrock-a2a-proxy && uv run flake8 src/ tests/
-        cd aws-bedrock-a2a-proxy && uv run pyright src/
+        uv run flake8 src/ tests/
+        uv run pyright src/
 
     - name: Test
-      run: cd aws-bedrock-a2a-proxy && uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=xml --cov-report=term-missing
+      working-directory: aws-bedrock-a2a-proxy
+      run: uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=xml --cov-report=term-missing
 
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.12'
       uses: codecov/codecov-action@v4
       with:
-        file: ./aws-bedrock-a2a-proxy/coverage.xml
+        file: aws-bedrock-a2a-proxy/coverage.xml
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
 
@@ -73,7 +76,8 @@ jobs:
 
     - name: Build package
       if: steps.release.outputs.release_created
-      run: cd aws-bedrock-a2a-proxy && uv build
+      working-directory: aws-bedrock-a2a-proxy
+      run: uv build
 
     - name: Publish to TestPyPI
       if: steps.release.outputs.release_created
