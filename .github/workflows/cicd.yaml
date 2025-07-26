@@ -40,6 +40,7 @@ jobs:
       uses: codecov/codecov-action@v4
       with:
         file: ./aws-bedrock-a2a-proxy/coverage.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
 
   release:
