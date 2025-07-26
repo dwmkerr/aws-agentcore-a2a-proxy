@@ -26,13 +26,13 @@ def mock_app_state():
 
     # Configure the mock client
     mock_client.list_agents = AsyncMock(return_value=mock_agents)
-    
+
     # Configure the mock proxy with async methods
     mock_proxy.initialize_agents = AsyncMock()
     mock_proxy.shutdown = AsyncMock()
     mock_proxy.running_servers = {"test-agent-1": Mock()}
     mock_proxy.invoke_agent = AsyncMock(return_value={"response": "test response"})
-    
+
     app.state.client = mock_client
     app.state.proxy = mock_proxy
     app.state.agents = mock_agents
@@ -44,7 +44,7 @@ def mock_app_state():
 def test_root(mock_discover):
     # Mock the discovery function to prevent AWS calls during startup
     mock_discover.return_value = {"agents": []}
-    
+
     with TestClient(app) as client:
         response = client.get("/")
         assert response.status_code == 200

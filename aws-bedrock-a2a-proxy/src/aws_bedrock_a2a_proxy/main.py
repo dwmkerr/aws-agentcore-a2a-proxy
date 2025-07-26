@@ -161,10 +161,9 @@ async def status():
     agents = getattr(app.state, 'agents', [])
     proxy = getattr(app.state, 'proxy', None)
     running_servers = 0
-    
+
     if proxy and hasattr(proxy, 'running_servers'):
         running_servers = len(proxy.running_servers)
-    
     return {
         "agents_discovered": len(agents),
         "a2a_servers_running": running_servers,

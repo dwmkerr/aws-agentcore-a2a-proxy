@@ -18,6 +18,7 @@ def mock_http_client():
     """Mock AgentCoreHTTPClient"""
     client = Mock(spec=AgentCoreHTTPClient)
     client.invoke_agent = AsyncMock()
+
     # Mock the streaming method as an empty async generator
     async def mock_stream(agent_id, prompt):
         return
