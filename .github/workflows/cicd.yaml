@@ -74,8 +74,10 @@ jobs:
       if: steps.release.outputs.release_created
       run: cd aws-bedrock-a2a-proxy && uv build
 
-    - name: Publish to PyPI
+    - name: Publish to TestPyPI
       if: steps.release.outputs.release_created
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
+        repository-url: https://test.pypi.org/legacy/
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         packages-dir: aws-bedrock-a2a-proxy/dist/
