@@ -31,16 +31,19 @@ def mock_context():
     """Mock A2A context"""
     context = Mock()
     context.task_id = "test-task-id"
+    context.configure_mock(**{"task_id": "test-task-id"})
     # Ensure no streaming preferences
     context.preferences = None
 
-    # Mock message with text parts
+    # Mock message with text parts - configure return values to be strings
     message = Mock()
     message.context_id = "test-context-id"
+    message.configure_mock(**{"context_id": "test-context-id"})
 
     part = Mock()
     text_part = Mock()
     text_part.text = "Hello, test message"
+    text_part.configure_mock(**{"text": "Hello, test message"})
     part.root = text_part
 
     message.parts = [part]
@@ -132,6 +135,7 @@ class TestAgentCoreExecutor:
         # Mock context without message parts
         context = Mock()
         context.task_id = "test-task-id"
+        context.configure_mock(**{"task_id": "test-task-id"})
         context.message = None
         context.preferences = None
 
@@ -173,9 +177,11 @@ class TestAgentCoreExecutor:
         """Test execution with context that has no message"""
         context = Mock()
         context.task_id = "test-task-id"
+        context.configure_mock(**{"task_id": "test-task-id"})
         context.message = Mock()
         context.message.parts = []
         context.message.context_id = "test-context-id"
+        context.message.configure_mock(**{"context_id": "test-context-id"})
         context.preferences = None
 
         mock_http_client.invoke_agent.return_value = {
