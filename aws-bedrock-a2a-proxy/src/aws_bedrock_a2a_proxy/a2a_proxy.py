@@ -161,7 +161,7 @@ class AgentCoreExecutor:
 
 
 class A2AProxy:
-    def __init__(self, agentcore_client: AgentCoreClient):
+    def __init__(self, agentcore_client: AgentCoreClient = None):
         self.client = agentcore_client
         self.agents: Dict[str, Dict[str, Any]] = {}
         self.a2a_apps: Dict[str, A2AStarletteApplication] = {}

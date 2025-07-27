@@ -55,16 +55,52 @@ async def discover_and_refresh_agents(app: FastAPI, is_startup: bool = False) ->
     if hasattr(app.state, "client"):
         client = app.state.client
     else:
-        if aws_access_key_id and aws_secret_access_key:
-            client = AgentCoreClient(
-                access_key_id=aws_access_key_id, secret_access_key=aws_secret_access_key, region=aws_region
-            )
-        else:
-            client = AgentCoreClient(access_key_id="", secret_access_key="", region=aws_region)
-        app.state.client = client
+        try:
+            if aws_access_key_id and aws_secret_access_key:
+                client = AgentCoreClient(
+                    access_key_id=aws_access_key_id, secret_access_key=aws_secret_access_key, region=aws_region
+                )
+            else:
+                client = AgentCoreClient(access_key_id="", secret_access_key="", region=aws_region)
+            app.state.client = client
+        except Exception as e:
+            if is_startup:
+                logger.error(f"AWS connection failed during startup: {e}")
+                logger.info("Server will start without AWS connectivity - configure credentials to discover agents")
+                app.state.client = None
+                app.state.agents = []
+                # Still create a basic proxy for the routes
+                app.state.proxy = A2AProxy(None)
+                if not hasattr(app.state, "a2a_routes_added"):
+                    app.include_router(app.state.proxy.get_router())
+                    app.state.a2a_routes_added = True
+                return {
+                    "message": "Server started without AWS connectivity",
+                    "agents_discovered": 0,
+                    "region": aws_region,
+                    "agents": [],
+                    "error": str(e)
+                }
+            else:
+                raise
 
     # Discover agents
-    agents = await client.list_agents()
+    try:
+        agents = await client.list_agents()
+    except Exception as e:
+        if is_startup:
+            logger.error(f"Agent discovery failed during startup: {e}")
+            logger.info("Server will start without agents - check AWS credentials and connectivity")
+            agents = []
+        else:
+            logger.error(f"error during agent polling: {e}")
+            return {
+                "message": "Agent discovery failed",
+                "agents_discovered": 0,
+                "region": aws_region,
+                "agents": [],
+                "error": str(e)
+            }
 
     # Clear existing agents and reinitialize
     if hasattr(app.state, "proxy"):
