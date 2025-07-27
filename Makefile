@@ -6,7 +6,7 @@ help: # show help for each of the Makefile recipes
 
 .PHONY: dev
 dev: # run in development mode
-	cd aws-bedrock-a2a-proxy && HOST=$${HOST:-localhost} PORT=$${PORT:-2972} uv run uvicorn aws_bedrock_a2a_proxy.main:app --host $$HOST --port $$PORT --reload
+	cd aws-bedrock-a2a-proxy && uv run uvicorn aws_bedrock_a2a_proxy.main:app --host localhost --port 2972 --reload
 
 .PHONY: test
 test: # run tests with coverage
