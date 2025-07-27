@@ -20,6 +20,8 @@ class ColoredFormatter(logging.Formatter):
             return f"\033[32mINFO\033[0m:     {record.getMessage()}"
         elif record.levelname == "ERROR":
             return f"\033[31mERROR\033[0m:    {record.getMessage()}"
+        elif record.levelname == "WARNING":
+            return f"\033[33mWARNING\033[0m:  {record.getMessage()}"
         else:
             return f"{record.levelname}:    {record.getMessage()}"
 
@@ -53,9 +55,7 @@ async def discover_and_refresh_agents(app: FastAPI, is_startup: bool = False) ->
 
     # Check for AWS credentials and warn if missing
     if not aws_access_key_id or not aws_secret_access_key:
-        logger.warning("AWS credentials not set, unable to discover AgentCore agents")
-        if is_startup:
-            logger.info("Configure AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables")
+        logger.warning("AWS credentials not set, unable to discover AgentCore agents - this proxy uses the standard AWS credential chain (check README for details)")
         app.state.client = None
         app.state.agents = []
         # Still create a basic proxy for the routes on startup
