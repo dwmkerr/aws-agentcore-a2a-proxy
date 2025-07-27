@@ -55,7 +55,7 @@ async def discover_and_refresh_agents(app: FastAPI, is_startup: bool = False) ->
 
     # Check for AWS credentials and warn if missing
     if not aws_access_key_id or not aws_secret_access_key:
-        logger.warning("AWS credentials not set, unable to discover AgentCore agents - this proxy uses the standard AWS credential chain (check README for details)")
+        logger.warning("Unable to access AgentCore - ensure your AWS credential chain is configured - see README")
         app.state.client = None
         app.state.agents = []
         # Still create a basic proxy for the routes on startup
