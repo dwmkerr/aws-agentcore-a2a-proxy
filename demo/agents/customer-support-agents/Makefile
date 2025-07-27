@@ -20,7 +20,11 @@ build-image: check-env # build and push container image to ECR
 
 .PHONY: install
 install: build-image # build image and deploy agent to AWS
-	python deploy-via-api.py "Bedrock_Customer_Support_Agent" $(ECR_REPOSITORY_URL):latest $(IAM_ROLE_ARN)
+	../../scripts/deploy-agent \
+		--agent-name "Bedrock_Customer_Support_Agent" \
+		--image-uri $(ECR_REPOSITORY_URL):latest \
+		--execution-role-arn $(IAM_ROLE_ARN) \
+		--region $(AWS_REGION)
 
 .PHONY: check-aws-env
 check-aws-env: # check minimal AWS environment variables for API calls
@@ -30,7 +34,7 @@ check-aws-env: # check minimal AWS environment variables for API calls
 
 .PHONY: uninstall
 uninstall: check-aws-env # remove agent from AWS
-	python undeploy-via-api.py "Bedrock_Customer_Support_Agent"
+	../../scripts/undeploy-agent --agent-name "Bedrock_Customer_Support_Agent" --region $(AWS_REGION)
 
 .PHONY: clean
 clean: # clean up local resources

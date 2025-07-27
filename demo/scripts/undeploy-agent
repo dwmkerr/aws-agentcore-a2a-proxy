@@ -1,0 +1,236 @@
+#!/usr/bin/env python3
+"""
+Generic agent undeployment script for AWS Bedrock AgentCore.
+Uses uv for dependency management to avoid requiring pip installs.
+"""
+
+import os
+import sys
+import argparse
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Remove agent from AWS Bedrock AgentCore')
+    parser.add_argument('--agent-name', required=True, help='Name of the agent to remove')
+    parser.add_argument('--region', default='us-east-1', help='AWS region (default: us-east-1)')
+    
+    args = parser.parse_args()
+    
+    agent_name = args.agent_name
+    region = args.region
+    
+    # Import AgentCore client using inline script with uv
+    import subprocess
+    import tempfile
+    
+    # Create temporary script with embedded dependencies
+    script_content = f'''
+import os
+import sys
+import json
+import hashlib
+import hmac
+import requests
+from datetime import datetime, timezone
+from urllib.parse import urlparse, quote
+
+
+class AWSRequest:
+    """AWS API request signer using SigV4"""
+    
+    def __init__(self, access_key, secret_key, region, service):
+        self.access_key = access_key
+        self.secret_key = secret_key
+        self.region = region
+        self.service = service
+    
+    def _sign_key(self, key, msg):
+        return hmac.new(key, msg.encode('utf-8'), hashlib.sha256).digest()
+    
+    def _get_signature_key(self, date_stamp):
+        k_date = self._sign_key(('AWS4' + self.secret_key).encode('utf-8'), date_stamp)
+        k_region = self._sign_key(k_date, self.region)
+        k_service = self._sign_key(k_region, self.service)
+        k_signing = self._sign_key(k_service, 'aws4_request')
+        return k_signing
+    
+    def sign_request(self, method, url, headers=None, payload=''):
+        """Sign AWS API request with SigV4"""
+        if headers is None:
+            headers = {{}}
+        
+        # Parse URL
+        parsed = urlparse(url)
+        host = parsed.netloc
+        canonical_uri = parsed.path or '/'
+        canonical_querystring = parsed.query or ''
+        
+        # Create timestamp
+        t = datetime.now(timezone.utc)
+        amzdate = t.strftime('%Y%m%dT%H%M%SZ')
+        datestamp = t.strftime('%Y%m%d')
+        
+        # Add required headers
+        headers['Host'] = host
+        headers['X-Amz-Date'] = amzdate
+        
+        # Create canonical headers
+        signed_headers = ';'.join(sorted([k.lower() for k in headers.keys()]))
+        canonical_headers = '\\n'.join([f"{{k.lower()}}:{{v}}" for k, v in sorted(headers.items())]) + '\\n'
+        
+        # Create payload hash
+        payload_hash = hashlib.sha256(payload.encode('utf-8')).hexdigest()
+        
+        # Create canonical request
+        canonical_request = f"{{method}}\\n{{canonical_uri}}\\n{{canonical_querystring}}\\n{{canonical_headers}}\\n{{signed_headers}}\\n{{payload_hash}}"
+        
+        # Create string to sign
+        algorithm = 'AWS4-HMAC-SHA256'
+        credential_scope = f"{{datestamp}}/{{self.region}}/{{self.service}}/aws4_request"
+        string_to_sign = f"{{algorithm}}\\n{{amzdate}}\\n{{credential_scope}}\\n{{hashlib.sha256(canonical_request.encode('utf-8')).hexdigest()}}"
+        
+        # Calculate signature
+        signing_key = self._get_signature_key(datestamp)
+        signature = hmac.new(signing_key, string_to_sign.encode('utf-8'), hashlib.sha256).hexdigest()
+        
+        # Add authorization header
+        authorization_header = f"{{algorithm}} Credential={{self.access_key}}/{{credential_scope}}, SignedHeaders={{signed_headers}}, Signature={{signature}}"
+        headers['Authorization'] = authorization_header
+        
+        return headers
+
+
+class AgentCoreWebClient:
+    """Direct web API client for AWS AgentCore operations"""
+    
+    def __init__(self, region='{region}'):
+        self.region = region
+        self.access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+        self.secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        
+        if not self.access_key or not self.secret_key:
+            raise ValueError(
+                "AWS credentials not found in environment variables.\\n"
+                "Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
+            )
+        
+        self.signer = AWSRequest(self.access_key, self.secret_key, region, 'bedrock-agentcore')
+        self.base_url = f"https://bedrock-agentcore-control.{{region}}.amazonaws.com"
+    
+    def find_agent_by_name(self, agent_name):
+        """Find agent by name"""
+        agents = self.list_agent_runtimes()
+        for agent in agents:
+            agent_name_field = agent.get('agentRuntimeName')
+            runtime_id = agent.get('agentRuntimeId', '')
+            if (agent_name_field == agent_name or 
+                (runtime_id.startswith(agent_name + '-') if runtime_id else False)):
+                return agent
+        return None
+    
+    def list_agent_runtimes(self, max_results=100):
+        """List all agent runtimes"""
+        url = f"{{self.base_url}}/runtimes/?maxResults={{max_results}}"
+        headers = {{'Content-Type': 'application/json'}}
+        payload = '{{}}'
+        
+        signed_headers = self.signer.sign_request('POST', url, headers, payload)
+        
+        try:
+            response = requests.post(url, headers=signed_headers, data=payload, timeout=30)
+            if response.status_code == 200:
+                return response.json().get('agentRuntimes', [])
+            else:
+                print(f"❌ Failed to list agents: {{response.status_code}}")
+                return []
+        except Exception as e:
+            print(f"❌ Error listing agents: {{e}}")
+            return []
+    
+    def delete_agent_runtime(self, agent_id):
+        """Delete AgentCore agent runtime by ID"""
+        url = f"{{self.base_url}}/runtimes/{{agent_id}}/"
+        headers = {{'Content-Type': 'application/json'}}
+        
+        signed_headers = self.signer.sign_request('DELETE', url, headers, '')
+        
+        try:
+            response = requests.delete(url, headers=signed_headers, timeout=60)
+            return response.status_code in [200, 202, 204]
+        except Exception as e:
+            print(f"❌ Error calling API: {{e}}")
+            return False
+
+
+def main():
+    agent_name = "{agent_name}"
+    
+    print(f"🗑️  Deleting AgentCore runtime via web API...")
+    print(f"📋 Agent Name: {{agent_name}}")
+    
+    # Create client
+    client = AgentCoreWebClient()
+    
+    # Find agent
+    print("🔍 Finding agent to delete...")
+    agent = client.find_agent_by_name(agent_name)
+    
+    if not agent:
+        print(f"❌ Agent '{{agent_name}}' not found!")
+        print(f"Available agents:")
+        
+        agents = client.list_agent_runtimes()
+        for agent in agents:
+            runtime_id = agent.get('agentRuntimeId', 'Unknown')
+            agent_name_field = agent.get('agentRuntimeName', 'None')
+            status = agent.get('status', 'Unknown')
+            print(f"  - Name: {{agent_name_field}}, ID: {{runtime_id}}, Status: {{status}}")
+        
+        sys.exit(1)
+    
+    agent_id = agent.get('agentRuntimeId')
+    print(f"🎯 Found agent: {{agent_id}}")
+    
+    # Delete agent
+    if client.delete_agent_runtime(agent_id):
+        print(f"✅ Agent runtime deleted successfully!")
+        print(f"🎯 Agent '{{agent_name}}' has been deleted!")
+        print(f"💡 You can now run deployment again to create a new agent")
+    else:
+        print(f"❌ Failed to delete agent '{{agent_name}}'")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
+'''
+    
+    # Write temporary script
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        f.write(script_content)
+        temp_script = f.name
+    
+    try:
+        # Run with uv and required dependencies
+        result = subprocess.run([
+            'uv', 'run',
+            '--with', 'requests>=2.31.0',
+            temp_script
+        ], check=True)
+        
+        print(f"\\033[1;32m✅ Agent '{agent_name}' removed successfully!\\033[0m")
+        
+    except subprocess.CalledProcessError as e:
+        print(f"\\033[1;31m❌ Removal failed with exit code {e.returncode}\\033[0m")
+        sys.exit(1)
+    except FileNotFoundError:
+        print("\\033[1;31m❌ uv not found. Please install uv: https://github.com/astral-sh/uv\\033[0m")
+        sys.exit(1)
+    finally:
+        # Clean up temporary file
+        if os.path.exists(temp_script):
+            os.unlink(temp_script)
+
+
+if __name__ == "__main__":
+    main()

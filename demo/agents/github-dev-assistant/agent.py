@@ -45,13 +45,19 @@ class GitHubUser:
 class GitHubMCPClient:
     """Client for interacting with GitHub's hosted MCP server"""
     
-    def __init__(self, github_token: str):
+    def __init__(self, github_token: str = None):
         self.github_token = github_token
         self.mcp_url = "https://api.githubcopilot.com/mcp/"
         self.headers = {
-            "Authorization": f"Bearer {github_token}",
             "Content-Type": "application/json"
         }
+        if github_token:
+            self.headers["Authorization"] = f"Bearer {github_token}"
+    
+    def update_token(self, github_token: str):
+        """Update the GitHub token for API calls"""
+        self.github_token = github_token
+        self.headers["Authorization"] = f"Bearer {github_token}"
     
     async def _make_mcp_request(self, method: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
         """Make a request to GitHub's hosted MCP server"""
@@ -157,8 +163,8 @@ class GitHubMCPClient:
 class GitHubDevelopmentAssistant:
     """Main agent class for GitHub development assistance"""
     
-    def __init__(self, github_token: str):
-        self.mcp_client = GitHubMCPClient(github_token)
+    def __init__(self):
+        self.mcp_client = GitHubMCPClient()
         self.current_user: Optional[GitHubUser] = None
     
     def authenticate_user(self, oidc_claims: Dict[str, Any]) -> GitHubUser:
@@ -167,6 +173,23 @@ class GitHubDevelopmentAssistant:
         username = oidc_claims.get("preferred_username", "unknown")
         email = oidc_claims.get("email", "")
         name = oidc_claims.get("name", username)
+        
+        # Extract GitHub access token from OIDC claims
+        # This could be in different claim fields depending on OIDC provider configuration
+        github_token = (
+            oidc_claims.get("github_token") or  # Custom claim
+            oidc_claims.get("access_token") or  # Standard OAuth claim
+            oidc_claims.get("token") or         # Alternative claim name
+            os.getenv("GITHUB_TOKEN")           # Fallback to env var for testing
+        )
+        
+        if not github_token:
+            logger.warning("No GitHub token found in OIDC claims or environment")
+            # Continue without token - agent will handle gracefully
+        else:
+            # Update MCP client with user's GitHub token
+            self.mcp_client.update_token(github_token)
+            logger.info(f"Updated GitHub token for user: {username}")
         
         # Extract role from groups or custom claims
         groups = oidc_claims.get("groups", [])
@@ -220,6 +243,9 @@ class GitHubDevelopmentAssistant:
         if not self.current_user:
             return "Please authenticate to access GitHub data."
         
+        if not self.mcp_client.github_token:
+            return f"Hi {self.current_user.name}! I need your GitHub access token to fetch your pull requests. Please ensure your OIDC provider includes GitHub token in the claims."
+        
         # Search for user's repositories (showing recent activity)
         repos = await self.mcp_client.search_repositories(f"user:{self.current_user.username}")
         
@@ -252,6 +278,9 @@ class GitHubDevelopmentAssistant:
         """Handle issue-related queries"""
         if not self.current_user:
             return "Please authenticate to access GitHub data."
+        
+        if not self.mcp_client.github_token:
+            return f"Hi {self.current_user.name}! I need your GitHub access token to fetch your issues. Please ensure your OIDC provider includes GitHub token in the claims."
         
         # Search for user's repositories  
         repos = await self.mcp_client.search_repositories(f"user:{self.current_user.username}")
@@ -437,19 +466,15 @@ What would you like to do?"""
 async def main():
     """Main entry point when running as standalone script"""
     # This would be called by Bedrock AgentCore runtime
-    github_token = os.getenv("GITHUB_TOKEN")
-    if not github_token:
-        logger.error("GITHUB_TOKEN environment variable required")
-        return
+    assistant = GitHubDevelopmentAssistant()
     
-    assistant = GitHubDevelopmentAssistant(github_token)
-    
-    # Example usage with mock OIDC claims
+    # Example usage with mock OIDC claims (includes GitHub token from env for testing)
     mock_oidc_claims = {
         "preferred_username": "johndoe",
         "email": "john.doe@company.com",
         "name": "John Doe",
-        "groups": ["team-platform", "team-leads"]
+        "groups": ["team-platform", "team-leads"],
+        "github_token": os.getenv("GITHUB_TOKEN")  # For testing - normally comes from OIDC provider
     }
     
     # Test queries showcasing GitHub MCP server integration

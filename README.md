@@ -162,6 +162,30 @@ curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke-str
 # data: [DONE]
 ```
 
+## Demo Agents
+
+This project includes demonstration agents showcasing different AgentCore capabilities:
+
+### GitHub Development Assistant
+
+A GitHub workflow assistant that demonstrates OIDC authentication and role-based access control. Uses GitHub's hosted MCP server for real-time GitHub data access.
+
+**Features**: Personalized PR/issue management, notifications, CI/CD monitoring, role-aware responses (developer/team_lead/admin)
+
+**Testing**:
+```bash
+# Deploy agent (no GitHub token needed - uses OIDC)
+cd demo/agents/github-dev-assistant
+export IAM_ROLE_ARN="arn:aws:iam::account:role/bedrock-agent-role" 
+make deploy
+
+# Configure OIDC via Bedrock console for GitHub authentication
+# Access via Bedrock console with GitHub login
+# Agent extracts GitHub token from OIDC claims for API calls
+```
+
+Users login with GitHub OAuth, AWS Bedrock handles the authentication flow, and the agent receives verified user claims for personalized GitHub workflow assistance.
+
 ## TODO
 
 - [ ] Add OIDC authentication support
