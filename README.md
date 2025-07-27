@@ -29,6 +29,8 @@ Features:
 
 ## Quickstart
 
+**AWS Credentials:** The proxy uses the standard AWS credential chain (environment variables, `~/.aws/credentials`, IAM roles, etc.) and also reads from a local `.env` file if present.
+
 Setup your AWS credentials by editing `.env`:
 
 ```bash
@@ -41,6 +43,13 @@ Start the AWS Bedrock A2A Proxy with:
 
 ```bash
 make dev
+```
+
+**Development without AWS:** To run without AWS connectivity (useful for development):
+
+```bash
+# Temporarily disable AWS credentials
+AWS_ACCESS_KEY_ID="" AWS_SECRET_ACCESS_KEY="" make dev
 ```
 
 Any agents available for the user with the given credentials will be exposed. If you need to create some agents as an example, set up the required AWS infrastructure and deploy some sample agents:
