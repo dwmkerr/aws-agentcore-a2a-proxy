@@ -51,22 +51,39 @@ async def discover_and_refresh_agents(app: FastAPI, is_startup: bool = False) ->
     aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
     aws_region = os.getenv("AWS_REGION", "us-east-1")
 
+    # Check for AWS credentials and warn if missing
+    if not aws_access_key_id or not aws_secret_access_key:
+        logger.warning("AWS credentials not set, unable to discover AgentCore agents")
+        if is_startup:
+            logger.info("Configure AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables")
+        app.state.client = None
+        app.state.agents = []
+        # Still create a basic proxy for the routes on startup
+        if is_startup:
+            app.state.proxy = A2AProxy(None)
+            if not hasattr(app.state, "a2a_routes_added"):
+                app.include_router(app.state.proxy.get_router())
+                app.state.a2a_routes_added = True
+        return {
+            "message": "No AWS credentials configured",
+            "agents_discovered": 0,
+            "region": aws_region,
+            "agents": [],
+        }
+
     # Use existing client if available, otherwise create new one
     if hasattr(app.state, "client"):
         client = app.state.client
     else:
         try:
-            if aws_access_key_id and aws_secret_access_key:
-                client = AgentCoreClient(
-                    access_key_id=aws_access_key_id, secret_access_key=aws_secret_access_key, region=aws_region
-                )
-            else:
-                client = AgentCoreClient(access_key_id="", secret_access_key="", region=aws_region)
+            client = AgentCoreClient(
+                access_key_id=aws_access_key_id, secret_access_key=aws_secret_access_key, region=aws_region
+            )
             app.state.client = client
         except Exception as e:
             if is_startup:
                 logger.error(f"AWS connection failed during startup: {e}")
-                logger.info("Server will start without AWS connectivity - configure credentials to discover agents")
+                logger.info("Server will start without AWS connectivity - check credentials and network access")
                 app.state.client = None
                 app.state.agents = []
                 # Still create a basic proxy for the routes
