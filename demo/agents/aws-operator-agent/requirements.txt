@@ -1,11 +1,11 @@
 # AWS Operator Agent Dependencies
 
+# Strands agent framework (matches working customer-support example)
+strands-agents
+strands-agents-tools
+
 # AgentCore runtime (required for web service)
 bedrock-agentcore
-
-# Strands agent framework
-strands
-strands-tools
 
 # AWS SDK for Python (better than subprocess calls)
 boto3>=1.34.0
