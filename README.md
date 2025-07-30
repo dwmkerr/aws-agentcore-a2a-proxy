@@ -1,5 +1,10 @@
 # AWS Bedrock AgentCore A2A Proxy
 
+TODO:
+
+- [ ] aws agent working tested via a2a inspector
+- [ ] stream
+
 [![PyPI version](https://badge.fury.io/py/aws-bedrock-a2a-proxy.svg)](https://badge.fury.io/py/aws-bedrock-a2a-proxy)
 [![codecov](https://codecov.io/gh/dwmkerr/aws-bedrock-a2a-proxy/branch/main/graph/badge.svg)](https://codecov.io/gh/dwmkerr/aws-bedrock-a2a-proxy)
 
@@ -185,6 +190,26 @@ make deploy
 ```
 
 Users login with GitHub OAuth, AWS Bedrock handles the authentication flow, and the agent receives verified user claims for personalized GitHub workflow assistance.
+
+### AWS Operator Agent
+
+An AWS operations assistant that demonstrates AWS CLI integration and infrastructure management. Provides secure, role-based AWS operations through authenticated CLI commands.
+
+**Features**: EC2/S3/Lambda management, CloudWatch monitoring, cost analysis, identity management, role-based access control (readonly/operator/admin)
+
+**Testing**:
+```bash
+# Deploy agent (requires AWS CLI and credentials)
+cd demo/agents/aws-operator-agent
+export IAM_ROLE_ARN="arn:aws:iam::account:role/bedrock-agent-role"
+make deploy
+
+# Configure OIDC via Bedrock console for role-based access
+# Access via Bedrock console with corporate SSO
+# Agent executes AWS CLI commands based on user's role and permissions
+```
+
+Users authenticate via OIDC, agent determines their AWS role from groups, and executes secure AWS CLI operations with appropriate access controls.
 
 ## TODO
 
