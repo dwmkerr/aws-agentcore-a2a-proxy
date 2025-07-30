@@ -168,29 +168,151 @@ class A2AProxy:
         self.a2a_router = APIRouter()
         self.setup_a2a_routes()
 
+    def _generate_agent_card(self, agent_id: str, agent: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate a complete A2A Agent Card from AgentCore agent data"""
+        agent_name = agent.get("agentRuntimeName", f"agent-{agent_id}")
+        
+        # Generate agent-specific description and skills based on agent type
+        if "aws_operator" in agent_name:
+            description = "Comprehensive AWS operations assistant with structured tools for all major AWS services"
+            skills = [
+                AgentSkill(
+                    id="list_s3_buckets",
+                    name="List S3 Buckets", 
+                    description="List all S3 buckets in your AWS account",
+                    tags=["aws", "s3", "storage", "list"]
+                ),
+                AgentSkill(
+                    id="get_s3_bucket_info",
+                    name="Get S3 Bucket Details",
+                    description="Get detailed information about a specific S3 bucket including versioning and object count",
+                    tags=["aws", "s3", "storage", "details"]
+                ),
+                AgentSkill(
+                    id="list_ec2_instances",
+                    name="List EC2 Instances",
+                    description="List all EC2 instances in a specified region with details",
+                    tags=["aws", "ec2", "compute", "instances"]
+                ),
+                AgentSkill(
+                    id="get_ec2_instance_details",
+                    name="Get EC2 Instance Details",
+                    description="Get comprehensive details about a specific EC2 instance",
+                    tags=["aws", "ec2", "compute", "details"]
+                ),
+                AgentSkill(
+                    id="list_lambda_functions",
+                    name="List Lambda Functions",
+                    description="List all Lambda functions in a specified region",
+                    tags=["aws", "lambda", "serverless", "functions"]
+                ),
+                AgentSkill(
+                    id="get_lambda_function_details",
+                    name="Get Lambda Function Details",
+                    description="Get detailed configuration for a specific Lambda function",
+                    tags=["aws", "lambda", "serverless", "details"]
+                ),
+                AgentSkill(
+                    id="list_rds_instances",
+                    name="List RDS Instances",
+                    description="List all RDS database instances with engine and status information",
+                    tags=["aws", "rds", "database", "instances"]
+                ),
+                AgentSkill(
+                    id="list_iam_users",
+                    name="List IAM Users",
+                    description="List all IAM users in the AWS account",
+                    tags=["aws", "iam", "security", "users"]
+                ),
+                AgentSkill(
+                    id="get_caller_identity",
+                    name="Get AWS Identity",
+                    description="Get current AWS caller identity and account information",
+                    tags=["aws", "sts", "identity", "account"]
+                ),
+                AgentSkill(
+                    id="list_cloudformation_stacks",
+                    name="List CloudFormation Stacks",
+                    description="List all CloudFormation stacks with status information",
+                    tags=["aws", "cloudformation", "infrastructure", "stacks"]
+                ),
+                AgentSkill(
+                    id="list_sns_topics",
+                    name="List SNS Topics",
+                    description="List all SNS topics for notifications",
+                    tags=["aws", "sns", "messaging", "topics"]
+                ),
+                AgentSkill(
+                    id="list_sqs_queues",
+                    name="List SQS Queues",
+                    description="List all SQS queues for message processing",
+                    tags=["aws", "sqs", "messaging", "queues"]
+                ),
+            ]
+        elif "github_dev" in agent_name:
+            description = "GitHub development assistant with repository management and collaboration tools"
+            skills = [
+                AgentSkill(
+                    id="manage_pull_requests",
+                    name="Manage Pull Requests",
+                    description="View, create, and manage GitHub pull requests", 
+                    tags=["github", "pr", "development", "collaboration"]
+                ),
+                AgentSkill(
+                    id="handle_issues",
+                    name="Handle Issues", 
+                    description="Create, manage, and track GitHub issues",
+                    tags=["github", "issues", "development", "tracking"]
+                ),
+                AgentSkill(
+                    id="access_repositories",
+                    name="Access Repositories",
+                    description="Access, analyze, and manage GitHub repositories",
+                    tags=["github", "repository", "analysis", "management"]
+                ),
+            ]
+        else:
+            # Fallback for other agents - use AgentCore description
+            description = agent.get("description", "AgentCore agent with general assistance capabilities")
+            skills = [
+                AgentSkill(
+                    id="general_assistance",
+                    name="General Assistance",
+                    description="Provide general assistance based on agent capabilities",
+                    tags=["general", "assistance", "support"]
+                ),
+            ]
+        
+        # Create the complete Agent Card using A2A SDK
+        agent_url = f"http://localhost:2972/a2a/agent/{agent_id}"
+        agent_card = AgentCard(
+            protocol_version="0.2.6",
+            name=agent_name,
+            description=description,
+            url=agent_url,
+            preferred_transport="JSONRPC",
+            version=agent.get("agentRuntimeVersion", "1"),
+            default_input_modes=["text/plain", "application/json"],
+            default_output_modes=["text/plain", "application/json"],
+            capabilities=AgentCapabilities(
+                streaming=False,  # Currently we don't support streaming
+                push_notifications=False,  # Currently we don't support push notifications  
+                state_transition_history=False
+            ),
+            skills=skills
+        )
+        
+        # Return as dict for JSON serialization
+        return agent_card.model_dump()
+
     def setup_a2a_routes(self):
         """Set up A2A routing endpoints"""
 
         @self.a2a_router.get("/a2a/agents")
         async def list_a2a_agents():
-            """A2A agents list endpoint with agent cards"""
+            """A2A agents list endpoint with full Agent Cards"""
             return [
-                {
-                    "agent_id": agent_id,
-                    "name": agent.get("agentRuntimeName", f"agent-{agent_id}"),
-                    "description": agent.get("description", "AgentCore agent"),
-                    "capabilities": {"streaming": False, "pushNotifications": False, "stateTransitionHistory": False},
-                    "host": "localhost:2972",
-                    "agent_card": f"/a2a/agent/{agent_id}/.well-known/agent.json",
-                    "agent_url": f"http://localhost:2972/a2a/agent/{agent_id}",
-                    "endpoint": f"/a2a/agent/{agent_id}",
-                    "status": agent.get("status", "unknown"),
-                    "metadata": {
-                        "type": "bedrock-agentcore",
-                        "version": agent.get("agentRuntimeVersion", "1"),
-                        "agent_id": agent_id,
-                    },
-                }
+                self._generate_agent_card(agent_id, agent)
                 for agent_id, agent in self.agents.items()
             ]
 
@@ -201,94 +323,7 @@ class A2AProxy:
                 raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
 
             agent = self.agents[agent_id]
-            agent_name = agent.get("agentRuntimeName", f"agent-{agent_id}")
-            
-            # Generate agent-specific description and skills using A2A SDK
-            if "aws_operator" in agent_name:
-                description = "General-purpose AWS operations assistant with boto3 integration"
-                skills = [
-                    AgentSkill(
-                        id="execute_aws_operation",
-                        name="execute_aws_operation", 
-                        description="Execute any AWS operation via boto3 using natural language",
-                        tags=["aws", "boto3", "infrastructure"]
-                    ),
-                    AgentSkill(
-                        id="list_aws_resources",
-                        name="list_aws_resources",
-                        description="List resources across AWS services (S3, EC2, Lambda, etc.)",
-                        tags=["aws", "resources", "list"]
-                    ),
-                    AgentSkill(
-                        id="get_aws_identity", 
-                        name="get_aws_identity",
-                        description="Get current AWS caller identity and permissions",
-                        tags=["aws", "identity", "sts"]
-                    ),
-                ]
-            elif "github_dev" in agent_name:
-                description = "GitHub development assistant with OIDC integration and MCP server access"
-                skills = [
-                    AgentSkill(
-                        id="manage_pull_requests",
-                        name="manage_pull_requests",
-                        description="View and manage GitHub pull requests", 
-                        tags=["github", "pr", "development"]
-                    ),
-                    AgentSkill(
-                        id="handle_issues",
-                        name="handle_issues", 
-                        description="Create and manage GitHub issues",
-                        tags=["github", "issues", "development"]
-                    ),
-                    AgentSkill(
-                        id="access_repositories",
-                        name="access_repositories",
-                        description="Access and analyze GitHub repositories",
-                        tags=["github", "repository", "analysis"]
-                    ),
-                ]
-            else:
-                # Fallback for other agents
-                description = agent.get("description", "AgentCore agent")
-                skills = [
-                    AgentSkill(
-                        id="general_assistance",
-                        name="general_assistance",
-                        description="Provide general assistance based on agent capabilities",
-                        tags=["general", "assistance"]
-                    ),
-                ]
-            
-            # Create agent card using A2A SDK
-            agent_url = f"http://localhost:2972/a2a/agent/{agent_id}"
-            agent_card = AgentCard(
-                name=agent_name,
-                description=description,
-                url=agent_url,
-                default_input_modes=["text"],
-                default_output_modes=["text"],
-                capabilities=AgentCapabilities(
-                    streaming=False, 
-                    push_notifications=False, 
-                    state_transition_history=False
-                ),
-                skills=skills,
-                version=agent.get("agentRuntimeVersion", "1"),
-                metadata={
-                    "agent_id": agent_id,
-                    "agent_url": agent_url,
-                    "runtime_arn": agent.get("agentRuntimeArn"),
-                    "last_updated": agent.get("lastUpdatedAt"),
-                    "deployment_method": "web_api",
-                    "platform": "aws-bedrock-agentcore",
-                    "model": "anthropic.claude-3-haiku-20240307-v1:0",
-                    "region": "us-east-1",
-                }
-            )
-            
-            # Return the agent card as dict for JSON serialization
-            return agent_card.model_dump()
+            return self._generate_agent_card(agent_id, agent)
 
         @self.a2a_router.post("/a2a/agent/{agent_id}")
         async def handle_a2a_agent_request(agent_id: str, request: Dict[str, Any]):

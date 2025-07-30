@@ -1,0 +1,806 @@
+INFO:     Will watch for changes in these directories: ['/Users/Dave_Kerr/repos/github/McK-Internal/aws-bedrock-agentcore/aws_bedrock_a2a_proxy/aws-bedrock-a2a-proxy']
+INFO:     Uvicorn running on http://0.0.0.0:2972 (Press CTRL+C to quit)
+INFO:     Started reloader process [96431] using StatReload
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/a2a_proxy.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/a2a_proxy.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/a2a_proxy.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/a2a_proxy.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/main.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/a2a_proxy.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/main.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/a2a_proxy.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/a2a_proxy.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+ERROR:src.aws_bedrock_a2a_proxy.agentcore_client:BotoCoreError listing agents: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[31mERROR[0m:    error during agent polling: SSL validation failed for https://bedrock-agentcore-control.us-east-1.amazonaws.com/runtimes/?maxResults=100 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 0 agents
+[32mINFO[0m:     polling: discovered 1 agents: [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/a2a_proxy.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/a2a_proxy.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
+WARNING:  StatReload detected changes in 'src/aws_bedrock_a2a_proxy/a2a_proxy.py'. Reloading...
+[32mINFO[0m:     polling: discovered 2 agents: [1;37maws_operator_agent[0m, [1;37mgithub_dev_assistant[0m
