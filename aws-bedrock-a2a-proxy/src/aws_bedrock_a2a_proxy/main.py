@@ -28,11 +28,11 @@ class ColoredFormatter(logging.Formatter):
 
 # Configure logging - suppress verbose logs from other modules
 logging.basicConfig(level=logging.WARNING)
-logging.getLogger("uvicorn").setLevel(logging.WARNING)
-logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+logging.getLogger("uvicorn").setLevel(logging.INFO)  # Enable uvicorn access logs
+logging.getLogger("uvicorn.access").setLevel(logging.INFO)  # Enable access logs
 logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
 logging.getLogger("aws_bedrock_a2a_proxy.agentcore_client").setLevel(logging.WARNING)
-logging.getLogger("aws_bedrock_a2a_proxy.a2a_proxy").setLevel(logging.WARNING)
+logging.getLogger("aws_bedrock_a2a_proxy.a2a_proxy").setLevel(logging.INFO)  # Enable A2A proxy logs
 
 # Our main logger with custom format
 logger = logging.getLogger(__name__)
@@ -224,10 +224,7 @@ async def status():
     }
 
 
-@app.get("/agents")
-async def list_agents():
-    """List all discovered agents"""
-    return getattr(app.state, 'agents', [])
+# Removed superfluous /agents endpoint - use /a2a/agents instead
 
 
 @app.get("/health")
