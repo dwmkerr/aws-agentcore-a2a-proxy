@@ -197,7 +197,6 @@ class A2AProxy:
         @self.a2a_router.get("/a2a/agent/{agent_id}/.well-known/agent.json")
         async def get_agent_card(agent_id: str):
             """Agent card endpoint per A2A standard"""
-            logger.info(f"A2A Inspector requested agent card for {agent_id}")
             if agent_id not in self.agents:
                 raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
 
@@ -294,7 +293,6 @@ class A2AProxy:
         @self.a2a_router.post("/a2a/agent/{agent_id}")
         async def handle_a2a_agent_request(agent_id: str, request: Dict[str, Any]):
             """Main A2A agent endpoint - routes to appropriate agent"""
-            logger.info(f"A2A Inspector sent message to agent {agent_id}")
             if agent_id not in self.a2a_apps:
                 raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
             
