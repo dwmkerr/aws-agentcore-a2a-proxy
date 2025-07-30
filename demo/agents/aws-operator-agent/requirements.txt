@@ -3,6 +3,10 @@
 # AgentCore runtime (required for web service)
 bedrock-agentcore
 
+# Strands agent framework
+strands
+strands-tools
+
 # AWS SDK for Python (better than subprocess calls)
 boto3>=1.34.0
 botocore>=1.34.0
