@@ -13,6 +13,16 @@ output "agentcore_user_policy_arn" {
   value       = aws_iam_policy.agentcore_user.arn
 }
 
+output "aws_operator_agent_role_arn" {
+  description = "ARN of the AWS Operator Agent role"
+  value       = aws_iam_role.aws_operator_agent.arn
+}
+
+output "aws_operator_agent_role_name" {
+  description = "Name of the AWS Operator Agent role"
+  value       = aws_iam_role.aws_operator_agent.name
+}
+
 output "bedrock_log_group_name" {
   description = "Name of the Bedrock CloudWatch log group"
   value       = var.create_cloudwatch_logs ? aws_cloudwatch_log_group.bedrock_agentcore[0].name : null

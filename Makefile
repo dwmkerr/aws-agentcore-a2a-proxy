@@ -44,12 +44,33 @@ uninstall-demo-infrastructure: # destroy demo AWS infrastructure
 	cd demo/infrastructure && terraform destroy
 
 .PHONY: install-demo-agents
-install-demo-agents: # deploy demo agents using demo infrastructure
-	(cd demo/agents/customer-support-agents && \
-	IAM_ROLE_ARN=$$(cd ../../infrastructure && terraform output -raw agentcore_execution_role_arn) \
+install-demo-agents: # build and deploy both demo agents using demo infrastructure
+	@echo "🏗️  Building GitHub Development Assistant image..."
+	(cd demo/agents/github-dev-assistant && \
 	ECR_REPOSITORY_URL=$$(cd ../../infrastructure && terraform output -raw ecr_repository_url) \
-	make install)
+	make build-image)
+	@echo "🏗️  Building AWS Operator Agent image..."
+	(cd demo/agents/aws-operator-agent && \
+	ECR_REPOSITORY_URL=$$(cd ../../infrastructure && terraform output -raw ecr_repository_url) \
+	make build-image)
+	@echo "🚀 Deploying GitHub Development Assistant..."
+	(cd demo/agents/github-dev-assistant && \
+	../../scripts/deploy-agent \
+		--agent-name "github_dev_assistant" \
+		--execution-role-arn $$(cd ../../infrastructure && terraform output -raw agentcore_execution_role_arn) \
+		--image-uri $$(cd ../../infrastructure && terraform output -raw ecr_repository_url):github_dev_assistant-latest \
+		--region us-east-1)
+	@echo "🚀 Deploying AWS Operator Agent..."
+	(cd demo/agents/aws-operator-agent && \
+	../../scripts/deploy-agent \
+		--agent-name "aws_operator_agent" \
+		--execution-role-arn $$(cd ../../infrastructure && terraform output -raw aws_operator_agent_role_arn) \
+		--image-uri $$(cd ../../infrastructure && terraform output -raw ecr_repository_url):aws_operator_agent-latest \
+		--region us-east-1)
 
 .PHONY: uninstall-demo-agents
-uninstall-demo-agents: # remove demo agents from AWS
-	cd demo/agents/customer-support-agents && make uninstall
+uninstall-demo-agents: # remove both demo agents from AWS
+	@echo "🗑️  Removing GitHub Development Assistant..."
+	cd demo/agents/github-dev-assistant && make undeploy || true
+	@echo "🗑️  Removing AWS Operator Agent..."
+	cd demo/agents/aws-operator-agent && make undeploy || true

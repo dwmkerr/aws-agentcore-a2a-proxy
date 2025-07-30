@@ -1,7 +1,7 @@
-# GitHub Development Assistant Agent Makefile
+# AWS Operator Agent Makefile
 
 .DEFAULT_GOAL := help
-AGENT_NAME := github_dev_assistant
+AGENT_NAME := aws_operator_agent
 IMAGE_NAME := $(AGENT_NAME)
 VERSION := 1.0.0
 
@@ -10,17 +10,14 @@ TIMESTAMP := $(shell date +%Y%m%d-%H%M%S)
 LOCAL_TAG := latest-$(TIMESTAMP)
 
 # Environment variables
-OIDC_CLIENT_ID ?= 
-OIDC_CLIENT_SECRET ?= 
-IAM_ROLE_ARN ?= 
+IAM_ROLE_ARN ?= # For deployment (general AgentCore role)
+IAM_AGENT_ROLE_ARN ?= # For AWS operations (specific AWS Operator Agent role)
 ECR_REPOSITORY_URL ?= 
 AWS_REGION ?= us-east-1
-GITHUB_TOKEN ?= # Optional: for local testing only
 
 .PHONY: help
 help: # show help for each of the Makefile recipes
 	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
-
 
 .PHONY: install
 install: # install dependencies
@@ -31,15 +28,21 @@ test: # run tests
 	python -m pytest tests/ -v
 
 .PHONY: run
-run: # run agent locally (optionally set GITHUB_TOKEN for testing)
-	GITHUB_TOKEN=$(GITHUB_TOKEN) python agent.py
+run: # run agent locally (requires AWS CLI and credentials)
+	@command -v aws >/dev/null 2>&1 || { echo "Error: AWS CLI not found. Please install AWS CLI"; exit 1; }
+	@aws sts get-caller-identity >/dev/null 2>&1 || { echo "Error: AWS credentials not configured"; exit 1; }
+	python agent.py
+
+.PHONY: check-build-env
+check-build-env: # check required environment variables for ECR builds only
+	@test -n "$(ECR_REPOSITORY_URL)" || (echo "Error: ECR_REPOSITORY_URL not set" && exit 1)
+
+.PHONY: check-deploy-env
+check-deploy-env: # check required environment variables for agent deployment
+	@test -n "$(IAM_AGENT_ROLE_ARN)" || (echo "Error: IAM_AGENT_ROLE_ARN not set" && exit 1)
 
 .PHONY: build-image
-build-image: # build and push container image to ECR with timestamped tag
-	@if [ -z "$(ECR_REPOSITORY_URL)" ]; then \
-		echo "Error: ECR_REPOSITORY_URL environment variable is required"; \
-		exit 1; \
-	fi
+build-image: check-build-env # build and push container image to ECR with timestamped tag
 	aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(ECR_REPOSITORY_URL)
 	docker build -t $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(LOCAL_TAG) .
 	docker tag $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(LOCAL_TAG) $(ECR_REPOSITORY_URL):$(AGENT_NAME)-latest
@@ -50,14 +53,10 @@ build-image: # build and push container image to ECR with timestamped tag
 	@echo "  - $(ECR_REPOSITORY_URL):$(AGENT_NAME)-latest"
 
 .PHONY: deploy
-deploy: install # deploy agent to AWS Bedrock AgentCore
-	@if [ -z "$(IAM_ROLE_ARN)" ]; then \
-		echo "Error: IAM_ROLE_ARN environment variable is required"; \
-		exit 1; \
-	fi
+deploy: install check-deploy-env # deploy agent to AWS Bedrock AgentCore with specific AWS role
 	../../scripts/deploy-agent \
 		--agent-name "$(AGENT_NAME)" \
-		--execution-role-arn $(IAM_ROLE_ARN) \
+		--execution-role-arn $(IAM_AGENT_ROLE_ARN) \
 		--region $(AWS_REGION)
 
 

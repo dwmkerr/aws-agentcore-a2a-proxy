@@ -218,13 +218,11 @@ if __name__ == "__main__":
             temp_script
         ], check=True)
         
-        print(f"\\033[1;32m✅ Agent '{agent_name}' removed successfully!\\033[0m")
-        
     except subprocess.CalledProcessError as e:
-        print(f"\\033[1;31m❌ Removal failed with exit code {e.returncode}\\033[0m")
+        print(f"\033[1;31m❌ Removal failed with exit code {e.returncode}\033[0m")
         sys.exit(1)
     except FileNotFoundError:
-        print("\\033[1;31m❌ uv not found. Please install uv: https://github.com/astral-sh/uv\\033[0m")
+        print("\033[1;31m❌ uv not found. Please install uv: https://github.com/astral-sh/uv\033[0m")
         sys.exit(1)
     finally:
         # Clean up temporary file

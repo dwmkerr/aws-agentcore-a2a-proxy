@@ -462,13 +462,32 @@ Teams: {', '.join(self.current_user.teams) if self.current_user.teams else 'None
 
 What would you like to do?"""
 
-# Agent entry point for AWS Bedrock AgentCore
+# AgentCore web service setup
+from bedrock_agentcore.runtime import BedrockAgentCoreApp
+
+app = BedrockAgentCoreApp()
+assistant = GitHubDevelopmentAssistant()
+
+@app.entrypoint
+async def invoke(payload):
+    """AgentCore entrypoint for processing requests"""
+    # Extract prompt from payload
+    user_message = payload.get("prompt", "Hello, what can you help me with?")
+    
+    # Extract OIDC claims if available (would come from AgentCore)
+    oidc_claims = payload.get("oidc_claims")
+    
+    # Process the request
+    response = await assistant.handle_request(user_message, oidc_claims)
+    
+    return {"result": response}
+
+# Local testing function
 async def main():
-    """Main entry point when running as standalone script"""
-    # This would be called by Bedrock AgentCore runtime
+    """Main entry point for local testing"""
     assistant = GitHubDevelopmentAssistant()
     
-    # Example usage with mock OIDC claims (includes GitHub token from env for testing)
+    # Example usage with mock OIDC claims
     mock_oidc_claims = {
         "preferred_username": "johndoe",
         "email": "john.doe@company.com",
@@ -483,9 +502,7 @@ async def main():
         "Show me my pull requests",
         "What issues are assigned to me?",
         "Check my notifications",
-        "Show workflow status",
-        "Show my repositories", 
-        "Create an issue for implementing OIDC"
+        "Show workflow status"
     ]
     
     for query in test_queries:
@@ -495,4 +512,5 @@ async def main():
         print("-" * 80)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # Start AgentCore web service
+    app.run()

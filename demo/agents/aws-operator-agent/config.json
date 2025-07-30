@@ -1,0 +1,44 @@
+{
+  "agent": {
+    "name": "AWS Operator Agent",
+    "description": "AWS operations assistant with AWS CLI integration and role-based access control",
+    "version": "1.0.0",
+    "capabilities": [
+      "AWS resource management",
+      "Infrastructure monitoring", 
+      "Cost optimization",
+      "Security auditing",
+      "Role-based access control"
+    ]
+  },
+  "aws": {
+    "default_region": "us-east-1",
+    "allowed_regions": [
+      "us-east-1",
+      "us-west-2", 
+      "eu-west-1"
+    ],
+    "services": {
+      "readonly": ["ec2", "s3", "cloudwatch"],
+      "operator": ["ec2", "s3", "iam", "cloudwatch", "lambda", "ce"],
+      "admin": ["*"]
+    }
+  },
+  "oidc": {
+    "role_mapping": {
+      "aws-operators": "operator",
+      "aws-admins": "admin", 
+      "aws-readonly": "readonly"
+    },
+    "required_claims": [
+      "preferred_username",
+      "email",
+      "groups"
+    ]
+  },
+  "security": {
+    "command_timeout": 30,
+    "max_concurrent_operations": 5,
+    "audit_logging": true
+  }
+}

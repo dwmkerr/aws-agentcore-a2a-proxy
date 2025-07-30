@@ -1,0 +1,11 @@
+# AWS Operator Agent Dependencies
+
+# AgentCore runtime (required for web service)
+bedrock-agentcore
+
+# AWS SDK for Python (better than subprocess calls)
+boto3>=1.34.0
+botocore>=1.34.0
+
+# Development and testing
+python-dotenv>=1.0.0

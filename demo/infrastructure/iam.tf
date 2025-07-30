@@ -119,3 +119,23 @@ resource "aws_iam_policy" "agentcore_user" {
   policy      = data.aws_iam_policy_document.agentcore_user.json
   tags        = var.tags
 }
+
+# AWS Operator Agent specific role
+resource "aws_iam_role" "aws_operator_agent" {
+  name               = "AwsOperatorAgentRole"
+  assume_role_policy = data.aws_iam_policy_document.agentcore_trust.json
+  description        = "Execution role for AWS Operator Agent with read-only AWS access"
+  tags               = var.tags
+}
+
+# Attach AWS managed ReadOnlyAccess policy to AWS Operator Agent role
+resource "aws_iam_role_policy_attachment" "aws_operator_agent_readonly" {
+  role       = aws_iam_role.aws_operator_agent.name
+  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+}
+
+# Attach basic AgentCore execution policy to AWS Operator Agent role
+resource "aws_iam_role_policy_attachment" "aws_operator_agent_execution" {
+  role       = aws_iam_role.aws_operator_agent.name
+  policy_arn = aws_iam_policy.agentcore_execution.arn
+}
