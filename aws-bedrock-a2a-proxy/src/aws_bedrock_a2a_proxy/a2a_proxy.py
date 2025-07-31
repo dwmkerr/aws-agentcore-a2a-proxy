@@ -174,79 +174,22 @@ class A2AProxy:
         
         # Generate agent-specific description and skills based on agent type
         if "aws_operator" in agent_name:
-            description = "Comprehensive AWS operations assistant with structured tools for all major AWS services"
+            description = "AWS operations assistant that can execute any AWS CLI command or boto3 operation"
             skills = [
                 AgentSkill(
-                    id="list_s3_buckets",
-                    name="List S3 Buckets", 
-                    description="List all S3 buckets in your AWS account",
-                    tags=["aws", "s3", "storage", "list"]
-                ),
-                AgentSkill(
-                    id="get_s3_bucket_info",
-                    name="Get S3 Bucket Details",
-                    description="Get detailed information about a specific S3 bucket including versioning and object count",
-                    tags=["aws", "s3", "storage", "details"]
-                ),
-                AgentSkill(
-                    id="list_ec2_instances",
-                    name="List EC2 Instances",
-                    description="List all EC2 instances in a specified region with details",
-                    tags=["aws", "ec2", "compute", "instances"]
-                ),
-                AgentSkill(
-                    id="get_ec2_instance_details",
-                    name="Get EC2 Instance Details",
-                    description="Get comprehensive details about a specific EC2 instance",
-                    tags=["aws", "ec2", "compute", "details"]
-                ),
-                AgentSkill(
-                    id="list_lambda_functions",
-                    name="List Lambda Functions",
-                    description="List all Lambda functions in a specified region",
-                    tags=["aws", "lambda", "serverless", "functions"]
-                ),
-                AgentSkill(
-                    id="get_lambda_function_details",
-                    name="Get Lambda Function Details",
-                    description="Get detailed configuration for a specific Lambda function",
-                    tags=["aws", "lambda", "serverless", "details"]
-                ),
-                AgentSkill(
-                    id="list_rds_instances",
-                    name="List RDS Instances",
-                    description="List all RDS database instances with engine and status information",
-                    tags=["aws", "rds", "database", "instances"]
-                ),
-                AgentSkill(
-                    id="list_iam_users",
-                    name="List IAM Users",
-                    description="List all IAM users in the AWS account",
-                    tags=["aws", "iam", "security", "users"]
-                ),
-                AgentSkill(
-                    id="get_caller_identity",
-                    name="Get AWS Identity",
-                    description="Get current AWS caller identity and account information",
-                    tags=["aws", "sts", "identity", "account"]
-                ),
-                AgentSkill(
-                    id="list_cloudformation_stacks",
-                    name="List CloudFormation Stacks",
-                    description="List all CloudFormation stacks with status information",
-                    tags=["aws", "cloudformation", "infrastructure", "stacks"]
-                ),
-                AgentSkill(
-                    id="list_sns_topics",
-                    name="List SNS Topics",
-                    description="List all SNS topics for notifications",
-                    tags=["aws", "sns", "messaging", "topics"]
-                ),
-                AgentSkill(
-                    id="list_sqs_queues",
-                    name="List SQS Queues",
-                    description="List all SQS queues for message processing",
-                    tags=["aws", "sqs", "messaging", "queues"]
+                    id="aws_command",
+                    name="AWS Command Execution",
+                    description="Execute any AWS CLI command or boto3 operation across all AWS services. Can perform operations on S3, EC2, Lambda, RDS, IAM, CloudFormation, SNS, SQS, and any other AWS service. Supports all AWS CLI commands and API operations with natural language input.",
+                    tags=["aws", "cli", "boto3", "infrastructure", "operations", "all-services"],
+                    examples=[
+                        "List my S3 buckets",
+                        "Show EC2 instances in us-west-2", 
+                        "Get Lambda functions",
+                        "Who am I?",
+                        "Describe RDS instances",
+                        "List CloudFormation stacks",
+                        "Show IAM users"
+                    ]
                 ),
             ]
         elif "github_dev" in agent_name:
