@@ -5,6 +5,8 @@ TODO:
 - [ ] aws agent working tested via a2a inspector
 - [ ] stream
 - [ ] lint style as mine
+- [x] agent runtime release versions seem to not update - fixed with architecture-specific AWS CLI
+- [x] otel - disabled for local testing
 
 [![PyPI version](https://badge.fury.io/py/aws-bedrock-a2a-proxy.svg)](https://badge.fury.io/py/aws-bedrock-a2a-proxy)
 [![codecov](https://codecov.io/gh/dwmkerr/aws-bedrock-a2a-proxy/branch/main/graph/badge.svg)](https://codecov.io/gh/dwmkerr/aws-bedrock-a2a-proxy)
@@ -181,6 +183,11 @@ make install-demo-agents
 # Check their logs.
 make logs-aws-agent
 make logs-github-agent
+
+# Test locally (requires AWS credentials in environment).
+make test-aws-agent-local
+# Then in another terminal:
+curl -X POST http://localhost:2973/invocations -H 'Content-Type: application/json' -d '{"prompt": "use the aws_status tool"}'
 
 # Uninstall.
 make uninstall-demo-agents

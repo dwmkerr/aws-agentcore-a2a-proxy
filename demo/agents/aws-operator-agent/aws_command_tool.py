@@ -8,7 +8,7 @@ from strands import tool
 logger = logging.getLogger(__name__)
 
 @tool
-def aws_command(command: str) -> Dict[str, Any]:
+def aws_command(command: str) -> str:
     """
     Execute AWS CLI commands. Use standard AWS CLI syntax like 'ec2 describe-instances', 's3 ls', 'sts get-caller-identity', etc.
     
@@ -36,20 +36,6 @@ def aws_command(command: str) -> Dict[str, Any]:
     )
     
     if result.returncode == 0:
-        # Try to parse JSON output
-        try:
-            data = json.loads(result.stdout) if result.stdout.strip() else {}
-        except json.JSONDecodeError:
-            data = result.stdout.strip()
-        
-        return {
-            "success": True,
-            "data": data,
-            "command": command
-        }
+        return result.stdout.strip() if result.stdout.strip() else "Command completed successfully"
     else:
-        return {
-            "success": False,
-            "error": result.stderr.strip() or "Command failed",
-            "command": command
-        }
+        return f"Error (code {result.returncode}): {result.stderr.strip() or 'Command failed'}"

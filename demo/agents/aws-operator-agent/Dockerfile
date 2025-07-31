@@ -5,7 +5,9 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     curl \
     unzip \
-    && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+    && ARCH=$(dpkg --print-architecture) \
+    && if [ "$ARCH" = "amd64" ]; then AWS_CLI_ARCH="x86_64"; else AWS_CLI_ARCH="aarch64"; fi \
+    && curl "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_CLI_ARCH}.zip" -o "awscliv2.zip" \
     && unzip awscliv2.zip \
     && ./aws/install \
     && rm -rf awscliv2.zip aws \

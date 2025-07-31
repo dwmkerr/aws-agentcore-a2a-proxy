@@ -12,7 +12,7 @@ from strands import tool
 
 
 @tool
-def aws_status() -> Dict[str, Any]:
+def aws_status() -> str:
     """Check AWS CLI status and current identity"""
     status = {
         "aws_cli_available": False,
@@ -54,4 +54,4 @@ def aws_status() -> Dict[str, Any]:
     except Exception as e:
         status["error"] = f"Unexpected error: {str(e)}"
     
-    return status
+    return json.dumps(status, indent=2)
