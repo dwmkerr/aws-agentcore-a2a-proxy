@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
 
 from .agentcore_client import AgentCoreClient
-from .a2a_proxy import A2AProxy
+from .a2a_proxy_server import A2AProxy
 
 load_dotenv()
 

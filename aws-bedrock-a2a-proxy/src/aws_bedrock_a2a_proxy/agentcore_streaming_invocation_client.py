@@ -1,4 +1,4 @@
-"""HTTP client for AWS Bedrock AgentCore API"""
+"""Streaming invocation client for AWS Bedrock AgentCore API"""
 
 import json
 import logging
@@ -15,8 +15,8 @@ from botocore.awsrequest import AWSRequest as BotocoreAWSRequest
 logger = logging.getLogger(__name__)
 
 
-class AgentCoreHTTPClient:
-    """HTTP client for AWS Bedrock AgentCore API communication"""
+class AgentCoreStreamingInvocationClient:
+    """Streaming invocation client for AWS Bedrock AgentCore API communication"""
 
     def __init__(
         self, region: str = "us-east-1", access_key_id: Optional[str] = None, secret_access_key: Optional[str] = None
@@ -52,77 +52,7 @@ class AgentCoreHTTPClient:
 
         return request
 
-    async def list_agents(self) -> List[Dict[str, Any]]:
-        """List all AgentCore agents"""
-        try:
-            base_url = f"https://bedrock-agentcore-control.{self.region}.amazonaws.com"
-            url = f"{base_url}/agent-runtimes"
 
-            request = self._create_signed_request("GET", url)
-
-            logger.info(f"Listing AgentCore agents from {url}")
-            if not request.url:
-                raise ValueError("Request URL is None")
-            response = requests.get(request.url, headers=dict(request.headers), timeout=30)
-
-            logger.info(f"List agents response status: {response.status_code}")
-
-            if response.status_code == 200:
-                result = response.json()
-                agents = result.get("agentRuntimes", [])
-                logger.info(f"Found {len(agents)} agents")
-                return agents
-            else:
-                error_text = response.text
-                logger.error(f"Failed to list agents: {response.status_code} - {error_text}")
-                raise Exception(f"Failed to list agents: {response.status_code} - {error_text}")
-
-        except Exception as e:
-            logger.error(f"Error listing agents: {e}")
-            raise
-
-    async def invoke_agent(self, agent_id: str, prompt: str) -> Dict[str, Any]:
-        """Invoke an AgentCore agent with a prompt"""
-        try:
-            # Get agent ARN from stored agents or construct it
-            agent_arn = self._get_agent_arn(agent_id)
-
-            # Generate session ID for this invocation
-            session_id = str(uuid.uuid4())
-
-            logger.info(f"Invoking agent {agent_id} with prompt: {prompt[:100]}...")
-            logger.info(f"Agent ARN: {agent_arn}")
-            logger.info(f"Session ID: {session_id}")
-
-            # Create direct HTTPS request
-            base_url = f"https://bedrock-agentcore.{self.region}.amazonaws.com"
-            escaped_agent_arn = urllib.parse.quote(agent_arn, safe="")
-            url = f"{base_url}/runtimes/{escaped_agent_arn}/invocations"
-
-            request_payload = json.dumps({"prompt": prompt})
-            headers = {"Content-Type": "application/json", "X-Amzn-Bedrock-AgentCore-Runtime-Session-Id": session_id}
-
-            request = self._create_signed_request("POST", url, request_payload, headers)
-
-            # Make the request
-            if not request.url:
-                raise ValueError("Request URL is None")
-            response = requests.post(request.url, headers=dict(request.headers), data=request.data, timeout=60)
-
-            logger.info(f"Agent invocation response status: {response.status_code}")
-
-            if response.status_code == 200:
-                result = response.json()
-                logger.info("Agent response received successfully")
-                return result
-            else:
-                error_text = response.text
-                logger.error(f"Agent invocation failed: {response.status_code} - {error_text}")
-                raise Exception(f"Agent invocation failed: {response.status_code} - {error_text}")
-
-        except Exception as e:
-            logger.error(f"Error invoking agent {agent_id}: {e}")
-            raise
 
     async def invoke_agent_stream(self, agent_id: str, prompt: str) -> AsyncIterator[Dict[str, Any]]:
         """Invoke an AgentCore agent with streaming response"""
