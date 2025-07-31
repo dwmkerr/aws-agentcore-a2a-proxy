@@ -210,6 +210,48 @@ class AgentCoreWebClient:
             print(f"❌ Error calling API: {{e}}")
             return False
     
+    def update_agent_runtime(self, agent_id, image_uri, execution_role_arn):
+        """Update existing AgentCore agent runtime with new container image"""
+        encoded_agent_id = quote(agent_id, safe='')
+        url = f"{{self.base_url}}/runtimes/{{encoded_agent_id}}/"
+        
+        payload = {{
+            "agentRuntimeArtifact": {{
+                "containerConfiguration": {{
+                    "containerUri": image_uri
+                }}
+            }},
+            "roleArn": execution_role_arn,
+            "networkConfiguration": {{
+                "networkMode": "PUBLIC"
+            }},
+            "protocolConfiguration": {{
+                "serverProtocol": "HTTP"
+            }}
+        }}
+        
+        headers = {{'Content-Type': 'application/json'}}
+        signed_headers = self.signer.sign_request('PUT', url, headers, json.dumps(payload))
+        
+        try:
+            response = requests.put(url, headers=signed_headers, data=json.dumps(payload), timeout=60)
+            
+            if response.status_code in [200, 201]:
+                result = response.json()
+                return {{
+                    'agent_id': result.get('agentRuntimeId'),
+                    'agent_arn': result.get('agentRuntimeArn'),
+                    'version': result.get('agentRuntimeVersion'),
+                    'status': result.get('status', 'UPDATING')
+                }}
+            else:
+                print(f"❌ Update API call failed: {{response.status_code}}")
+                print(f"Response: {{response.text}}")
+                return None
+        except Exception as e:
+            print(f"❌ Error calling update API: {{e}}")
+            return None
+    
     def get_agent_status(self, agent_id):
         """Get agent runtime status"""
         encoded_agent_id = quote(agent_id, safe='')
@@ -243,14 +285,19 @@ def main():
     if existing_agent:
         agent_id = existing_agent.get('agentRuntimeId')
         print(f"\\033[1;37minfo:\\033[0m agent '{{agent_name}}' already exists (id: {{agent_id}}), updating with new image")
-        print(f"\\033[1;37minfo:\\033[0m AgentCore will auto-create new version when image changes are detected")
         
-        # Just wait and check status - AgentCore will auto-version
-        print(f"\\033[1;37minfo:\\033[0m waiting for AgentCore to detect new image...")
-        time.sleep(10)  # Give AgentCore time to detect the new image
+        # Call UpdateAgentRuntime API to trigger new version creation
+        update_result = client.update_agent_runtime(agent_id, image_uri, execution_role_arn)
         
-        # Check if agent is ready (it should auto-update)
-        for i in range(20):  # Wait up to 10 minutes for auto-versioning
+        if not update_result:
+            print(f"\\033[1;31merror:\\033[0m failed to update agent runtime")
+            sys.exit(1)
+        
+        new_version = update_result.get('version', 'unknown')
+        print(f"\\033[1;37minfo:\\033[0m created new version {{new_version}}")
+        
+        # Wait for the update to complete
+        for i in range(20):  # Wait up to 10 minutes
             time.sleep(30)
             status_info = client.get_agent_status(agent_id)
             
@@ -258,11 +305,11 @@ def main():
                 status = status_info.get('status', 'UNKNOWN')
                 
                 if status == 'READY':
-                    print(f"\\033[1;32m✅\\033[0m agent {{agent_name}} updated and ready")
+                    print(f"\\033[1;32m✅\\033[0m agent {{agent_name}} updated to version {{new_version}} and ready")
                     return
-                elif status in ['FAILED', 'DELETED']:
+                elif status in ['FAILED', 'UPDATE_FAILED']:
                     print(f"\\033[1;31merror:\\033[0m agent update failed with status: {{status.lower()}}")
-                    break
+                    sys.exit(1)
                 else:
                     print(f"\\033[1;37minfo:\\033[0m status: {{status}} (attempt {{i+1}}/20)")
             else:

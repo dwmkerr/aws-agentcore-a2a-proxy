@@ -174,13 +174,19 @@ class A2AProxy:
         # In a full implementation, this would query the actual agent for its tools
         
         if "aws_operator" in agent_name or "aws-operator" in agent_name:
-            # AWS agent has one comprehensive tool
+            # AWS agent has two tools: command execution and status checking
             return [
                 AgentSkill(
                     id="aws_command",
                     name="AWS Command Execution",
                     description="Execute any AWS CLI command or boto3 operation across all AWS services. Can perform operations on S3, EC2, Lambda, RDS, IAM, CloudFormation, SNS, SQS, and any other AWS service. Supports all AWS CLI commands and API operations with natural language input.",
                     tags=["aws", "cli", "boto3", "infrastructure", "operations", "all-services"]
+                ),
+                AgentSkill(
+                    id="aws_status",
+                    name="AWS Status Check",
+                    description="Check AWS CLI status and current identity",
+                    tags=["aws", "status", "identity", "health-check"]
                 )
             ]
         elif "github_dev" in agent_name or "github-dev" in agent_name:

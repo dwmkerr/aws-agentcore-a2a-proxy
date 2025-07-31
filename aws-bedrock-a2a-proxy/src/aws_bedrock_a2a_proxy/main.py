@@ -139,9 +139,12 @@ async def discover_and_refresh_agents(app: FastAPI, is_startup: bool = False) ->
 
     # Show polling result in one line
     if agents:
-        agent_names = [agent.get("agentRuntimeName", f"agent-{agent.get('agentRuntimeId')}") for agent in agents]
-        # Format agent names in bright white
-        formatted_names = [f"\033[1;37m{name}\033[0m" for name in agent_names]
+        # Format agent names with versions: name(version) in bright white with grey version
+        formatted_names = []
+        for agent in agents:
+            name = agent.get("agentRuntimeName", f"agent-{agent.get('agentRuntimeId')}")
+            version = agent.get("agentRuntimeVersion", "1")
+            formatted_names.append(f"\033[1;37m{name}\033[0m\033[90m (v{version})\033[0m")
         logger.info(f"polling: discovered {len(agents)} agents: {', '.join(formatted_names)}")
     else:
         logger.info("polling: discovered 0 agents")

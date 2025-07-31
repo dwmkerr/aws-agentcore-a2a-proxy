@@ -8,6 +8,10 @@ TODO:
 - [x] agent runtime release versions seem to not update - fixed with architecture-specific AWS CLI
 - [x] otel - disabled for local testing
 
+## TODO
+
+- [ ] Add OIDC authentication support
+
 [![PyPI version](https://badge.fury.io/py/aws-bedrock-a2a-proxy.svg)](https://badge.fury.io/py/aws-bedrock-a2a-proxy)
 [![codecov](https://codecov.io/gh/dwmkerr/aws-bedrock-a2a-proxy/branch/main/graph/badge.svg)](https://codecov.io/gh/dwmkerr/aws-bedrock-a2a-proxy)
 
@@ -70,69 +74,87 @@ make install-demo-infrastructure
 make install-demo-agents
 ```
 
-## Calling Bedrock Agents via A2A
+## Demoing the AWS Operator Agent
 
-View the API documentation:
+Here's a complete walkthrough of the AWS Operator Agent.
+
+First install the demo agents:
 
 ```bash
-open http://localhost:2972/docs
+make install-demo-agents
 ```
 
-List available A2A agents:
+Next you can test the agent through the AWS Agentcore playground: https://us-east-1.console.aws.amazon.com/bedrock-agentcore/playground?region=us-east-1
 
-```bash
-curl http://localhost:2972/a2a/agents
+Use an input such as:
 
-# [{"agent_id": "Bedrock_Customer_Support_Agent-jQwAm25rmZ", "name": "Bedrock_Customer_Support_Agent", "host": "localhost:2972", "endpoint": "/a2a/agent/Bedrock_Customer_Support_Agent-jQwAm25rmZ", ...}]
+```json
+{"prompt": "give me the names of all my s3 buckets"}
 ```
 
-Get an agent's card:
+Now run the AWS Bedrock A2A proxy locally:
 
 ```bash
-# Get the agent ID dynamically:
-AGENT_ID=$(curl -s http://localhost:2972/a2a/agents | jq -r '.[0].agent_id')
+make dev
 
-curl http://localhost:2972/a2a/agent/$AGENT_ID/.well-known/agent.json
-
-# {"name": "Bedrock_Customer_Support_Agent", "description": "Customer support agent powered by AWS Bedrock AgentCore", "capabilities": {...}}
+# output, e.g:
+# INFO: polling: discovered 2 agents: aws_operator_agent (v2), github_dev_assistant (v2)
 ```
 
-Invoke an agent via A2A:
+Curl the A2A or Agentcore agents endpoints to show the agents:
 
 ```bash
-# Get the agent ID dynamically:
-AGENT_ID=$(curl -s http://localhost:2972/a2a/agents | jq -r '.[0].agent_id')
+curl -s http://localhost:2972/agentcore/agents | jq '.[]'
 
-curl -X POST http://localhost:2972/a2a/agent/$AGENT_ID/jsonrpc \
+# output, e.g:
+{
+  "agentRuntimeId": "aws_operator_agent-ehXYYSF6ET",
+  "agentRuntimeName": "aws_operator_agent",
+  "status": "READY",
+  "version": "2",
+  "etc": "..."
+}
+```
+
+You can call the agent via the Agentcore endpoint - the proxy will use the AWS APIs directly:
+
+```bash
+curl -s -X POST "http://localhost:2972/agentcore/agents/aws_operator_agent-ehXYYSF6ET/invoke" \
   -H "Content-Type: application/json" \
-  -d '{"method": "query", "params": {"query": "Hello, I need help with my order"}, "id": 1}'
-
-# Output: {"result": "Hello! I'd be happy to help you with your order..."}
+  -d '{"prompt": "give me the names of all my s3 buckets"}' | jq '.result.content[0].text'
 ```
 
-## Direct AgentCore Access (Non-A2A)
-
-For debugging or direct integration, you can also call AgentCore agents directly without the A2A protocol.
-
-List the Agentcore agents first:
+You can also show the A2A agents:
 
 ```bash
-curl http://localhost:2972/agentcore/agents
+curl -s http://localhost:2972/a2a/agents | jq '.[]'
 
-# [{"agentRuntimeId": "Bedrock_Customer_Support_Agent-XLA7bpGvk5", "agentRuntimeName": "Bedrock_Customer_Support_Agent", "status": "READY", ...}]
+# output, e.g:
+{
+  "name": "aws_operator_agent",
+  "preferredTransport": "JSONRPC",
+  "protocolVersion": "0.2.6",
+  "url": "http://localhost:2972/a2a/agent/aws_operator_agent-ehXYYSF6ET"
+}
 ```
 
-Invoke directly:
+The `url` shown can be opened in the A2A inspector and you can make calls directly through the UI.
+
+Finally, you can call the agent via the A2A protocol directly:
 
 ```bash
-# Get the agent runtime ID dynamically:
-AGENT_RUNTIME_ID=$(curl -s http://localhost:2972/agentcore/agents | jq -r '.[0].agentRuntimeId')
-
-curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke \
+curl -s -X POST "http://localhost:2972/a2a/agent/aws_operator_agent-ehXYYSF6ET" \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "Hello, I need help with my order"}'
+  -d '{"prompt": "give me the names of all my s3 buckets"}' | jq '.result.parts[0].text'
+```
 
-# {"result": {"role": "assistant", "content": [{"text": "Hello! I'd be happy to help..."}]}}
+All three methods should return your S3 bucket names, demonstrating the complete AgentCore → A2A integration.
+
+Delete the agents and infrastructure with:
+
+```bash
+make uninstall-demo-agents
+make uninstall-demo-infrastructure
 ```
 
 ## Additional Features
@@ -170,69 +192,3 @@ curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke-str
 # data: [DONE]
 ```
 
-## Demo Agents
-
-This project includes demonstration agents showcasing different AgentCore capabilities.
-
-Install / uninstall / debug like so:
-
-```bash
-# Install the demo agents.
-make install-demo-agents
-
-# Check their logs.
-make logs-aws-agent
-make logs-github-agent
-
-# Test locally (requires AWS credentials in environment).
-make test-aws-agent-local
-# Then in another terminal:
-curl -X POST http://localhost:2973/invocations -H 'Content-Type: application/json' -d '{"prompt": "use the aws_status tool"}'
-
-# Uninstall.
-make uninstall-demo-agents
-```
-
-### GitHub Development Assistant
-
-A GitHub workflow assistant that demonstrates OIDC authentication and role-based access control. Uses GitHub's hosted MCP server for real-time GitHub data access.
-
-**Features**: Personalized PR/issue management, notifications, CI/CD monitoring, role-aware responses (developer/team_lead/admin)
-
-**Testing**:
-```bash
-# Deploy agent (no GitHub token needed - uses OIDC)
-cd demo/agents/github-dev-assistant
-export IAM_ROLE_ARN="arn:aws:iam::account:role/bedrock-agent-role" 
-make deploy
-
-# Configure OIDC via Bedrock console for GitHub authentication
-# Access via Bedrock console with GitHub login
-# Agent extracts GitHub token from OIDC claims for API calls
-```
-
-Users login with GitHub OAuth, AWS Bedrock handles the authentication flow, and the agent receives verified user claims for personalized GitHub workflow assistance.
-
-### AWS Operator Agent
-
-An AWS operations assistant that demonstrates AWS CLI integration and infrastructure management. Provides secure, role-based AWS operations through authenticated CLI commands.
-
-**Features**: EC2/S3/Lambda management, CloudWatch monitoring, cost analysis, identity management, role-based access control (readonly/operator/admin)
-
-**Testing**:
-```bash
-# Deploy agent (requires AWS CLI and credentials)
-cd demo/agents/aws-operator-agent
-export IAM_ROLE_ARN="arn:aws:iam::account:role/bedrock-agent-role"
-make deploy
-
-# Configure OIDC via Bedrock console for role-based access
-# Access via Bedrock console with corporate SSO
-# Agent executes AWS CLI commands based on user's role and permissions
-```
-
-Users authenticate via OIDC, agent determines their AWS role from groups, and executes secure AWS CLI operations with appropriate access controls.
-
-## TODO
-
-- [ ] Add OIDC authentication support
