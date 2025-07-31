@@ -24,6 +24,7 @@ from strands import Agent
 from strands.models import BedrockModel
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
 from aws_command_tool import aws_command
+from status_tool import aws_status
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -79,9 +80,10 @@ model = BedrockModel(
     model_id="anthropic.claude-3-haiku-20240307-v1:0"
 )
 
-# Define all available tools - now just one comprehensive tool
+# Define all available tools
 aws_tools = [
-    aws_command
+    aws_command,
+    aws_status
 ]
 
 agent = Agent(
