@@ -1,90 +1,13 @@
 {
   "agent": {
     "name": "GitHub Development Assistant",
-    "description": "Personalized GitHub workflow assistant with OIDC authentication",
+    "description": "GitHub workflow assistant for repository management and collaboration",
     "version": "1.0.0",
     "capabilities": [
-      "pull_request_management",
-      "issue_tracking", 
-      "repository_insights",
-      "workflow_automation",
-      "role_based_access"
-    ]
-  },
-  "mcp": {
-    "server_url": "https://api.githubcopilot.com/mcp/",
-    "protocol_version": "2.0",
-    "authentication": "github_pat",
-    "enabled_toolsets": [
-      "context",
-      "repos", 
-      "issues",
-      "pull_requests",
-      "notifications",
-      "actions"
-    ]
-  },
-  "oidc": {
-    "provider": "https://auth.company.com",
-    "client_id": "${OIDC_CLIENT_ID}",
-    "scopes": ["openid", "profile", "email", "groups"],
-    "claims_mapping": {
-      "username": "preferred_username",
-      "email": "email", 
-      "name": "name",
-      "role": "role",
-      "teams": "groups"
-    }
-  },
-  "github": {
-    "api_base_url": "https://api.github.com",
-    "rate_limit": {
-      "requests_per_hour": 5000,
-      "burst_limit": 100
-    },
-    "default_repositories": [],
-    "role_permissions": {
-      "developer": [
-        "read_repositories",
-        "read_issues", 
-        "create_issues",
-        "read_pull_requests"
-      ],
-      "team_lead": [
-        "read_repositories",
-        "read_issues",
-        "create_issues", 
-        "manage_issues",
-        "read_pull_requests",
-        "review_pull_requests",
-        "merge_pull_requests"
-      ],
-      "admin": [
-        "read_repositories",
-        "manage_repositories",
-        "read_issues",
-        "manage_issues",
-        "read_pull_requests", 
-        "manage_pull_requests",
-        "admin_access"
-      ]
-    }
-  },
-  "features": {
-    "personalized_greetings": true,
-    "role_based_filtering": true,
-    "audit_logging": true,
-    "smart_assignments": true,
-    "workflow_suggestions": true
-  },
-  "logging": {
-    "level": "INFO",
-    "format": "json",
-    "audit_events": [
-      "user_authentication",
-      "repository_access", 
-      "issue_creation",
-      "pull_request_review"
+      "Pull request management",
+      "Issue tracking", 
+      "Repository insights",
+      "Workflow automation"
     ]
   }
 }

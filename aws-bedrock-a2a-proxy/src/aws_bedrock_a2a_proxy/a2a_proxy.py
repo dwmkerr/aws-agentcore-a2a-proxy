@@ -168,33 +168,24 @@ class A2AProxy:
         self.a2a_router = APIRouter()
         self.setup_a2a_routes()
 
-    def _generate_agent_card(self, agent_id: str, agent: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a complete A2A Agent Card from AgentCore agent data"""
-        agent_name = agent.get("agentRuntimeName", f"agent-{agent_id}")
+    def _get_agent_tools_by_type(self, agent_name: str) -> List[AgentSkill]:
+        """Get agent tools based on agent type - simplified auto-discovery"""
+        # This is a simplified version of auto-discovery
+        # In a full implementation, this would query the actual agent for its tools
         
-        # Generate agent-specific description and skills based on agent type
-        if "aws_operator" in agent_name:
-            description = "AWS operations assistant that can execute any AWS CLI command or boto3 operation"
-            skills = [
+        if "aws_operator" in agent_name or "aws-operator" in agent_name:
+            # AWS agent has one comprehensive tool
+            return [
                 AgentSkill(
                     id="aws_command",
                     name="AWS Command Execution",
                     description="Execute any AWS CLI command or boto3 operation across all AWS services. Can perform operations on S3, EC2, Lambda, RDS, IAM, CloudFormation, SNS, SQS, and any other AWS service. Supports all AWS CLI commands and API operations with natural language input.",
-                    tags=["aws", "cli", "boto3", "infrastructure", "operations", "all-services"],
-                    examples=[
-                        "List my S3 buckets",
-                        "Show EC2 instances in us-west-2", 
-                        "Get Lambda functions",
-                        "Who am I?",
-                        "Describe RDS instances",
-                        "List CloudFormation stacks",
-                        "Show IAM users"
-                    ]
-                ),
+                    tags=["aws", "cli", "boto3", "infrastructure", "operations", "all-services"]
+                )
             ]
-        elif "github_dev" in agent_name:
-            description = "GitHub development assistant with repository management and collaboration tools"
-            skills = [
+        elif "github_dev" in agent_name or "github-dev" in agent_name:
+            # GitHub agent has multiple specific tools
+            return [
                 AgentSkill(
                     id="manage_pull_requests",
                     name="Manage Pull Requests",
@@ -212,19 +203,34 @@ class A2AProxy:
                     name="Access Repositories",
                     description="Access, analyze, and manage GitHub repositories",
                     tags=["github", "repository", "analysis", "management"]
-                ),
+                )
             ]
         else:
-            # Fallback for other agents - use AgentCore description
-            description = agent.get("description", "AgentCore agent with general assistance capabilities")
-            skills = [
+            # Generic agent
+            return [
                 AgentSkill(
                     id="general_assistance",
                     name="General Assistance",
                     description="Provide general assistance based on agent capabilities",
                     tags=["general", "assistance", "support"]
-                ),
+                )
             ]
+
+    def _generate_agent_card(self, agent_id: str, agent: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate a complete A2A Agent Card from AgentCore agent data"""
+        agent_name = agent.get("agentRuntimeName", f"agent-{agent_id}")
+        
+        # Auto-discover tools based on agent type (simplified approach)
+        skills = self._get_agent_tools_by_type(agent_name)
+        
+        # Generate agent-specific description based on agent type
+        if "aws_operator" in agent_name or "aws-operator" in agent_name:
+            description = "AWS operations assistant that can execute any AWS CLI command or boto3 operation"
+        elif "github_dev" in agent_name or "github-dev" in agent_name:
+            description = "GitHub development assistant with repository management and collaboration tools"
+        else:
+            # Fallback for other agents - use AgentCore description
+            description = agent.get("description", "AgentCore agent with general assistance capabilities")
         
         # Create the complete Agent Card using A2A SDK
         agent_url = f"http://localhost:2972/a2a/agent/{agent_id}"

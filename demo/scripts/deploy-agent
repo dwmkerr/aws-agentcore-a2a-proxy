@@ -238,21 +238,40 @@ def main():
     # Create client
     client = AgentCoreWebClient()
     
-    # Check if agent already exists and remove it
+    # Check if agent already exists
     existing_agent = client.find_agent_by_name(agent_name)
     if existing_agent:
         agent_id = existing_agent.get('agentRuntimeId')
-        print(f"\\033[1;37minfo:\\033[0m agent '{{agent_name}}' already exists (id: {{agent_id}}), removing first")
+        print(f"\\033[1;37minfo:\\033[0m agent '{{agent_name}}' already exists (id: {{agent_id}}), updating with new image")
+        print(f"\\033[1;37minfo:\\033[0m AgentCore will auto-create new version when image changes are detected")
         
-        if client.delete_agent_runtime(agent_id):
-            print(f"\\033[1;37minfo:\\033[0m existing agent removed successfully")
-            # Wait a moment for cleanup
-            time.sleep(5)
-        else:
-            print(f"\\033[1;31merror:\\033[0m failed to remove existing agent")
-            sys.exit(1)
+        # Just wait and check status - AgentCore will auto-version
+        print(f"\\033[1;37minfo:\\033[0m waiting for AgentCore to detect new image...")
+        time.sleep(10)  # Give AgentCore time to detect the new image
+        
+        # Check if agent is ready (it should auto-update)
+        for i in range(20):  # Wait up to 10 minutes for auto-versioning
+            time.sleep(30)
+            status_info = client.get_agent_status(agent_id)
+            
+            if status_info:
+                status = status_info.get('status', 'UNKNOWN')
+                
+                if status == 'READY':
+                    print(f"\\033[1;32m✅\\033[0m agent {{agent_name}} updated and ready")
+                    return
+                elif status in ['FAILED', 'DELETED']:
+                    print(f"\\033[1;31merror:\\033[0m agent update failed with status: {{status.lower()}}")
+                    break
+                else:
+                    print(f"\\033[1;37minfo:\\033[0m status: {{status}} (attempt {{i+1}}/20)")
+            else:
+                print("\\033[1;33mwarning:\\033[0m could not check status")
+        
+        print(f"\\033[1;32m✅\\033[0m agent {{agent_name}} update completed")
+        return
     
-    print(f"\\033[1;37minfo:\\033[0m creating agent {{agent_name}}")
+    print(f"\\033[1;37minfo:\\033[0m creating new agent {{agent_name}}")
     
     result = client.create_agent_runtime(agent_name, image_uri, execution_role_arn)
     

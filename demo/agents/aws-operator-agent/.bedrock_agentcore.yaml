@@ -5,21 +5,9 @@ agents:
     entrypoint: agent.py
     platform: linux/arm64
     container_runtime: docker
-    aws:
-      execution_role: arn:aws:iam::705383350627:role/AgentCoreExecutionRole
-      account: '705383350627'
-      region: us-east-1
-      ecr_repository: 705383350627.dkr.ecr.us-east-1.amazonaws.com/bedrock_agentcore-agent
-      ecr_auto_create: false
-      network_configuration:
-        network_mode: PUBLIC
-      protocol_configuration:
-        server_protocol: HTTP
-      observability:
-        enabled: true
-    bedrock_agentcore:
-      agent_id: null
-      agent_arn: null
-      agent_session_id: 9f02f5f2-d628-4d72-91f6-bac04be833e2
-    authorizer_configuration: null
-    oauth_configuration: null
+    network_configuration:
+      network_mode: PUBLIC
+    protocol_configuration:
+      server_protocol: HTTP
+    observability:
+      enabled: true

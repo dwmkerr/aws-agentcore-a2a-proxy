@@ -4,6 +4,7 @@ TODO:
 
 - [ ] aws agent working tested via a2a inspector
 - [ ] stream
+- [ ] lint style as mine
 
 [![PyPI version](https://badge.fury.io/py/aws-bedrock-a2a-proxy.svg)](https://badge.fury.io/py/aws-bedrock-a2a-proxy)
 [![codecov](https://codecov.io/gh/dwmkerr/aws-bedrock-a2a-proxy/branch/main/graph/badge.svg)](https://codecov.io/gh/dwmkerr/aws-bedrock-a2a-proxy)
@@ -169,7 +170,21 @@ curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke-str
 
 ## Demo Agents
 
-This project includes demonstration agents showcasing different AgentCore capabilities:
+This project includes demonstration agents showcasing different AgentCore capabilities.
+
+Install / uninstall / debug like so:
+
+```bash
+# Install the demo agents.
+make install-demo-agents
+
+# Check their logs.
+make logs-aws-agent
+make logs-github-agent
+
+# Uninstall.
+make uninstall-demo-agents
+```
 
 ### GitHub Development Assistant
 
