@@ -140,12 +140,29 @@ curl -s http://localhost:2972/a2a/agents | jq '.[]'
 
 The `url` shown can be opened in the A2A inspector and you can make calls directly through the UI.
 
-Finally, you can call the agent via the A2A protocol directly:
+Finally, you can call the agent via the A2A protocol directly using standard JSON-RPC 2.0:
 
 ```bash
 curl -s -X POST "http://localhost:2972/a2a/agent/aws_operator_agent-ehXYYSF6ET" \
   -H "Content-Type: application/json" \
-  -d '{"message": "give me the names of all my s3 buckets"}' | jq '.result.parts[0].text'
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "test-123",
+    "method": "message/send",
+    "params": {
+      "message": {
+        "kind": "message",
+        "messageId": "msg-456",
+        "role": "user",
+        "parts": [
+          {
+            "kind": "text",
+            "text": "give me the names of all my s3 buckets"
+          }
+        ]
+      }
+    }
+  }' | jq '.result.parts[0].text'
 ```
 
 All three methods should return your S3 bucket names, demonstrating the complete AgentCore → A2A integration.

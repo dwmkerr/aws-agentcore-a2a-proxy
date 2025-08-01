@@ -32,7 +32,7 @@ logging.getLogger("uvicorn").setLevel(logging.INFO)  # Enable uvicorn access log
 logging.getLogger("uvicorn.access").setLevel(logging.INFO)  # Enable access logs
 logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
 logging.getLogger("aws_bedrock_a2a_proxy.agentcore_client").setLevel(logging.WARNING)
-logging.getLogger("aws_bedrock_a2a_proxy.a2a_proxy").setLevel(logging.WARNING)  # Disable verbose A2A proxy logs
+logging.getLogger("aws_bedrock_a2a_proxy.a2a_proxy_server").setLevel(logging.WARNING)  # Normal A2A proxy logging
 
 # Our main logger with custom format
 logger = logging.getLogger(__name__)

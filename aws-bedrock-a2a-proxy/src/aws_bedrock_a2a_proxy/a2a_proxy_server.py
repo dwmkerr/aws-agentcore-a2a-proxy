@@ -6,7 +6,7 @@ from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
 from a2a.types import AgentCapabilities, AgentCard, AgentSkill, Message, Part, Role, TextPart
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 from .agentcore_client import AgentCoreClient
 from .agentcore_streaming_invocation_client import AgentCoreStreamingInvocationClient
@@ -48,6 +48,7 @@ class A2AProxy:
         @self.a2a_router.post("/a2a/agent/{agent_id}")
         async def handle_a2a_agent_request(agent_id: str, request: Dict[str, Any]):
             """Main A2A agent endpoint - routes to appropriate agent"""
+            
             if agent_id not in self.a2a_apps:
                 raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
             
@@ -60,10 +61,20 @@ class A2AProxy:
             from starlette.responses import JSONResponse
             
             try:
-                # Extract the message and call the agent directly
-                message_text = str(request.get("message", ""))
+                # Extract message from A2A standard JSON-RPC format only
+                message_text = ""
+                
+                # A2A standard: JSON-RPC with params.message.parts[0].text
+                if isinstance(request, dict) and "params" in request:
+                    params = request["params"]
+                    if "message" in params and "parts" in params["message"]:
+                        parts = params["message"]["parts"]
+                        if parts and len(parts) > 0 and "text" in parts[0]:
+                            message_text = parts[0]["text"]
+                
+                # No fallback - only A2A standard format supported
                 if not message_text:
-                    message_text = "Hello"
+                    raise HTTPException(status_code=400, detail="Invalid A2A request: missing params.message.parts[0].text")
                 
                 # Call AgentCore directly
                 payload = {"prompt": message_text}
@@ -94,73 +105,6 @@ class A2AProxy:
                 # Return JSON-RPC error response format expected by A2A inspector
                 return {"error": f"Agent execution failed: {str(e)}"}
 
-        @self.a2a_router.post("/a2a/agent/{agent_id}/jsonrpc")
-        async def handle_jsonrpc_request(agent_id: str, request: Dict[str, Any]):
-            """JSON-RPC endpoint for A2A agent communication
-
-            NOTE: Currently experiencing AWS permissions issue with AgentCore invocation.
-            Error: "User is not authorized to access this resource" on InvokeAgentRuntime operation.
-
-            WORKAROUND: Attach AWS managed policy 'BedrockAgentCoreFullAccess' to user,
-            or investigate specific IAM permissions required for AgentCore runtime invocation.
-
-            The JSON-RPC endpoint structure is correctly implemented and ready once
-            permissions are resolved.
-            """
-            if agent_id not in self.a2a_apps:
-                raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
-
-            # The A2A SDK should handle the JSON-RPC request
-            # Since we're in FastAPI, we need to delegate to the Starlette app
-            # This is a simplified version - we may need to handle ASGI properly
-            try:
-                # Extract message text from A2A JSON-RPC structure
-                message_text = ""
-                if isinstance(request, dict) and "params" in request:
-                    params = request["params"]
-                    if "message" in params and "parts" in params["message"]:
-                        parts = params["message"]["parts"]
-                        if parts and len(parts) > 0 and "text" in parts[0]:
-                            message_text = parts[0]["text"]
-                
-                if not message_text:
-                    message_text = "Hello"
-                
-                # Call AgentCore with extracted message
-                payload = {"prompt": message_text}
-                raw_result = await self.client.invoke_agent(agent_id, payload)
-
-                # Extract response text from AgentCore format
-                if isinstance(raw_result, dict) and "result" in raw_result and "content" in raw_result["result"]:
-                    text_parts = []
-                    for content_item in raw_result["result"]["content"]:
-                        if isinstance(content_item, dict) and "text" in content_item:
-                            text_parts.append(content_item["text"])
-                    response_text = "".join(text_parts).strip()
-                else:
-                    response_text = str(raw_result)
-
-                # Create proper A2A Message response
-                response_message = Message(
-                    message_id=str(uuid.uuid4()),
-                    role=Role.agent,
-                    parts=[TextPart(text=response_text)]
-                )
-
-                # Return JSON-RPC 2.0 response with proper structure
-                response = {
-                    "jsonrpc": "2.0",
-                    "result": response_message.model_dump()
-                }
-                
-                # Include id if present in request
-                if isinstance(request, dict) and "id" in request:
-                    response["id"] = request["id"]
-                    
-                return response
-            except Exception as e:
-                logger.error(f"JSON-RPC request failed for agent {agent_id}: {e}")
-                raise HTTPException(status_code=500, detail=str(e))
 
         @self.a2a_router.get("/agentcore/agents")
         async def list_agentcore_agents():
@@ -293,7 +237,7 @@ class A2AProxy:
 
                 self.a2a_apps[agent_id] = a2a_app
 
-                logger.info(f"Registered agent {agent_id} -> /a2a/agent/{agent_id} (with JSON-RPC support)")
+                logger.info(f"Registered agent {agent_id} -> /a2a/agent/{agent_id} (A2A JSON-RPC 2.0)")
 
         logger.info(f"Successfully registered {len(self.agents)} agents for A2A access")
 
