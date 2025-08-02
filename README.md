@@ -1,21 +1,7 @@
 # AWS Bedrock AgentCore A2A Proxy
 
-TODO:
-
-- [ ] aws agent working tested via a2a inspector
-- [ ] stream
-- [ ] lint style as mine
-- [x] agent runtime release versions seem to not update - fixed with architecture-specific AWS CLI
-- [x] otel - disabled for local testing
-
-## TODO
-
-- [ ] Add OIDC authentication support
-
-[![PyPI version](https://badge.fury.io/py/aws-bedrock-a2a-proxy.svg)](https://badge.fury.io/py/aws-bedrock-a2a-proxy)
-[![codecov](https://codecov.io/gh/dwmkerr/aws-bedrock-a2a-proxy/branch/main/graph/badge.svg)](https://codecov.io/gh/dwmkerr/aws-bedrock-a2a-proxy)
-
 A2A proxy server for AWS Bedrock AgentCore agents.
+
 
 This server connects to a given AWS account, discovers AgentCore agents, and then exposes them via A2A. This allows you to call your AgentCore agents over the A2A protocol. Each exposed agent has its own agent card and A2A address.
 
@@ -39,9 +25,23 @@ Features:
 - Invoke agent via A2A
 - Streaming responses
 
-## Quickstart
 
-**AWS Credentials:** The proxy uses the standard AWS credential chain (environment variables, `~/.aws/credentials`, IAM roles, etc.) and also reads from a local `.env` file if present.
+<!-- vim-markdown-toc GFM -->
+
+- [Quickstart](#quickstart)
+- [Calling Bedrock Agents via A2A](#calling-bedrock-agents-via-a2a)
+- [Direct AgentCore Access (Non-A2A)](#direct-agentcore-access-non-a2a)
+- [Additional Features](#additional-features)
+    - [Streaming Responses](#streaming-responses)
+- [How It Works](#how-it-works)
+- [Demo Setup (Complete Infrastructure + Agents)](#demo-setup-complete-infrastructure--agents)
+- [Custom Infrastructure Setup](#custom-infrastructure-setup)
+- [Permissions](#permissions)
+- [TODO](#todo)
+
+<!-- vim-markdown-toc -->
+
+## Quickstart
 
 Setup your AWS credentials by editing `.env`:
 
@@ -57,13 +57,6 @@ Start the AWS Bedrock A2A Proxy with:
 make dev
 ```
 
-**Development without AWS:** To run without AWS connectivity (useful for development):
-
-```bash
-# Temporarily disable AWS credentials
-AWS_ACCESS_KEY_ID="" AWS_SECRET_ACCESS_KEY="" make dev
-```
-
 Any agents available for the user with the given credentials will be exposed. If you need to create some agents as an example, set up the required AWS infrastructure and deploy some sample agents:
 
 ```bash
@@ -74,104 +67,74 @@ make install-demo-infrastructure
 make install-demo-agents
 ```
 
-## Demoing the AWS Operator Agent
+## Calling Bedrock Agents via A2A
 
-Here's a complete walkthrough of the AWS Operator Agent.
-
-First install the demo agents:
+View the API documentation:
 
 ```bash
-make install-demo-agents
+open http://localhost:2972/docs
 ```
 
-Next you can test the agent through the AWS Agentcore playground: https://us-east-1.console.aws.amazon.com/bedrock-agentcore/playground?region=us-east-1
-
-Use an input such as:
-
-```json
-{"prompt": "give me the names of all my s3 buckets"}
-```
-
-Now run the AWS Bedrock A2A proxy locally:
+List available A2A agents:
 
 ```bash
-make dev
+curl http://localhost:2972/a2a/agents
 
-# output, e.g:
-# INFO: polling: discovered 2 agents: aws_operator_agent (v2), github_dev_assistant (v2)
+# [{"agent_id": "Bedrock_Customer_Support_Agent-jQwAm25rmZ", "name": "Bedrock_Customer_Support_Agent", "host": "localhost:2972", "endpoint": "/a2a/agent/Bedrock_Customer_Support_Agent-jQwAm25rmZ", ...}]
 ```
 
-Curl the A2A or Agentcore agents endpoints to show the agents:
+Get the agent ID dynamically:
 
 ```bash
-curl -s http://localhost:2972/agentcore/agents | jq '.[]'
-
-# output, e.g:
-{
-  "agentRuntimeId": "aws_operator_agent-ehXYYSF6ET",
-  "agentRuntimeName": "aws_operator_agent",
-  "status": "READY",
-  "version": "2",
-  "etc": "..."
-}
+AGENT_ID=$(curl -s http://localhost:2972/a2a/agents | jq -r '.[0].agent_id')
+echo "Using agent ID: $AGENT_ID"
 ```
 
-You can call the agent via the Agentcore endpoint - the proxy will use the AWS APIs directly:
+Get an agent's card:
 
 ```bash
-curl -s -X POST "http://localhost:2972/agentcore/agents/aws_operator_agent-ehXYYSF6ET/invoke" \
+curl http://localhost:2972/a2a/agent/$AGENT_ID/.well-known/agent.json
+
+# {"name": "Bedrock_Customer_Support_Agent", "description": "Customer support agent powered by AWS Bedrock AgentCore", "capabilities": {...}}
+```
+
+Invoke an agent via A2A:
+
+```bash
+curl -X POST http://localhost:2972/a2a/agent/$AGENT_ID/jsonrpc \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "give me the names of all my s3 buckets"}' | jq '.result.content[0].text'
+  -d '{"method": "query", "params": {"query": "Hello, I need help with my order"}, "id": 1}'
+
+# Output: {"result": "Hello! I'd be happy to help you with your order..."}
 ```
 
-You can also show the A2A agents:
+## Direct AgentCore Access (Non-A2A)
+
+For debugging or direct integration, you can also call AgentCore agents directly without the A2A protocol.
+
+List the Agentcore agents first:
 
 ```bash
-curl -s http://localhost:2972/a2a/agents | jq '.[]'
+curl http://localhost:2972/agentcore/agents
 
-# output, e.g:
-{
-  "name": "aws_operator_agent",
-  "preferredTransport": "JSONRPC",
-  "protocolVersion": "0.2.6",
-  "url": "http://localhost:2972/a2a/agent/aws_operator_agent-ehXYYSF6ET"
-}
+# [{"agentRuntimeId": "Bedrock_Customer_Support_Agent-XLA7bpGvk5", "agentRuntimeName": "Bedrock_Customer_Support_Agent", "status": "READY", ...}]
 ```
 
-The `url` shown can be opened in the A2A inspector and you can make calls directly through the UI.
-
-Finally, you can call the agent via the A2A protocol directly using standard JSON-RPC 2.0:
+Get the agent runtime ID for direct AgentCore calls:
 
 ```bash
-curl -s -X POST "http://localhost:2972/a2a/agent/aws_operator_agent-ehXYYSF6ET" \
+AGENT_RUNTIME_ID=$(curl -s http://localhost:2972/agentcore/agents | jq -r '.[0].agentRuntimeId')
+echo "Using agent runtime ID: $AGENT_RUNTIME_ID"
+```
+
+Then invoke:
+
+```bash
+curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke \
   -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": "test-123",
-    "method": "message/send",
-    "params": {
-      "message": {
-        "kind": "message",
-        "messageId": "msg-456",
-        "role": "user",
-        "parts": [
-          {
-            "kind": "text",
-            "text": "give me the names of all my s3 buckets"
-          }
-        ]
-      }
-    }
-  }' | jq '.result.parts[0].text'
-```
+  -d '{"prompt": "Hello, I need help with my order"}'
 
-All three methods should return your S3 bucket names, demonstrating the complete AgentCore → A2A integration.
-
-Delete the agents and infrastructure with:
-
-```bash
-make uninstall-demo-agents
-make uninstall-demo-infrastructure
+# {"result": {"role": "assistant", "content": [{"text": "Hello! I'd be happy to help..."}]}}
 ```
 
 ## Additional Features
@@ -193,19 +156,91 @@ The A2A proxy supports streaming responses through both the A2A protocol and dir
 You can make a streaming call like so:
 
 ```bash
-# Get the agent runtime ID dynamically:
+# Get the agent runtime ID (using jq to extract dynamically)
 AGENT_RUNTIME_ID=$(curl -s http://localhost:2972/agentcore/agents | jq -r '.[0].agentRuntimeId')
 
+# Make streaming call
 curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke-stream \
   -H "Content-Type: application/json" \
   -H "Accept: text/event-stream" \
-  -d '{"prompt": "Tell me a story about A2A protocol"}'
+  -d '{"prompt": "Tell me a very long and detailed story about Agent-to-Agent (A2A) protocol, including its history, how it works, its benefits, and real-world applications. Please make it comprehensive and engaging."}'
 
 # Output (streaming in real-time):
 # data: {"text": "Once"}
 # data: {"text": " upon"}
 # data: {"text": " a"}
 # data: {"text": " time"}
+# data: {"text": " in"}
+# data: {"text": " the"}
+# data: {"text": " world"}
+# data: {"text": " of"}
+# data: {"text": " distributed"}
+# data: {"text": " systems"}
+# data: {"text": "..."}
 # data: [DONE]
 ```
 
+## How It Works
+
+Uses direct HTTPS calls to AgentCore (boto3 SDK not available yet). Discovers agents via `bedrock-agentcore-control` client and exposes them through standard A2A protocol endpoints. Supports both explicit credentials and default AWS credential chain.
+
+## Demo Setup (Complete Infrastructure + Agents)
+
+If you want to try the complete demo with managed infrastructure and agents:
+
+```bash
+# Set up demo infrastructure (IAM roles, ECR, CloudWatch, etc.)
+make install-demo-infrastructure
+
+# Deploy demo agents using the infrastructure
+make install-demo-agents
+
+# Clean up everything when done
+make uninstall-demo-infrastructure
+```
+
+The demo infrastructure includes:
+- IAM execution role for AgentCore agents
+- ECR repository for container images
+- User policies for agent invocation  
+- CloudWatch log groups with retention
+- Bedrock model logging configuration
+
+Configure resources by editing `./demo/infrastructure/terraform.tfvars`. Note these resources incur AWS costs.
+
+## Custom Infrastructure Setup
+
+If you have your own AWS infrastructure and want to deploy agents to it:
+
+1. **Set environment variables:**
+   ```bash
+   export AWS_ACCESS_KEY_ID=your_key
+   export AWS_SECRET_ACCESS_KEY=your_secret
+   export AWS_REGION=us-east-1
+   export IAM_ROLE_ARN=arn:aws:iam::123456789012:role/YourAgentRole
+   export ECR_REPOSITORY_URL=123456789012.dkr.ecr.us-east-1.amazonaws.com/your-repo
+   ```
+
+2. **Deploy specific agents:**
+   ```bash
+   cd demo/agents/customer-support-agents
+   make install    # deploy agent
+   make uninstall  # remove agent
+   ```
+
+This creates a customer support agent with order lookup and knowledge base capabilities.
+
+
+## Permissions
+
+Requires IAM permissions:
+- `bedrock-agentcore:ListAgentRuntimes`
+- `bedrock-agentcore:DescribeAgentRuntime` 
+- `bedrock-agentcore:InvokeAgentRuntime`
+
+## TODO
+
+- [x] Extract AgentCoreHTTPClient from AgentCoreExecutor
+- [x] Add unit tests with mocked HTTP responses  
+- [ ] Add OIDC authentication support
+- [ ] Add support for streaming responses

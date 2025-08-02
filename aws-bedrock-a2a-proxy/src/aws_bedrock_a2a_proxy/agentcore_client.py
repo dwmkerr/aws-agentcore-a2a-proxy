@@ -3,35 +3,26 @@ import logging
 from typing import List, Dict, Any, Optional
 
 import boto3
-from botocore.exceptions import ClientError, BotoCoreError
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger(__name__)
 
 
 class AgentCoreClient:
-    def __init__(self, access_key_id: str, secret_access_key: str, region: str = "us-east-1"):
+    def __init__(self, region: str = "us-east-1"):
         self.region = region
-        self.access_key_id = access_key_id
-        self.secret_access_key = secret_access_key
-        self.use_default_credentials = not access_key_id or not secret_access_key
 
         try:
-            # Only create control client for listing agents
-            # Runtime invocation will use direct HTTPS calls since boto3 bedrock-agentcore doesn't exist
-            if self.use_default_credentials:
-                self.control_client = boto3.client("bedrock-agentcore-control", region_name=region)
-            else:
-                self.control_client = boto3.client(
-                    "bedrock-agentcore-control",
-                    aws_access_key_id=access_key_id,
-                    aws_secret_access_key=secret_access_key,
-                    region_name=region,
-                )
-
-            logger.info(f"Initialized AgentCore client for region {region} (using direct HTTPS for invocation)")
+            # Use AWS credential chain - boto3 handles env vars, IAM roles, etc.
+            self.control_client = boto3.client("bedrock-agentcore-control", region_name=region)
+            logger.info(f"Initialized AgentCore client for region {region} using AWS credential chain")
 
         except Exception as e:
-            logger.error(f"Failed to initialize AWS clients: {e}")
+            logger.error(f"Failed to initialize AWS client: {e}")
+            logger.error(
+                "Ensure AWS credentials are configured via credential chain "
+                "(env vars, IAM roles, ~/.aws/credentials, etc.)"
+            )
             raise
 
     async def list_agents(self) -> List[Dict[str, Any]]:
@@ -51,91 +42,98 @@ class AgentCoreClient:
 
             return agents
 
-        except ClientError as e:
-            error_code = e.response["Error"]["Code"]
-            error_message = e.response["Error"]["Message"]
-            logger.error(f"AWS ClientError listing agents: {error_code} - {error_message}")
-
-            if error_code == "AccessDeniedException":
-                logger.error("Access denied. Check IAM permissions for bedrock-agentcore:ListAgentRuntimes")
-            elif error_code == "UnauthorizedOperation":
-                logger.error("Unauthorized operation. Verify AWS credentials and permissions")
-
-            raise
-
-        except BotoCoreError as e:
-            logger.error(f"BotoCoreError listing agents: {e}")
-            raise
-
         except Exception as e:
-            logger.error(f"Unexpected error listing agents: {e}")
+            logger.error(f"Failed to list agents: {e}")
             raise
 
-    async def invoke_agent(self, agent_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    async def invoke_agent(self, agent_id: str, payload: Dict[str, Any], streaming: bool = False) -> Dict[str, Any]:
+        """Invoke AgentCore agent using official AWS SDK, handles both streaming and non-streaming"""
         try:
-            logger.info(f"Invoking agent {agent_id} via direct HTTPS (access_key: {self.access_key_id[:8]}...)")
-
             agent_arn = self._get_agent_arn(agent_id)
 
             # Extract text from payload
             if isinstance(payload, dict) and "prompt" in payload:
-                input_text = payload["prompt"]
+                prompt = payload["prompt"]
             else:
-                input_text = str(payload)
+                prompt = str(payload)
 
             # Generate session ID for this invocation
             import uuid
 
             session_id = str(uuid.uuid4())
 
+            logger.info(f"Invoking agent {agent_id} (streaming: {streaming}) with prompt: {prompt[:100]}...")
             logger.info(f"Agent ARN: {agent_arn}")
             logger.info(f"Session ID: {session_id}")
-            logger.info(f"Prompt: {input_text}")
 
-            # Use direct HTTPS request since boto3 bedrock-agentcore client doesn't exist
-            import urllib.parse
-            from botocore.auth import SigV4Auth
-            from botocore.awsrequest import AWSRequest as BotocoreAWSRequest
-            import requests
+            # Use official AWS SDK with credential chain
+            client = boto3.client("bedrock-agentcore", region_name=self.region)
 
-            # Create direct HTTPS request
-            base_url = f"https://bedrock-agentcore.{self.region}.amazonaws.com"
-            escaped_agent_arn = urllib.parse.quote(agent_arn, safe="")
-            url = f"{base_url}/runtimes/{escaped_agent_arn}/invocations"
+            # Prepare the payload
+            request_payload = json.dumps({"prompt": prompt}).encode()
 
-            request_payload = json.dumps({"prompt": input_text})
+            # Use asyncio to run the synchronous boto3 call in a thread pool
+            import asyncio
 
-            # Create AWS request using botocore for proper signing
-            request = BotocoreAWSRequest(
-                method="POST",
-                url=url,
-                data=request_payload,
-                headers={"Content-Type": "application/json", "X-Amzn-Bedrock-AgentCore-Runtime-Session-Id": session_id},
-            )
+            def sync_invoke():
+                return client.invoke_agent_runtime(
+                    agentRuntimeArn=agent_arn, runtimeSessionId=session_id, payload=request_payload
+                )
 
-            # Sign with botocore's SigV4Auth using default credential chain (like working example)
-            import boto3
+            # Run the sync call in executor
+            response = await asyncio.get_event_loop().run_in_executor(None, sync_invoke)
 
-            session = boto3.Session()  # Use default credential chain
-            credentials = session.get_credentials()
-            logger.info(f"Signing with credentials: {credentials.access_key[:8]}...")
-            SigV4Auth(credentials, "bedrock-agentcore", self.region).add_auth(request)
+            logger.info(f"Response content type: {response.get('contentType', 'unknown')}")
 
-            # Make the request
-            if not request.url:
-                raise ValueError("Request URL is None")
-            response = requests.post(request.url, headers=dict(request.headers), data=request.data, timeout=60)
+            # Handle streaming vs non-streaming response based on content type
+            if "text/event-stream" in response.get("contentType", ""):
+                # Handle streaming response - return the response object for the caller to process
+                logger.info("Received streaming response from AWS")
+                return {
+                    "streaming": True,
+                    "content_type": response.get("contentType"),
+                    "response": response["response"],  # Iterator for streaming chunks
+                }
 
-            logger.info(f"Response status: {response.status_code}")
+            elif response.get("contentType") == "application/json":
+                # Handle standard JSON response
+                logger.info("Received JSON response from AWS")
+                content = []
+                for chunk in response.get("response", []):
+                    content.append(chunk.decode("utf-8"))
 
-            if response.status_code == 200:
-                result = response.json()
-                logger.info("Agent response received successfully")
-                return result
+                if content:
+                    try:
+                        json_response = json.loads("".join(content))
+                        logger.debug(f"Parsed JSON response: {str(json_response)[:100]}...")
+                        return {"streaming": False, "content_type": "application/json", "result": json_response}
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Failed to parse JSON response: {e}")
+                        return {
+                            "streaming": False,
+                            "content_type": "application/json",
+                            "error": "Failed to parse JSON response",
+                            "raw": "".join(content),
+                        }
+                else:
+                    # Handle empty content
+                    logger.warning("Received empty JSON response from AWS")
+                    return {
+                        "streaming": False,
+                        "content_type": "application/json",
+                        "error": "Empty response",
+                        "result": None,
+                    }
+
             else:
-                error_text = response.text
-                logger.error(f"Agent invocation failed: {response.status_code} - {error_text}")
-                raise Exception(f"Agent invocation failed: {response.status_code} - {error_text}")
+                # Handle other content types
+                logger.warning(f"Unexpected content type: {response.get('contentType')}")
+                return {
+                    "streaming": False,
+                    "content_type": response.get("contentType"),
+                    "error": "Unexpected content type",
+                    "response": str(response),
+                }
 
         except Exception as e:
             logger.error(f"Error invoking agent {agent_id}: {e}")

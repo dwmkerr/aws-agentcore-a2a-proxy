@@ -5,14 +5,25 @@ This module handles the execution of requests to AWS Bedrock AgentCore agents.
 It bridges A2A requests to AgentCore agent invocations.
 """
 
+import json
 import logging
 import uuid
-from typing import Any
+from typing import Any, Optional
 
-from a2a.types import Message, Part, Role, TextPart
+from a2a.types import (
+    Message,
+    Part,
+    Role,
+    TextPart,
+    TaskArtifactUpdateEvent,
+    TaskStatusUpdateEvent,
+    TaskStatus,
+    TaskState,
+)
 
 from .agentcore_client import AgentCoreClient
-from .agentcore_streaming_invocation_client import AgentCoreStreamingInvocationClient
+
+# AgentCoreStreamingInvocationClient removed - AgentCoreClient now handles both streaming and non-streaming
 
 logger = logging.getLogger(__name__)
 
@@ -20,13 +31,12 @@ logger = logging.getLogger(__name__)
 class AgentCoreExecutor:
     """Agent executor that bridges A2A requests to AWS Bedrock AgentCore agents"""
 
-    def __init__(self, agentcore_client: AgentCoreClient, streaming_client: AgentCoreStreamingInvocationClient, agent_id: str):
+    def __init__(self, agentcore_client: AgentCoreClient, agent_id: str):
         self.agentcore_client = agentcore_client
-        self.streaming_client = streaming_client
         self.agent_id = agent_id
 
     async def execute(self, context: Any, event_queue: Any) -> None:
-        """Execute agent request and stream response back"""
+        """Execute agent request using A2A SDK streaming events"""
         try:
             # Extract message text from A2A context
             message_text = ""
@@ -37,130 +47,179 @@ class AgentCoreExecutor:
 
             logger.info(f"Executing agent {self.agent_id} with message: {message_text[:100]}...")
 
-            # Check if streaming is requested (look for streaming capability in context)
-            should_stream = self._should_use_streaming(context)
+            # Generate task and context IDs for A2A tracking
+            task_id = str(uuid.uuid4())
+            context_id = (
+                context.message.context_id
+                if context.message and hasattr(context.message, "context_id")
+                else str(uuid.uuid4())
+            )
 
-            if should_stream:
-                await self._execute_streaming(context, event_queue, message_text)
+            # Send initial task status - working
+            await self._send_task_status(event_queue, task_id, context_id, TaskState.working, final=False)
+
+            # Call AgentCore with unified client
+            response = await self.agentcore_client.invoke_agent(self.agent_id, {"prompt": message_text})
+
+            # Handle response based on whether it's streaming or not
+            if response.get("streaming", False):
+                await self._handle_streaming_response(event_queue, task_id, context_id, response)
             else:
-                await self._execute_single_response(context, event_queue, message_text)
+                await self._handle_single_response(event_queue, task_id, context_id, response)
+
+            # Send final task status - completed
+            await self._send_task_status(event_queue, task_id, context_id, TaskState.completed, final=True)
 
         except Exception as e:
             logger.error(f"Failed to execute agent {self.agent_id}: {e}")
-            # Send error response
-            error_message = Message(
-                message_id=str(uuid.uuid4()),
-                context_id=(
-                    context.message.context_id if context.message and context.message.context_id else str(uuid.uuid4())
-                ),
-                role=Role.AGENT,
-                parts=[
-                    Part(root=TextPart(text=f"Error executing agent: {str(e)}"))
-                ]
+            # Send error status
+            task_id = str(uuid.uuid4())
+            context_id = (
+                context.message.context_id
+                if context.message and hasattr(context.message, "context_id")
+                else str(uuid.uuid4())
             )
-            await event_queue.put(error_message)
+            await self._send_task_status(
+                event_queue, task_id, context_id, TaskState.failed, final=True, error_message=str(e)
+            )
 
-    def _should_use_streaming(self, context: Any) -> bool:
-        """Check if streaming should be used based on context"""
+    async def _send_task_status(
+        self,
+        event_queue: Any,
+        task_id: str,
+        context_id: str,
+        state: TaskState,
+        final: bool = False,
+        error_message: Optional[str] = None,
+    ) -> None:
+        """Send task status update using A2A SDK types"""
         try:
-            if hasattr(context, 'streaming') and context.streaming:
-                return True
-            return False
-        except Exception:
-            return False
+            # Create task status
+            task_status = TaskStatus(state=state, timestamp="2024-01-01T00:00:00Z")  # TODO: Use actual timestamp
 
-    async def _execute_streaming(self, context: Any, event_queue: Any, message_text: str) -> None:
-        """Execute agent with streaming response"""
-        try:
-            logger.info(f"Streaming execution requested for agent {self.agent_id}")
-            
-            # Stream response from AgentCore using streaming client
-            async for chunk in self.streaming_client.invoke_agent_stream(self.agent_id, message_text):
-                # Extract text from chunk
-                chunk_text = self._extract_chunk_text(chunk)
-                
-                if chunk_text:
-                    # Create streaming message
-                    stream_message = Message(
-                        message_id=str(uuid.uuid4()),
-                        context_id=(
-                            context.message.context_id if context.message and context.message.context_id else str(uuid.uuid4())
-                        ),
-                        role=Role.AGENT,
-                        parts=[
-                            Part(root=TextPart(text=chunk_text))
-                        ]
-                    )
-                    
-                    # Send chunk via event queue
-                    await event_queue.put(stream_message)
-                    logger.debug(f"Sent streaming chunk: {chunk_text[:50]}...")
-                    
-            logger.info(f"Streaming execution completed for agent {self.agent_id}")
-            
+            # Add error message if failed
+            if state == TaskState.failed and error_message:
+                # Create error message using A2A Message type
+                error_msg = Message(
+                    message_id=str(uuid.uuid4()),
+                    role=Role.agent,
+                    parts=[Part(root=TextPart(text=f"Error: {error_message}"))],
+                )
+                task_status.message = error_msg
+
+            # Create status update event
+            status_event = TaskStatusUpdateEvent(
+                task_id=task_id, context_id=context_id, status=task_status, final=final, kind="status-update"
+            )
+
+            await event_queue.put(status_event)
+            logger.debug(f"Sent task status: {state} (final: {final})")
+
         except Exception as e:
-            logger.error(f"Streaming execution failed for agent {self.agent_id}: {e}")
+            logger.error(f"Failed to send task status: {e}")
+
+    async def _handle_streaming_response(self, event_queue: Any, task_id: str, context_id: str, response: dict) -> None:
+        """Handle streaming response using A2A artifact updates"""
+        try:
+            logger.info("Processing streaming response from AWS")
+
+            # Get the response iterator from AWS
+            response_iterator = response["response"]
+
+            for line in response_iterator.iter_lines(chunk_size=10):
+                if line:
+                    line = line.decode("utf-8")
+                    if line.startswith("data: "):
+                        line = line[6:]  # Remove 'data: ' prefix
+                    if line == "[DONE]":
+                        break
+
+                    try:
+                        # Parse the chunk
+                        chunk_data = json.loads(line)
+
+                        # Extract text from chunk
+                        chunk_text = self._extract_text_from_chunk(chunk_data)
+
+                        if chunk_text:
+                            # Send as artifact update
+                            await self._send_artifact_update(event_queue, task_id, context_id, chunk_text)
+
+                    except json.JSONDecodeError:
+                        # Handle non-JSON streaming data
+                        if line.strip():
+                            await self._send_artifact_update(event_queue, task_id, context_id, line.strip())
+
+        except Exception as e:
+            logger.error(f"Failed to handle streaming response: {e}")
             raise
-            
-    def _extract_chunk_text(self, chunk: Any) -> str:
-        """Extract text content from streaming chunk"""
+
+    async def _handle_single_response(self, event_queue: Any, task_id: str, context_id: str, response: dict) -> None:
+        """Handle single JSON response as one artifact update"""
+        try:
+            logger.info("Processing single JSON response from AWS")
+
+            # Extract text from the response
+            response_text = ""
+            if "result" in response:
+                result = response["result"]
+                response_text = self._extract_text_from_chunk(result)
+
+            if not response_text:
+                response_text = "No response received from agent"
+
+            # Send as single artifact update
+            await self._send_artifact_update(event_queue, task_id, context_id, response_text)
+
+        except Exception as e:
+            logger.error(f"Failed to handle single response: {e}")
+            raise
+
+    async def _send_artifact_update(self, event_queue: Any, task_id: str, context_id: str, text: str) -> None:
+        """Send artifact update using A2A SDK types"""
+        try:
+            # Import Artifact type
+            from a2a.types import Artifact
+
+            # Create artifact with the text content
+            artifact = Artifact(artifact_id="response-artifact", parts=[Part(TextPart(text=text))])
+
+            # Create artifact update event
+            artifact_event = TaskArtifactUpdateEvent(
+                task_id=task_id,
+                context_id=context_id,
+                artifact=artifact,
+                append=False,  # For now, don't append
+                last_chunk=False,  # Let the caller determine this
+                kind="artifact-update",
+            )
+
+            await event_queue.put(artifact_event)
+            logger.debug(f"Sent artifact update: {text[:50]}...")
+
+        except Exception as e:
+            logger.error(f"Failed to send artifact update: {e}")
+
+    def _extract_text_from_chunk(self, chunk: Any) -> str:
+        """Extract text content from AWS response chunk"""
         if isinstance(chunk, dict):
             # Handle various chunk formats
             if "text" in chunk:
                 return chunk["text"]
             elif "result" in chunk and isinstance(chunk["result"], dict):
                 if "content" in chunk["result"]:
-                    # Similar to single response format
                     content = chunk["result"]["content"]
                     if isinstance(content, list) and content:
-                        first_item = content[0]
-                        if isinstance(first_item, dict) and "text" in first_item:
-                            return first_item["text"]
+                        text_parts = []
+                        for item in content:
+                            if isinstance(item, dict) and "text" in item:
+                                text_parts.append(item["text"])
+                        return "".join(text_parts)
                 elif "text" in chunk["result"]:
                     return chunk["result"]["text"]
             elif "delta" in chunk and isinstance(chunk["delta"], dict):
                 # Handle delta-style streaming
                 if "text" in chunk["delta"]:
                     return chunk["delta"]["text"]
-                    
+
         return str(chunk) if chunk else ""
-
-    async def _execute_single_response(self, context: Any, event_queue: Any, message_text: str) -> None:
-        """Execute agent with single response"""
-        try:
-            # Call AgentCore agent
-            response = await self.agentcore_client.invoke_agent(self.agent_id, {"prompt": message_text})
-
-            # Extract response text from AgentCore response
-            response_text = ""
-            if isinstance(response, dict):
-                if "result" in response:
-                    result = response["result"]
-                    if isinstance(result, dict) and "content" in result:
-                        content = result["content"]
-                        if isinstance(content, list) and len(content) > 0:
-                            first_content = content[0]
-                            if isinstance(first_content, dict) and "text" in first_content:
-                                response_text = first_content["text"]
-
-            if not response_text:
-                response_text = "No response received from agent"
-
-            # Create A2A response message
-            response_message = Message(
-                message_id=str(uuid.uuid4()),
-                context_id=(
-                    context.message.context_id if context.message and context.message.context_id else str(uuid.uuid4())
-                ),
-                role=Role.AGENT,
-                parts=[
-                    Part(root=TextPart(text=response_text))
-                ]
-            )
-
-            # Send response to event queue
-            await event_queue.put(response_message)
-
-        except Exception as e:
-            logger.error(f"Single response execution failed for agent {self.agent_id}: {e}")
-            raise

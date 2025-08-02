@@ -6,21 +6,22 @@ help: # show help for each of the Makefile recipes
 
 .PHONY: dev
 dev: # run in development mode
-	cd aws-bedrock-a2a-proxy && uv run uvicorn aws_bedrock_a2a_proxy.main:app --host localhost --port 2972 --reload
+	cd aws-bedrock-a2a-proxy && uv run uvicorn aws_bedrock_a2a_proxy.main:app --host $${HOST:-localhost} --port $${PORT:-2972} --reload
 
 .PHONY: test
 test: # run tests with coverage
 	mkdir -p aws-bedrock-a2a-proxy/artifacts/coverage
-	cd aws-bedrock-a2a-proxy && uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=term-missing --cov-report=html:artifacts/coverage/html --cov-report=lcov:artifacts/coverage/coverage.lcov
+	cd aws-bedrock-a2a-proxy && uv run --extra dev pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=term-missing --cov-report=html:artifacts/coverage/html --cov-report=lcov:artifacts/coverage/coverage.lcov
 
 .PHONY: lint
 lint: # run linting and type checking
-	cd aws-bedrock-a2a-proxy && uv run flake8 src/ tests/
-	cd aws-bedrock-a2a-proxy && uv run pyright src/
+	cd aws-bedrock-a2a-proxy && uv run --extra dev flake8 src/ tests/
+	cd aws-bedrock-a2a-proxy && uv run --extra dev pyright src/
 
 .PHONY: lint-fix
 lint-fix: # lint and fix the code
-	cd aws-bedrock-a2a-proxy && uv run black .
+	cd aws-bedrock-a2a-proxy && uv run --extra dev black .
+
 
 .PHONY: build
 build: # build Python wheel
@@ -37,13 +38,11 @@ cicd: # run the CI/CD workflow locally
 
 .PHONY: install-demo-infrastructure
 install-demo-infrastructure: # create demo AWS infrastructure
-	@cd demo/infrastructure && terraform init && terraform apply
-	@echo "\033[1;32m✅ Demo infrastructure installed successfully!\033[0m"
+	cd demo/infrastructure && terraform init && terraform apply
 
 .PHONY: uninstall-demo-infrastructure
 uninstall-demo-infrastructure: # destroy demo AWS infrastructure
-	@cd demo/infrastructure && terraform destroy
-	@echo "\033[1;32m✅ Demo infrastructure uninstalled successfully!\033[0m"
+	cd demo/infrastructure && terraform destroy
 
 .PHONY: install-demo-agents
 install-demo-agents: # build and deploy both demo agents using demo infrastructure
@@ -58,13 +57,16 @@ install-demo-agents: # build and deploy both demo agents using demo infrastructu
 		--agent-name "github_dev_assistant" \
 		--execution-role-arn $$(cd ../../infrastructure && terraform output -raw agentcore_execution_role_arn) \
 		--image-uri $$(cd ../../infrastructure && terraform output -raw ecr_repository_url):github_dev_assistant-latest \
-		--region us-east-1)
+		--region us-east-1 \
+		--description "GitHub development assistant that helps with repository management, code analysis, and development workflows")
 	@(cd demo/agents/aws-operator-agent && \
 	../../scripts/deploy-agent \
 		--agent-name "aws_operator_agent" \
 		--execution-role-arn $$(cd ../../infrastructure && terraform output -raw aws_operator_agent_role_arn) \
 		--image-uri $$(cd ../../infrastructure && terraform output -raw ecr_repository_url):aws_operator_agent-latest \
-		--region us-east-1)
+		--region us-east-1 \
+		--description "AWS operations agent that manages cloud resources including S3 buckets, EC2 instances, and other AWS services" \
+		--skills '[{"id":"aws_operations","name":"AWS Operations","description":"Manage AWS cloud resources including S3 buckets, EC2 instances, and other AWS services using the AWS APIs","tags":["aws","cloud","management"]}]')
 	@echo "\033[1;32m✅ All demo agents installed successfully!\033[0m"
 
 .PHONY: uninstall-demo-agents

@@ -4,7 +4,8 @@ import asyncio
 from typing import Dict, Any
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter, Request
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from .agentcore_client import AgentCoreClient
@@ -26,13 +27,9 @@ class ColoredFormatter(logging.Formatter):
             return f"{record.levelname}:    {record.getMessage()}"
 
 
-# Configure logging - suppress verbose logs from other modules
-logging.basicConfig(level=logging.WARNING)
-logging.getLogger("uvicorn").setLevel(logging.INFO)  # Enable uvicorn access logs
-logging.getLogger("uvicorn.access").setLevel(logging.INFO)  # Enable access logs
-logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
+# Configure only AWS proxy loggers (don't modify global config)
 logging.getLogger("aws_bedrock_a2a_proxy.agentcore_client").setLevel(logging.WARNING)
-logging.getLogger("aws_bedrock_a2a_proxy.a2a_proxy_server").setLevel(logging.WARNING)  # Normal A2A proxy logging
+logging.getLogger("aws_bedrock_a2a_proxy.a2a_proxy_server").setLevel(logging.WARNING)
 
 # Our main logger with custom format
 logger = logging.getLogger(__name__)
@@ -43,60 +40,60 @@ logger.handlers = [handler]
 logger.propagate = False
 
 # Configuration
-AGENT_POLL_INTERVAL = int(os.getenv("AGENT_POLL_INTERVAL", "30"))  # seconds
+AGENT_REFRESH_INTERVAL_SECONDS = int(os.getenv("AGENT_REFRESH_INTERVAL_SECONDS", "30"))  # seconds
+ENABLE_STREAMING = os.getenv("ENABLE_STREAMING", "true").lower() in ("true", "1", "yes")
+ENABLE_DESCRIPTION_AS_A2A_SKILL = os.getenv("ENABLE_DESCRIPTION_AS_A2A_SKILL", "1") == "1"
+HOST = os.getenv("HOST", "localhost")  # Binding address
+PORT = int(os.getenv("PORT", "2972"))  # Binding port
+EXPOSE_HOST = os.getenv("EXPOSE_HOST", HOST)  # Advertised host (defaults to HOST)
+EXPOSE_PORT = int(os.getenv("EXPOSE_PORT", PORT))  # Advertised port (defaults to PORT)
+BASE_PATH = os.getenv("BASE_PATH", "")
+A2ASERVER_NAMESPACE = os.getenv("A2ASERVER_NAMESPACE", "default")
+
+
+def get_server_config() -> Dict[str, Any]:
+    """Get server configuration for uvicorn."""
+    return {"host": HOST, "port": PORT, "reload": True}  # Enable reload for development
+
+
+def print_startup_config():
+    """Print configuration settings on startup"""
+    aws_region = os.getenv("AWS_REGION", "us-east-1")
+    logger.info("🚀 Starting AWS Bedrock AgentCore A2A Proxy")
+    logger.info("📋 Configuration:")
+    logger.info(f"   AWS Region: {aws_region}")
+    logger.info(f"   Agent Refresh Interval: {AGENT_REFRESH_INTERVAL_SECONDS}s")
+    logger.info(f"   Streaming Enabled: {ENABLE_STREAMING}")
+    logger.info(f"   Description as A2A Skill: {ENABLE_DESCRIPTION_AS_A2A_SKILL}")
+    logger.info(f"   Server: http://{HOST}:{PORT}")
 
 
 async def discover_and_refresh_agents(app: FastAPI, is_startup: bool = False) -> Dict[str, Any]:
     """Discover agents and refresh proxy configuration"""
 
-    aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
-    aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
     aws_region = os.getenv("AWS_REGION", "us-east-1")
-
-    # Check for AWS credentials and warn if missing
-    if not aws_access_key_id or not aws_secret_access_key:
-        logger.warning("Unable to access AgentCore - ensure your AWS credential chain is configured - see README")
-        app.state.client = None
-        app.state.agents = []
-        # Still create a basic proxy for the routes on startup
-        if is_startup:
-            app.state.proxy = A2AProxy(None)
-            if not hasattr(app.state, "a2a_routes_added"):
-                app.include_router(app.state.proxy.get_router())
-                app.state.a2a_routes_added = True
-        return {
-            "message": "No AWS credentials configured",
-            "agents_discovered": 0,
-            "region": aws_region,
-            "agents": [],
-        }
 
     # Use existing client if available, otherwise create new one
     if hasattr(app.state, "client"):
         client = app.state.client
     else:
         try:
-            client = AgentCoreClient(
-                access_key_id=aws_access_key_id, secret_access_key=aws_secret_access_key, region=aws_region
-            )
+            client = AgentCoreClient(region=aws_region)
             app.state.client = client
         except Exception as e:
             if is_startup:
                 logger.error(f"AWS connection failed during startup: {e}")
-                logger.info("Server will start without AWS connectivity - check credentials and network access")
+                logger.info("Server will start without AWS connectivity - check AWS credential chain configuration")
                 app.state.client = None
                 app.state.agents = []
-                # Still create a basic proxy for the routes
-                app.state.proxy = A2AProxy(None)
-                if not hasattr(app.state, "a2a_routes_added"):
-                    app.include_router(app.state.proxy.get_router())
-                    app.state.a2a_routes_added = True
+                # Use global proxy
+                app.state.proxy = _global_proxy
                 return {
                     "message": "Server started without AWS connectivity",
                     "agents_discovered": 0,
                     "region": aws_region,
                     "agents": [],
-                    "error": str(e)
+                    "error": str(e),
                 }
             else:
                 raise
@@ -116,7 +113,7 @@ async def discover_and_refresh_agents(app: FastAPI, is_startup: bool = False) ->
                 "agents_discovered": 0,
                 "region": aws_region,
                 "agents": [],
-                "error": str(e)
+                "error": str(e),
             }
 
     # Clear existing agents and reinitialize
@@ -124,18 +121,24 @@ async def discover_and_refresh_agents(app: FastAPI, is_startup: bool = False) ->
         proxy = app.state.proxy
         # Clear existing agents from proxy
         proxy.agents.clear()
-        proxy.a2a_apps.clear()
     else:
-        proxy = A2AProxy(client)
-        app.state.proxy = proxy
-        # Include A2A routes on first setup
-        if not hasattr(app.state, "a2a_routes_added"):
-            app.include_router(proxy.get_router())
-            app.state.a2a_routes_added = True
+        _global_proxy.client = client
+        app.state.proxy = _global_proxy
 
     # Initialize agents in proxy
+    proxy = app.state.proxy
     await proxy.initialize_agents(agents)
     app.state.agents = agents
+
+    # Call external handler if provided
+    try:
+        # Check for external handler (e.g., from wrapper service)
+        on_agents_refresh_handler = getattr(app.state, "on_agents_refresh_handler", None)
+
+        if on_agents_refresh_handler:
+            await on_agents_refresh_handler(agents)
+    except Exception as e:
+        logger.error(f"Failed to call external handler: {e}")
 
     # Show polling result in one line
     if agents:
@@ -162,34 +165,33 @@ async def agent_polling_task(app: FastAPI):
 
     while True:
         try:
-            await asyncio.sleep(AGENT_POLL_INTERVAL)
+            await asyncio.sleep(AGENT_REFRESH_INTERVAL_SECONDS)
             await discover_and_refresh_agents(app, is_startup=False)
         except Exception as e:
             logger.error(f"error during agent polling: {e}")
             # Continue polling even if one iteration fails
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Clean splash message with INFO style
-    print("\033[32mINFO\033[0m:     \033[1;37mAWS Bedrock AgentCore A2A Proxy\033[0m")
-    print("\033[32mINFO\033[0m:     API Server:  \033[34mhttp://localhost:2972\033[0m")
-    print("\033[32mINFO\033[0m:     API Docs:    \033[34mhttp://localhost:2972/docs\033[0m")
+async def aws_proxy_startup(app: FastAPI):
+    """AWS proxy startup logic that can be called from any lifespan."""
+    print_startup_config()
+    print(f"\033[32mINFO\033[0m:     API Docs:    \033[34mhttp://{HOST}:{PORT}/docs\033[0m")
 
     # Initial agent discovery
     await discover_and_refresh_agents(app, is_startup=True)
 
     # Start background polling task
     polling_task = asyncio.create_task(agent_polling_task(app))
-    app.state.polling_task = polling_task
+    app.state.aws_polling_task = polling_task
 
-    yield
 
+async def aws_proxy_shutdown(app: FastAPI):
+    """AWS proxy shutdown logic that can be called from any lifespan."""
     # Cancel polling task
-    if hasattr(app.state, "polling_task"):
-        app.state.polling_task.cancel()
+    if hasattr(app.state, "aws_polling_task"):
+        app.state.aws_polling_task.cancel()
         try:
-            await app.state.polling_task
+            await app.state.aws_polling_task
         except asyncio.CancelledError:
             pass
 
@@ -198,53 +200,92 @@ async def lifespan(app: FastAPI):
         await app.state.proxy.shutdown()
 
 
-app = FastAPI(
-    title="AWS Bedrock AgentCore A2A Server",
-    description="Creates A2A proxy servers for each AWS Bedrock AgentCore agent",
-    version="0.1.0",
-    lifespan=lifespan,
-)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await aws_proxy_startup(app)
+    yield
+    await aws_proxy_shutdown(app)
 
 
-@app.get("/")
-async def root():
-    return {"message": "AWS Bedrock AgentCore A2A Server is running"}
+# Global proxy instance for sharing state
+_global_proxy = A2AProxy(None)
 
 
-@app.get("/status")
-async def status():
-    """Get server status"""
-    agents = getattr(app.state, 'agents', [])
-    proxy = getattr(app.state, 'proxy', None)
-    running_servers = 0
-
-    if proxy and hasattr(proxy, 'running_servers'):
-        running_servers = len(proxy.running_servers)
-    return {
-        "agents_discovered": len(agents),
-        "a2a_servers_running": running_servers,
-        "agents": [{"agent_id": agent.get("agentId", "")} for agent in agents]
-    }
+def create_a2a_router() -> APIRouter:
+    """Create the A2A router - returns the global proxy router."""
+    return _global_proxy.get_router()
 
 
-# Removed superfluous /agents endpoint - use /a2a/agents instead
+def create_main_router() -> APIRouter:
+    """Create the main AWS proxy router for embedding in other apps."""
+    router = APIRouter()
+
+    @router.get("/")
+    async def root():
+        return {"message": "AWS Bedrock AgentCore A2A Server is running"}
+
+    @router.get("/status")
+    async def status(request):
+        """Get server status"""
+        agents = getattr(request.app.state, "agents", [])
+        return {
+            "agents_discovered": len(agents),
+            "agents": [{"agent_id": agent.get("agentRuntimeId", "")} for agent in agents],
+        }
+
+    @router.get("/health")
+    async def health():
+        return {"status": "healthy"}
+
+    @router.get("/ready")
+    async def ready(request: Request):
+        """Check if server can connect to AWS"""
+        try:
+            if not hasattr(request.app.state, "client"):
+                raise HTTPException(status_code=503, detail="AWS client not initialized")
+
+            # Test AWS connectivity by listing agents
+            agents = await request.app.state.client.list_agents()
+            return {"status": "ready", "aws_connection": "ok", "agents_available": len(agents)}
+        except Exception as e:
+            logger.error(f"AWS connectivity check failed: {e}")
+            raise HTTPException(status_code=503, detail=f"Not ready: {str(e)}")
+
+    return router
 
 
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
+def create_app(enable_lifespan: bool = True) -> FastAPI:
+    """Create and configure the FastAPI application for standalone use."""
+    app = FastAPI(
+        title="AWS Bedrock AgentCore A2A Server",
+        description="Creates A2A proxy servers for each AWS Bedrock AgentCore agent",
+        lifespan=lifespan if enable_lifespan else None,
+    )
+
+    # Add CORS middleware to support web-based A2A clients
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # In production, specify actual origins
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # Include routers
+    app.include_router(create_main_router())
+    app.include_router(create_a2a_router())
+
+    return app
 
 
-@app.get("/ready")
-async def ready():
-    """Check if server can connect to AWS"""
-    try:
-        if not hasattr(app.state, "client"):
-            raise HTTPException(status_code=503, detail="AWS client not initialized")
+# Create the app instance for uvicorn (maintains backward compatibility)
+app = create_app()
 
-        # Test AWS connectivity by listing agents
-        agents = await app.state.client.list_agents()
-        return {"status": "ready", "aws_connection": "ok", "agents_available": len(agents)}
-    except Exception as e:
-        logger.error(f"AWS connectivity check failed: {e}")
-        raise HTTPException(status_code=503, detail=f"Not ready: {str(e)}")
+
+# Expose initialization functions for manual setup when mounted
+async def init_proxy_app(app: FastAPI):
+    """Initialize the proxy app manually (for when mounted in another app)"""
+    await discover_and_refresh_agents(app, is_startup=True)
+    polling_task = asyncio.create_task(agent_polling_task(app))
+    app.state.polling_task = polling_task
+    return polling_task

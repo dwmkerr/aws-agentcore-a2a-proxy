@@ -1,0 +1,9 @@
+{
+  "release-type": "python",
+  "packages": {
+    "aws-bedrock-a2a-proxy": {
+      "release-type": "python",
+      "version-file": "aws-bedrock-a2a-proxy/pyproject.toml"
+    }
+  }
+}
