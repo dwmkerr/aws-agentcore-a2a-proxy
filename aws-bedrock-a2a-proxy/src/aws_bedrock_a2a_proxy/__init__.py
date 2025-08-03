@@ -1,13 +1,9 @@
 """AWS Bedrock AgentCore A2A Proxy."""
 
-from .main import (
-    create_app,
-    create_main_router,
-    create_a2a_router,
-)
+from .a2a_proxy_server import app
+from .main import setup_app
 
 __all__ = [
-    "create_app",
-    "create_main_router", 
-    "create_a2a_router",
+    "app",
+    "setup_app",
 ]

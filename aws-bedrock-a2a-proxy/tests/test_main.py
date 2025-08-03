@@ -14,7 +14,7 @@ os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
 @pytest.fixture
 def test_app():
     """Create test app instance"""
-    return create_app(enable_lifespan=False)
+    return create_app()
 
 
 @patch("aws_bedrock_a2a_proxy.main.AgentCoreClient")
@@ -35,7 +35,11 @@ def test_create_app(mock_client_class):
     """Test app creation"""
     mock_client_class.return_value = Mock()
 
-    app = create_app(enable_lifespan=False)
+    app = create_app()
     assert app is not None
     assert hasattr(app, "routes")
     assert len(app.routes) > 0
+    # Test that it's an A2AProxy instance
+    from aws_bedrock_a2a_proxy.a2a_proxy_server import A2AProxy
+
+    assert isinstance(app, A2AProxy)
