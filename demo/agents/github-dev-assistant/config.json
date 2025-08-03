@@ -1,0 +1,13 @@
+{
+  "agent": {
+    "name": "GitHub Development Assistant",
+    "description": "GitHub workflow assistant for repository management and collaboration",
+    "version": "1.0.0",
+    "capabilities": [
+      "Pull request management",
+      "Issue tracking", 
+      "Repository insights",
+      "Workflow automation"
+    ]
+  }
+}
