@@ -1,0 +1,10 @@
+{
+  "include": ["src"],
+  "exclude": ["tests"],
+  "reportMissingTypeStubs": false,
+  "reportUnknownParameterType": false,
+  "reportUnknownArgumentType": false,
+  "reportUnknownMemberType": false,
+  "reportCallIssue": "warning",
+  "reportArgumentType": "warning"
+}

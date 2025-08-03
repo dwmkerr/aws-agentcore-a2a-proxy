@@ -1,0 +1,127 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-lint-build:
+    name: Test, Lint & Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        version: "latest"
+
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      working-directory: aws-bedrock-a2a-proxy
+      run: uv sync --extra dev
+
+    - name: Lint
+      working-directory: aws-bedrock-a2a-proxy
+      run: |
+        uv run flake8 src/ tests/
+        uv run pyright src/
+
+    - name: Test
+      working-directory: aws-bedrock-a2a-proxy
+      run: uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=xml --cov-report=term-missing
+
+    - name: Build package
+      working-directory: aws-bedrock-a2a-proxy
+      run: uv build
+
+    - name: Upload coverage to Codecov
+      if: matrix.python-version == '3.12'
+      uses: codecov/codecov-action@v4
+      with:
+        file: aws-bedrock-a2a-proxy/coverage.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
+
+    - name: Upload build artifacts
+      if: matrix.python-version == '3.12'
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-package-distributions
+        path: aws-bedrock-a2a-proxy/dist/
+
+  release:
+    name: Create Release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test-lint-build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+      issues: write
+      repository-projects: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Skip Release for local runs
+      if: ${{ env.ACT }}
+      run: echo "ℹ️  Skipping release when running locally with 'act'"
+
+    - name: Create Release
+      if: ${{ !env.ACT }}
+      uses: googleapis/release-please-action@v4
+      id: release
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        release-type: python
+
+  publish-test-pypi:
+    name: Publish to TestPyPI
+    if: needs.release.outputs.release_created
+    needs: [release]
+    runs-on: ubuntu-latest
+    environment: test-release
+
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Publish to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+
+  publish-production-pypi:
+    name: Publish to Production PyPI
+    if: needs.release.outputs.release_created
+    needs: [release]
+    runs-on: ubuntu-latest
+    environment: production-release
+
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
