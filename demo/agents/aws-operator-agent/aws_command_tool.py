@@ -8,7 +8,7 @@ from strands import tool
 logger = logging.getLogger(__name__)
 
 @tool
-def aws_command(command: str) -> str:
+def aws_command(command: str) -> Dict[str, Any]:
     """
     Execute AWS CLI commands. Use standard AWS CLI syntax like 'ec2 describe-instances', 's3 ls', 'sts get-caller-identity', etc.
     
@@ -16,7 +16,7 @@ def aws_command(command: str) -> str:
         command: AWS CLI command (e.g., 'ec2 describe-instances', 's3 ls', 'lambda list-functions')
         
     Returns:
-        Dictionary containing command results
+        Dictionary containing command results with execution status
     """
     # Build the command
     cmd_parts = ["aws"] + command.split()
@@ -36,6 +36,18 @@ def aws_command(command: str) -> str:
     )
     
     if result.returncode == 0:
-        return result.stdout.strip() if result.stdout.strip() else "Command completed successfully"
+        return {
+            "action": "executed",
+            "command": f"aws {command}",
+            "success": True,
+            "output": result.stdout.strip() if result.stdout.strip() else "Command completed successfully",
+            "summary": f"Successfully executed: aws {command}"
+        }
     else:
-        return f"Error (code {result.returncode}): {result.stderr.strip() or 'Command failed'}"
+        return {
+            "action": "failed", 
+            "command": f"aws {command}",
+            "success": False,
+            "error": result.stderr.strip() or 'Command failed',
+            "summary": f"Command failed: aws {command}"
+        }

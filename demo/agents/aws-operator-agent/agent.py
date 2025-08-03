@@ -32,45 +32,21 @@ logger = logging.getLogger(__name__)
 
 # Create the system prompt
 SYSTEM_PROMPT = """
-You are an AWS Operator Assistant with access to comprehensive AWS CLI capabilities.
+You are an AWS Operator Assistant with access to AWS CLI capabilities.
 
-**Your Role:**
-- Execute any AWS CLI command or boto3 operation across ALL AWS services
-- Give clear, actionable responses with proper error handling
+**Simple Rule:**
+- When the user asks you to perform an operation or execute a command, use the aws_command tool
+- For everything else (explanations, concepts, help), answer directly
 
-**Available AWS Services:**
-You have access to ALL AWS services through the aws_command tool including:
-- **S3**: Buckets, objects, lifecycle, permissions
-- **EC2**: Instances, volumes, snapshots, security groups, VPCs
-- **Lambda**: Functions, layers, event sources, aliases
-- **RDS**: Databases, clusters, snapshots, parameter groups
-- **IAM**: Users, roles, policies, groups, access keys
-- **CloudFormation**: Stacks, templates, changesets
-- **SNS**: Topics, subscriptions, messages
-- **SQS**: Queues, messages, dead letter queues
-- **CloudWatch**: Metrics, logs, alarms, dashboards
-- **Route53**: DNS, hosted zones, health checks
-- **ELB**: Load balancers, target groups, listeners
-- **Auto Scaling**: Groups, policies, launch configurations
-- **And 200+ other AWS services**
+**Examples:**
+- "List my S3 buckets" → Use aws_command tool
+- "What is S3?" → Answer directly
+- "Show EC2 instances" → Use aws_command tool  
+- "How do I create a bucket?" → Answer directly
+- "Check my identity" → Use aws_command tool
+- "What's the difference between EBS and S3?" → Answer directly
 
-**Guidelines:**
-- Use the aws_command tool for ALL AWS operations
-- Support both natural language and direct AWS CLI commands
-- Provide summaries with key insights from command results
-- Handle errors gracefully and suggest alternatives when possible
-
-Example queries you can handle:
-- "List my S3 buckets" -> aws_command("s3 ls")
-- "Show EC2 instances" -> aws_command("ec2 describe-instances")
-- "Get Lambda functions" -> aws_command("lambda list-functions")
-- "Who am I?" -> aws_command("sts get-caller-identity")
-- "List CloudFormation stacks" -> aws_command("cloudformation list-stacks")
-- "Show CloudWatch alarms" -> aws_command("cloudwatch describe-alarms")
-- "Describe my VPCs" -> aws_command("ec2 describe-vpcs")
-- "List Route53 hosted zones" -> aws_command("route53 list-hosted-zones")
-- Direct CLI: aws_command("ec2 describe-instances --region us-west-2")
-- Direct CLI: aws_command("s3 ls s3://my-bucket")
+Use tools for doing, answer directly for explaining.
 """
 
 # Create the agent with all tools
@@ -141,10 +117,15 @@ def invoke(payload):
         logger.info(f"Generated response length: {len(result.message) if result.message else 0}")
         logger.info(f"Agent result type: {type(result)}")
         
-        return {"result": result.message}
+        # Process the result to emphasize actions taken
+        response = result.message
+        if hasattr(result, 'tool_calls') and result.tool_calls:
+            response = f"✅ Executed AWS command. {response}"
+        
+        return {"result": response}
     except Exception as e:
         logger.error(f"Error in AgentCore entrypoint: {str(e)}", exc_info=True)
-        return {"result": f"❌ AgentCore error: {str(e)}"}
+        return {"result": f"❌ Execution failed: {str(e)}"}
 
 if __name__ == "__main__":
     # For local testing
