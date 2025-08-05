@@ -25,7 +25,6 @@ lint: # run linting and type checking
 lint-fix: # lint and fix the code
 	cd aws-bedrock-a2a-proxy && uv run --extra dev black .
 
-
 .PHONY: build
 build: # build Python wheel
 	cd aws-bedrock-a2a-proxy && uv build

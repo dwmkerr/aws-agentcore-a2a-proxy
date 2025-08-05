@@ -3,11 +3,7 @@
 .DEFAULT_GOAL := help
 AGENT_NAME := github_dev_assistant
 IMAGE_NAME := $(AGENT_NAME)
-VERSION := 1.0.0
-
-# Local development uses timestamped tags, CI/CD uses semver from release manifest
-TIMESTAMP := $(shell date +%Y%m%d-%H%M%S)
-LOCAL_TAG := latest-$(TIMESTAMP)
+IMAGE_TAG ?= latest
 
 # Environment variables
 OIDC_CLIENT_ID ?= 
@@ -42,20 +38,15 @@ test: # run tests
 run: # run agent locally (optionally set GITHUB_TOKEN for testing)
 	GITHUB_TOKEN=$(GITHUB_TOKEN) python agent.py
 
+.PHONY: check-build-env
+check-build-env: # check required environment variables for ECR builds only
+	@test -n "$(ECR_REPOSITORY_URL)" || (echo "Error: ECR_REPOSITORY_URL not set" && exit 1)
+
 .PHONY: build-image
-build-image: # build and push container image to ECR with timestamped tag
-	@if [ -z "$(ECR_REPOSITORY_URL)" ]; then \
-		echo "Error: ECR_REPOSITORY_URL environment variable is required"; \
-		exit 1; \
-	fi
+build-image: check-build-env # build and push container image to ECR
 	aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(ECR_REPOSITORY_URL)
-	docker build -t $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(LOCAL_TAG) .
-	docker tag $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(LOCAL_TAG) $(ECR_REPOSITORY_URL):$(AGENT_NAME)-latest
-	docker push $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(LOCAL_TAG)
-	docker push $(ECR_REPOSITORY_URL):$(AGENT_NAME)-latest
-	@echo "Built and pushed image with tags:"
-	@echo "  - $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(LOCAL_TAG)"
-	@echo "  - $(ECR_REPOSITORY_URL):$(AGENT_NAME)-latest"
+	docker build -t $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(IMAGE_TAG) .
+	docker push $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(IMAGE_TAG)
 
 
 
