@@ -2,6 +2,12 @@
 
 A2A proxy server for AWS Bedrock AgentCore agents.
 
+> [!WARNING]
+> This is a proof-of-concept and should be used with care.
+> The demo AWS Operator Agent should be installed with a very limited set of
+> permissions or into an isolated account for security purposes.
+> Running the demo agents on AWS will incur costs.
+> AWS Agentcore is in technical preview.
 
 This server connects to a given AWS account, discovers AgentCore agents, and then exposes them via A2A. This allows you to call your AgentCore agents over the A2A protocol. Each exposed agent has its own agent card and A2A address.
 
@@ -17,15 +23,6 @@ This server connects to a given AWS account, discovers AgentCore agents, and the
                    Exposes A2A endpoints
 ```
 
-Features:
-
-- Expose any Bedrock agent via A2A
-- Automatic polling to discover Bedrock agents
-- Endpoints to show all agents available
-- Invoke agent via A2A
-- Streaming responses
-
-
 <!-- vim-markdown-toc GFM -->
 
 - [Quickstart](#quickstart)
@@ -37,7 +34,7 @@ Features:
 - [Demo Setup (Complete Infrastructure + Agents)](#demo-setup-complete-infrastructure--agents)
 - [Custom Infrastructure Setup](#custom-infrastructure-setup)
 - [Permissions](#permissions)
-- [TODO](#todo)
+- [Work in Progress](#work-in-progress)
 
 <!-- vim-markdown-toc -->
 
@@ -238,7 +235,7 @@ Requires IAM permissions:
 - `bedrock-agentcore:DescribeAgentRuntime` 
 - `bedrock-agentcore:InvokeAgentRuntime`
 
-## TODO
+## Work in Progress
 
 - [x] Extract AgentCoreHTTPClient from AgentCoreExecutor
 - [x] Add unit tests with mocked HTTP responses  
