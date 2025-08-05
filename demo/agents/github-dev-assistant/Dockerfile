@@ -8,7 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy agent code
 COPY agent.py .
-COPY config.json .
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1

@@ -38,6 +38,9 @@ build-backend = "hatchling.build"
 [tool.hatchling.build]
 sources = ["src"]
 
+[tool.hatchling.packages]
+"aws_bedrock_a2a_proxy" = "src/aws_bedrock_a2a_proxy"
+
 
 [tool.hatch.metadata]
 allow-direct-references = true

@@ -3,13 +3,10 @@
 A2A proxy server for AWS Bedrock AgentCore agents.
 
 > [!WARNING]
-> This is a proof-of-concept and should be used with care.
-> The demo AWS Operator Agent should be installed with a very limited set of
-> permissions or into an isolated account for security purposes.
-> Running the demo agents on AWS will incur costs.
-> AWS Agentcore is in technical preview.
+> This is an early preview example of how to access Agentcore via A2A. Agentcore is currently in tech preview. The demo deploys an AWS agent - it runs with a configurable identity - limit this identities permissions.
+> The code to deploy an agent is *extremely* janky vibe-coded scripting due to limitations at time of writing, I will try to fix this up later. The server is to a much higher standard.
 
-This server connects to a given AWS account, discovers AgentCore agents, and then exposes them via A2A. This allows you to call your AgentCore agents over the A2A protocol. Each exposed agent has its own agent card and A2A address.
+This server discovers AgentCore agents and exposes them via A2A. This allows you to call your AgentCore agents over the A2A protocol. Each exposed agent has its own agent card and A2A address.
 
 ```
 ┌─────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -30,17 +27,16 @@ This server connects to a given AWS account, discovers AgentCore agents, and the
 - [Direct AgentCore Access (Non-A2A)](#direct-agentcore-access-non-a2a)
 - [Additional Features](#additional-features)
     - [Streaming Responses](#streaming-responses)
-- [How It Works](#how-it-works)
-- [Demo Setup (Complete Infrastructure + Agents)](#demo-setup-complete-infrastructure--agents)
-- [Custom Infrastructure Setup](#custom-infrastructure-setup)
-- [Permissions](#permissions)
-- [Work in Progress](#work-in-progress)
+    - [OIDC](#oidc)
+- [Next Steps](#next-steps)
 
 <!-- vim-markdown-toc -->
 
 ## Quickstart
 
-Setup your AWS credentials by editing `.env`:
+The Agentcore A2A Proxy uses the AWS credential chain to discover Agentcore agents. This means you can configure explicit credentials via environment variables, use the service account, or any other configuration method.
+
+For convenience, the server will read from `.env` if present - you can drop your AWS credentials in this file:
 
 ```bash
 # Configure environment
@@ -48,10 +44,18 @@ cp .env.example .env
 vi .env
 ```
 
-Start the AWS Bedrock A2A Proxy with:
+Start the AWS Agentcore A2A Proxy with:
 
 ```bash
 make dev
+
+# Starting AWS Bedrock AgentCore A2A Proxy
+# Configuration:
+# • Agent Refresh Interval: 30s
+# • Streaming Enabled: True
+# • Description as A2A Skill: True
+# • Server: http://localhost:2972
+# polling: discovered 2 agents: aws_operator_agent (v11), github_dev_assistant (v12)
 ```
 
 Any agents available for the user with the given credentials will be exposed. If you need to create some agents as an example, set up the required AWS infrastructure and deploy some sample agents:
@@ -177,6 +181,10 @@ curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke-str
 # data: [DONE]
 ```
 
+### OIDC
+
+An OIDC demo agent that connects to GitHub is currently in progress. Raise tickets screaming for it if you want me to speed up.
+
 ## How It Works
 
 Uses direct HTTPS calls to AgentCore (boto3 SDK not available yet). Discovers agents via `bedrock-agentcore-control` client and exposes them through standard A2A protocol endpoints. Supports both explicit credentials and default AWS credential chain.
@@ -235,9 +243,8 @@ Requires IAM permissions:
 - `bedrock-agentcore:DescribeAgentRuntime` 
 - `bedrock-agentcore:InvokeAgentRuntime`
 
-## Work in Progress
+## Next Steps
 
-- [x] Extract AgentCoreHTTPClient from AgentCoreExecutor
-- [x] Add unit tests with mocked HTTP responses  
-- [ ] Add OIDC authentication support
-- [ ] Add support for streaming responses
+- Streaming test end to end
+- OIDC
+- Fix deploy scripts
