@@ -55,7 +55,7 @@ deploy: install # deploy agent to AWS Bedrock AgentCore
 		echo "Error: IAM_ROLE_ARN environment variable is required"; \
 		exit 1; \
 	fi
-	../../scripts/deploy-agent \
+	uv run --with boto3 ../../scripts/manage-agent.py deploy \
 		--agent-name "$(AGENT_NAME)" \
 		--execution-role-arn $(IAM_ROLE_ARN) \
 		--region $(AWS_REGION)
@@ -63,7 +63,7 @@ deploy: install # deploy agent to AWS Bedrock AgentCore
 
 .PHONY: undeploy
 undeploy: # remove agent from AWS Bedrock AgentCore
-	../../scripts/manage-agent.py delete --agent-name "$(AGENT_NAME)" --region $(AWS_REGION)
+	uv run --with boto3 ../../scripts/manage-agent.py delete --agent-name "$(AGENT_NAME)" --region $(AWS_REGION)
 
 .PHONY: logs
 logs: # show agent logs (when deployed)

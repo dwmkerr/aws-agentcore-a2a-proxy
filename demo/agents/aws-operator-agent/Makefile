@@ -54,7 +54,7 @@ build-image: check-build-env # build and push container image to ECR with timest
 
 .PHONY: deploy
 deploy: install check-deploy-env # deploy agent to AWS Bedrock AgentCore with specific AWS role
-	../../scripts/deploy-agent \
+	uv run --with boto3 ../../scripts/manage-agent.py deploy \
 		--agent-name "$(AGENT_NAME)" \
 		--execution-role-arn $(IAM_AGENT_ROLE_ARN) \
 		--region $(AWS_REGION)
@@ -62,7 +62,7 @@ deploy: install check-deploy-env # deploy agent to AWS Bedrock AgentCore with sp
 
 .PHONY: undeploy
 undeploy: # remove agent from AWS Bedrock AgentCore
-	../../scripts/manage-agent.py delete --agent-name "$(AGENT_NAME)" --region $(AWS_REGION)
+	uv run --with boto3 ../../scripts/manage-agent.py delete --agent-name "$(AGENT_NAME)" --region $(AWS_REGION)
 
 .PHONY: logs
 logs: # show agent logs (when deployed)
