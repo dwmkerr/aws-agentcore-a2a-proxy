@@ -6,9 +6,7 @@ IMAGE_NAME := $(AGENT_NAME)
 IMAGE_TAG ?= latest
 
 # Environment variables
-IAM_ROLE_ARN ?= # For deployment (general AgentCore role)
-IAM_AGENT_ROLE_ARN ?= # For AWS operations (specific AWS Operator Agent role)
-EXECUTION_ROLE_ARN ?= $(IAM_AGENT_ROLE_ARN)
+AWS_OPERATIONS_ROLE_ARN ?= # Role with AgentCore + AWS service permissions
 ECR_REPOSITORY_URL ?= 
 AWS_REGION ?= us-east-1
 
@@ -26,7 +24,7 @@ check-build-env: # check required environment variables for ECR builds only
 
 .PHONY: check-deploy-env
 check-deploy-env: # check required environment variables for agent deployment
-	@test -n "$(IAM_AGENT_ROLE_ARN)" || (echo "Error: IAM_AGENT_ROLE_ARN not set" && exit 1)
+	@test -n "$(AWS_OPERATIONS_ROLE_ARN)" || (echo "Error: AWS_OPERATIONS_ROLE_ARN not set" && exit 1)
 
 .PHONY: build-image
 build-image: check-build-env # build and push container image to ECR with timestamped tag
@@ -37,13 +35,13 @@ build-image: check-build-env # build and push container image to ECR with timest
 
 .PHONY: install
 install: build-image # build image and deploy agent to AWS Bedrock AgentCore
-	@if [ -z "$(EXECUTION_ROLE_ARN)" ]; then \
-		echo "Error: EXECUTION_ROLE_ARN environment variable is required"; \
+	@if [ -z "$(AWS_OPERATIONS_ROLE_ARN)" ]; then \
+		echo "Error: AWS_OPERATIONS_ROLE_ARN environment variable is required"; \
 		exit 1; \
 	fi
 	uv run --with boto3==1.40.1 ../../scripts/manage-agent.py deploy \
 		--agent-name "$(AGENT_NAME)" \
-		--execution-role-arn $(EXECUTION_ROLE_ARN) \
+		--execution-role-arn $(AWS_OPERATIONS_ROLE_ARN) \
 		--region $(AWS_REGION)
 
 .PHONY: uninstall
