@@ -51,14 +51,10 @@ uninstall-demo-infrastructure: # destroy demo AWS infrastructure
 install-demo-agents: # build and deploy both demo agents using demo infrastructure
 	@(cd demo/agents/github-dev-assistant && \
 	ECR_REPOSITORY_URL=$$(cd ../../infrastructure && terraform output -raw ecr_repository_url) \
-	make build-image)
-	@(cd demo/agents/aws-operator-agent && \
-	ECR_REPOSITORY_URL=$$(cd ../../infrastructure && terraform output -raw ecr_repository_url) \
-	make build-image)
-	@(cd demo/agents/github-dev-assistant && \
 	EXECUTION_ROLE_ARN=$$(cd ../../infrastructure && terraform output -raw agentcore_execution_role_arn) \
 	make install)
 	@(cd demo/agents/aws-operator-agent && \
+	ECR_REPOSITORY_URL=$$(cd ../../infrastructure && terraform output -raw ecr_repository_url) \
 	EXECUTION_ROLE_ARN=$$(cd ../../infrastructure && terraform output -raw aws_operator_agent_role_arn) \
 	make install)
 

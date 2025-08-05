@@ -24,7 +24,7 @@ help: # show help for each of the Makefile recipes
 
 
 .PHONY: install
-install: # deploy agent to AWS Bedrock AgentCore
+install: build-image # build image and deploy agent to AWS Bedrock AgentCore
 	@if [ -z "$(EXECUTION_ROLE_ARN)" ]; then \
 		echo "Error: EXECUTION_ROLE_ARN environment variable is required"; \
 		exit 1; \
