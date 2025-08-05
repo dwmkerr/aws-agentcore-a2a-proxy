@@ -63,7 +63,7 @@ deploy: install # deploy agent to AWS Bedrock AgentCore
 
 .PHONY: undeploy
 undeploy: # remove agent from AWS Bedrock AgentCore
-	../../scripts/undeploy-agent --agent-name "$(AGENT_NAME)" --region $(AWS_REGION)
+	../../scripts/manage-agent.py delete --agent-name "$(AGENT_NAME)" --region $(AWS_REGION)
 
 .PHONY: logs
 logs: # show agent logs (when deployed)
