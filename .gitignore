@@ -191,6 +191,13 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+
 # Project specific
 *.pid
 server.log
