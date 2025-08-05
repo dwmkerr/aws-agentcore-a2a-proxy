@@ -20,10 +20,7 @@ help: # show help for each of the Makefile recipes
 
 .PHONY: install
 install: build-image # build image and deploy agent to AWS Bedrock AgentCore
-	@if [ -z "$(GITHUB_OPERATIONS_ROLE_ARN)" ]; then \
-		echo "Error: GITHUB_OPERATIONS_ROLE_ARN environment variable is required"; \
-		exit 1; \
-	fi
+	@test -n "$(GITHUB_OPERATIONS_ROLE_ARN)" || (echo "Error: GITHUB_OPERATIONS_ROLE_ARN not set" && exit 1)
 	uv run --with boto3==1.40.1 ../../scripts/manage-agent.py deploy \
 		--agent-name "$(AGENT_NAME)" \
 		--execution-role-arn $(GITHUB_OPERATIONS_ROLE_ARN) \
@@ -37,12 +34,9 @@ test: # run tests
 run: # run agent locally (optionally set GITHUB_TOKEN for testing)
 	GITHUB_TOKEN=$(GITHUB_TOKEN) python agent.py
 
-.PHONY: check-build-env
-check-build-env: # check required environment variables for ECR builds only
-	@test -n "$(ECR_REPOSITORY_URL)" || (echo "Error: ECR_REPOSITORY_URL not set" && exit 1)
-
 .PHONY: build-image
-build-image: check-build-env # build and push container image to ECR
+build-image: # build and push container image to ECR
+	@test -n "$(ECR_REPOSITORY_URL)" || (echo "Error: ECR_REPOSITORY_URL not set" && exit 1)
 	aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(ECR_REPOSITORY_URL)
 	docker build -t $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(IMAGE_TAG) .
 	docker push $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(IMAGE_TAG)
