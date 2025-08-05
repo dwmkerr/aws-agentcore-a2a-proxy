@@ -253,14 +253,14 @@ async def refresh_agents() -> List[Dict[str, Any]]:
     agents = await app.state.client.list_agents()
     app.state.agents.clear()
     await initialize_agents(agents)
-    
+
     # Call callback if provided
     if hasattr(app.state, 'on_agents_refresh') and app.state.on_agents_refresh:
         try:
             await app.state.on_agents_refresh(agents)
         except Exception as e:
             logger.error(f"Failed to call external handler: {e}")
-    
+
     return agents
 
 

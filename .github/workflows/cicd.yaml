@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  test-lint-build:
-    name: Test, Lint & Build
+  test-lint:
+    name: Test & Lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,29 +30,57 @@ jobs:
       run: uv sync --extra dev
 
     - name: Lint
-      working-directory: aws-bedrock-a2a-proxy
-      run: |
-        uv run flake8 src/ tests/
-        uv run pyright src/
+      run: make lint
 
     - name: Test
+      run: make test
+
+    - name: Upload coverage reports
+      if: matrix.python-version == '3.12'
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports
+        path: aws-bedrock-a2a-proxy/artifacts/coverage/
+
+  build:
+    name: Build & Upload
+    runs-on: ubuntu-latest
+    needs: test-lint
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        version: "latest"
+
+    - name: Set up Python 3.12
+      run: uv python install 3.12
+
+    - name: Install dependencies
       working-directory: aws-bedrock-a2a-proxy
-      run: uv run pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=xml --cov-report=term-missing
+      run: uv sync --extra dev
 
     - name: Build package
       working-directory: aws-bedrock-a2a-proxy
       run: uv build
 
-    - name: Upload coverage to Codecov
-      if: matrix.python-version == '3.12'
-      uses: codecov/codecov-action@v4
+    - name: Download coverage reports
+      uses: actions/download-artifact@v4
       with:
-        file: aws-bedrock-a2a-proxy/coverage.xml
-        token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: true
+        name: coverage-reports
+        path: aws-bedrock-a2a-proxy/artifacts/coverage/
+
+    # Codecov upload disabled - uncomment and configure CODECOV_TOKEN secret if needed
+    # - name: Upload coverage to Codecov
+    #   uses: codecov/codecov-action@v4
+    #   with:
+    #     file: aws-bedrock-a2a-proxy/artifacts/coverage/coverage.lcov
+    #     token: ${{ secrets.CODECOV_TOKEN }}
+    #     fail_ci_if_error: true
 
     - name: Upload build artifacts
-      if: matrix.python-version == '3.12'
       uses: actions/upload-artifact@v4
       with:
         name: python-package-distributions
@@ -61,7 +89,7 @@ jobs:
   release:
     name: Create Release
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: test-lint-build
+    needs: [test-lint, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
