@@ -59,8 +59,8 @@ build-image: # build and push container image to ECR with timestamped tag
 
 
 
-.PHONY: undeploy
-undeploy: # remove agent from AWS Bedrock AgentCore
+.PHONY: uninstall
+uninstall: # remove agent from AWS Bedrock AgentCore
 	uv run --with boto3==1.40.1 ../../scripts/manage-agent.py delete --agent-name "$(AGENT_NAME)" --region $(AWS_REGION)
 
 .PHONY: logs

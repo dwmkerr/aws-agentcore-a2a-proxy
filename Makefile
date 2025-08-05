@@ -60,5 +60,5 @@ install-demo-agents: # build and deploy both demo agents using demo infrastructu
 
 .PHONY: uninstall-demo-agents
 uninstall-demo-agents: # remove both demo agents from AWS
-	uv run --with boto3==1.40.1 demo/scripts/manage-agent.py delete --agent-name "github_dev_assistant" --region us-east-1 || true
-	uv run --with boto3==1.40.1 demo/scripts/manage-agent.py delete --agent-name "aws_operator_agent" --region us-east-1 || true
+	@cd demo/agents/github-dev-assistant && make uninstall || true
+	@cd demo/agents/aws-operator-agent && make uninstall || true
