@@ -12,6 +12,7 @@ LOCAL_TAG := latest-$(TIMESTAMP)
 # Environment variables
 IAM_ROLE_ARN ?= # For deployment (general AgentCore role)
 IAM_AGENT_ROLE_ARN ?= # For AWS operations (specific AWS Operator Agent role)
+EXECUTION_ROLE_ARN ?= $(IAM_AGENT_ROLE_ARN)
 ECR_REPOSITORY_URL ?= 
 AWS_REGION ?= us-east-1
 
@@ -20,8 +21,15 @@ help: # show help for each of the Makefile recipes
 	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
 
 .PHONY: install
-install: # install dependencies
-	pip install -r requirements.txt
+install: # deploy agent to AWS Bedrock AgentCore
+	@if [ -z "$(EXECUTION_ROLE_ARN)" ]; then \
+		echo "Error: EXECUTION_ROLE_ARN environment variable is required"; \
+		exit 1; \
+	fi
+	uv run --with boto3==1.40.1 ../../scripts/manage-agent.py deploy \
+		--agent-name "$(AGENT_NAME)" \
+		--execution-role-arn $(EXECUTION_ROLE_ARN) \
+		--region $(AWS_REGION)
 
 .PHONY: test
 test: # run tests
@@ -52,12 +60,6 @@ build-image: check-build-env # build and push container image to ECR with timest
 	@echo "  - $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(LOCAL_TAG)"
 	@echo "  - $(ECR_REPOSITORY_URL):$(AGENT_NAME)-latest"
 
-.PHONY: deploy
-deploy: install check-deploy-env # deploy agent to AWS Bedrock AgentCore with specific AWS role
-	uv run --with boto3==1.40.1 ../../scripts/manage-agent.py deploy \
-		--agent-name "$(AGENT_NAME)" \
-		--execution-role-arn $(IAM_AGENT_ROLE_ARN) \
-		--region $(AWS_REGION)
 
 
 .PHONY: undeploy

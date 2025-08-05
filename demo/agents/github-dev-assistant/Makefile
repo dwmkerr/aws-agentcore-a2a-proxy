@@ -13,6 +13,7 @@ LOCAL_TAG := latest-$(TIMESTAMP)
 OIDC_CLIENT_ID ?= 
 OIDC_CLIENT_SECRET ?= 
 IAM_ROLE_ARN ?= 
+EXECUTION_ROLE_ARN ?= $(IAM_ROLE_ARN)
 ECR_REPOSITORY_URL ?= 
 AWS_REGION ?= us-east-1
 GITHUB_TOKEN ?= # Optional: for local testing only
@@ -23,8 +24,15 @@ help: # show help for each of the Makefile recipes
 
 
 .PHONY: install
-install: # install dependencies
-	pip install -r requirements.txt
+install: # deploy agent to AWS Bedrock AgentCore
+	@if [ -z "$(EXECUTION_ROLE_ARN)" ]; then \
+		echo "Error: EXECUTION_ROLE_ARN environment variable is required"; \
+		exit 1; \
+	fi
+	uv run --with boto3==1.40.1 ../../scripts/manage-agent.py deploy \
+		--agent-name "$(AGENT_NAME)" \
+		--execution-role-arn $(EXECUTION_ROLE_ARN) \
+		--region $(AWS_REGION)
 
 .PHONY: test
 test: # run tests
@@ -49,16 +57,6 @@ build-image: # build and push container image to ECR with timestamped tag
 	@echo "  - $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(LOCAL_TAG)"
 	@echo "  - $(ECR_REPOSITORY_URL):$(AGENT_NAME)-latest"
 
-.PHONY: deploy
-deploy: install # deploy agent to AWS Bedrock AgentCore
-	@if [ -z "$(IAM_ROLE_ARN)" ]; then \
-		echo "Error: IAM_ROLE_ARN environment variable is required"; \
-		exit 1; \
-	fi
-	uv run --with boto3==1.40.1 ../../scripts/manage-agent.py deploy \
-		--agent-name "$(AGENT_NAME)" \
-		--execution-role-arn $(IAM_ROLE_ARN) \
-		--region $(AWS_REGION)
 
 
 .PHONY: undeploy

@@ -4,7 +4,6 @@ A2A proxy server for AWS Bedrock AgentCore agents.
 
 > [!WARNING]
 > This is an early preview example of how to access Agentcore via A2A. Agentcore is currently in tech preview. The demo deploys an AWS agent - it runs with a configurable identity - limit this identities permissions.
-> The code to deploy an agent is *extremely* janky vibe-coded scripting due to limitations at time of writing, I will try to fix this up later. The server is to a much higher standard.
 
 This server discovers AgentCore agents and exposes them via A2A. This allows you to call your AgentCore agents over the A2A protocol. Each exposed agent has its own agent card and A2A address.
 
@@ -28,6 +27,10 @@ This server discovers AgentCore agents and exposes them via A2A. This allows you
 - [Additional Features](#additional-features)
     - [Streaming Responses](#streaming-responses)
     - [OIDC](#oidc)
+- [How It Works](#how-it-works)
+- [Demo Setup (Complete Infrastructure + Agents)](#demo-setup-complete-infrastructure--agents)
+- [Custom Infrastructure Setup](#custom-infrastructure-setup)
+- [Permissions](#permissions)
 - [Next Steps](#next-steps)
 
 <!-- vim-markdown-toc -->
@@ -239,6 +242,7 @@ This creates a customer support agent with order lookup and knowledge base capab
 ## Permissions
 
 Requires IAM permissions:
+
 - `bedrock-agentcore:ListAgentRuntimes`
 - `bedrock-agentcore:DescribeAgentRuntime` 
 - `bedrock-agentcore:InvokeAgentRuntime`
@@ -247,4 +251,3 @@ Requires IAM permissions:
 
 - Streaming test end to end
 - OIDC
-- Fix deploy scripts

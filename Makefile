@@ -55,8 +55,12 @@ install-demo-agents: # build and deploy both demo agents using demo infrastructu
 	@(cd demo/agents/aws-operator-agent && \
 	ECR_REPOSITORY_URL=$$(cd ../../infrastructure && terraform output -raw ecr_repository_url) \
 	make build-image)
-	uv run --with boto3==1.40.1 demo/scripts/manage-agent.py deploy --agent-name "github_dev_assistant" --execution-role-arn $$(cd demo/infrastructure && terraform output -raw agentcore_execution_role_arn) --image-uri $$(cd demo/infrastructure && terraform output -raw ecr_repository_url):github_dev_assistant-latest --region us-east-1 --description "GitHub development assistant that helps with repository management, code analysis, and development workflows"
-	uv run --with boto3==1.40.1 demo/scripts/manage-agent.py deploy --agent-name "aws_operator_agent" --execution-role-arn $$(cd demo/infrastructure && terraform output -raw aws_operator_agent_role_arn) --image-uri $$(cd demo/infrastructure && terraform output -raw ecr_repository_url):aws_operator_agent-latest --region us-east-1 --description "AWS operations agent that manages cloud resources including S3 buckets, EC2 instances, and other AWS services"
+	@(cd demo/agents/github-dev-assistant && \
+	EXECUTION_ROLE_ARN=$$(cd ../../infrastructure && terraform output -raw agentcore_execution_role_arn) \
+	make install)
+	@(cd demo/agents/aws-operator-agent && \
+	EXECUTION_ROLE_ARN=$$(cd ../../infrastructure && terraform output -raw aws_operator_agent_role_arn) \
+	make install)
 
 .PHONY: uninstall-demo-agents
 uninstall-demo-agents: # remove both demo agents from AWS
