@@ -117,7 +117,7 @@ def find_agent_by_name(client, agent_name):
 
 def create_agent_runtime(client, agent_name, image_uri, role_arn, description=None):
     """Create new agent runtime"""
-    agent_description = description or f"{agent_name.replace('_', ' ').replace('-', ' ').title()} deployed via boto3"
+    agent_description = description or f"{agent_name.replace('_', ' ').replace('-', ' ').title()} agent"
     
     try:
         response = client.create_agent_runtime(
