@@ -8,6 +8,10 @@ A2A proxy server for AWS Bedrock AgentCore agents.
 - Exposes an A2A Agent Card for each agent
 - Operates as proxy, transformaing A2A calls to AWS Bedrock invocation
 
+The screenshot below shows some agents in Agentcore, the proxy discovering and exposing them, and the A2A Inspector connected to one of the agents:
+
+![Screenshot of AWS Agentcore Proxy](./docs/agentcore-proxy-a2a.png)
+
 Each exposed agent has its own agent card and A2A address. This allows systems that do not know about Agentcore to talk to your agents.
 
 > [!WARNING]
@@ -25,14 +29,12 @@ Each exposed agent has its own agent card and A2A address. This allows systems t
                    Exposes A2A endpoints
 ```
 
-The screenshot below shows some agents in Agentcore, the proxy discovering and exposing them, and the A2A Inspector connected to one of the agents:
-
-![Screenshot of AWS Agentcore Proxy](./docs/agentcore-proxy-a2a.png)
-
 <!-- vim-markdown-toc GFM -->
 
 - [Quickstart](#quickstart)
-- [Calling Bedrock Agents via A2A](#calling-bedrock-agents-via-a2a)
+    - [Running from Source](#running-from-source)
+    - [Using as a Python Package](#using-as-a-python-package)
+- [Calling Agentcore Agents via A2A](#calling-agentcore-agents-via-a2a)
 - [Direct AgentCore Access (Non-A2A)](#direct-agentcore-access-non-a2a)
 - [Additional Features](#additional-features)
     - [Streaming Responses](#streaming-responses)
@@ -48,6 +50,15 @@ The screenshot below shows some agents in Agentcore, the proxy discovering and e
 ## Quickstart
 
 The Agentcore A2A Proxy uses the AWS credential chain to discover Agentcore agents. This means you can configure explicit credentials via environment variables, use the service account, or any other configuration method.
+
+### Running from Source
+
+First, clone and navigate to the repository:
+
+```bash
+git clone https://github.com/dwmkerr/aws-agentcore-a2a-proxy.git
+cd aws-agentcore-a2a-proxy
+```
 
 For convenience, the server will read from `.env` if present - you can drop your AWS credentials in this file:
 
@@ -81,7 +92,34 @@ make install-demo-infrastructure
 make install-demo-agents
 ```
 
-## Calling Bedrock Agents via A2A
+### Using as a Python Package
+
+Install the package:
+
+```bash
+pip install aws-agentcore-a2a-proxy
+```
+
+Run directly:
+
+```bash
+python -m aws_bedrock_a2a_proxy
+
+# Or run with uv - note that 'pip install' is not needed in this case.
+uv run --with aws-agentcore-a2a-proxy python -m aws_bedrock_a2a_proxy
+```
+
+Or use in your Python scripts:
+
+```python
+from aws_bedrock_a2a_proxy.main import create_app
+import uvicorn
+
+app = create_app()
+uvicorn.run(app, host="localhost", port=2972)
+```
+
+## Calling Agentcore Agents via A2A
 
 View the API documentation:
 
