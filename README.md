@@ -1,6 +1,6 @@
 # AWS Bedrock AgentCore A2A Proxy
 
-[![codecov](https://codecov.io/gh/dwmkerr/aws-agentcore-a2a-proxy/graph/badge.svg?token=aXkZtiSQ57)](https://codecov.io/gh/dwmkerr/aws-agentcore-a2a-proxy)
+[![codecov](https://codecov.io/gh/dwmkerr/aws-agentcore-a2a-proxy/graph/badge.svg?token=aXkZtiSQ57)](https://codecov.io/gh/dwmkerr/aws-agentcore-a2a-proxy) [![PyPI version](https://badge.fury.io/py/aws-agentcore-a2a-proxy.svg)](https://pypi.org/project/aws-agentcore-a2a-proxy/)
 
 A2A proxy server for AWS Bedrock AgentCore agents.
 
