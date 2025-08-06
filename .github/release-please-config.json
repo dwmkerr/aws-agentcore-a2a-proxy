@@ -1,0 +1,9 @@
+{
+  "release-type": "python",
+  "packages": {
+    "aws-agentcore-a2a-proxy": {
+      "release-type": "python",
+      "version-file": "aws-agentcore-a2a-proxy/pyproject.toml"
+    }
+  }
+}
