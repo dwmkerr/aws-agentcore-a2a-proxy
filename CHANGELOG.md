@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.0...v0.1.1) (2025-08-06)
+
+
+### Miscellaneous Chores
+
+* release 0.1.1 ([d924371](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/d924371c601dccec8caf8f9928e3cfb22b97e464))
+
 ## 0.1.0 (2025-08-06)
 
 
