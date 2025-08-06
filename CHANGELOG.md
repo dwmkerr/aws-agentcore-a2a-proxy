@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.2](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.1...v0.1.2) (2025-08-06)
+
+
+### Bug Fixes
+
+* correct boto3 version ([f91934f](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/f91934fed941619208674b79b721b12cf82463b2))
+* correct boto3 version ([76df082](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/76df08226222cd35b42c950755ea7f43371c5635))
+
+
+### Documentation
+
+* add PyPI version badge to README ([7d57ff9](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/7d57ff983eea68d862b4593686a5b7bad7ad61fc))
+* coverage badge ([dc3fc55](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/dc3fc5568c16f86d557d1dbe169fc55dbbe2ad09))
+* improve readme and badges ([bc05687](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/bc05687b86f66b07b0c736dd1ee334174661f2e5))
+* improve README with badges and clearer installation options ([b666a22](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/b666a2236a32c8d48db3476da397e29a08afe245))
+
 ## [0.1.1](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.0...v0.1.1) (2025-08-06)
 
 
