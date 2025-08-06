@@ -2,10 +2,14 @@
 
 A2A proxy server for AWS Bedrock AgentCore agents.
 
-> [!WARNING]
-> This is an early preview example of how to access Agentcore via A2A. Agentcore is currently in tech preview. The demo deploys an AWS agent - it runs with a configurable identity - limit this identities permissions.
+- Polls AWS Agentcore to discover agents
+- Exposes an A2A Agent Card for each agent
+- Operates as proxy, transformaing A2A calls to AWS Bedrock invocation
 
-This server discovers AgentCore agents and exposes them via A2A. This allows you to call your AgentCore agents over the A2A protocol. Each exposed agent has its own agent card and A2A address.
+Each exposed agent has its own agent card and A2A address. This allows systems that do not know about Agentcore to talk to your agents.
+
+> [!WARNING]
+> This is an example of how to expose Agentcore agents via A2A, by running a simple proxy server. Agentcore is currently in tech preview. The demo deploys an AWS agent that runs with a configurable role. Be very mindful of the roles that you assign agents and the potential security consequences. 
 
 ```
 ┌─────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -18,6 +22,10 @@ This server discovers AgentCore agents and exposes them via A2A. This allows you
                    Auto-discovers agents
                    Exposes A2A endpoints
 ```
+
+The screenshot below shows some agents in Agentcore, the proxy discovering and exposing them, and the A2A Inspector connected to one of the agents:
+
+![Screenshot of AWS Agentcore Proxy](./docs/agentcore-proxy-a2a.png)
 
 <!-- vim-markdown-toc GFM -->
 
