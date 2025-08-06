@@ -255,7 +255,7 @@ async def refresh_agents() -> List[Dict[str, Any]]:
     await initialize_agents(agents)
 
     # Call callback if provided
-    if hasattr(app.state, 'on_agents_refresh') and app.state.on_agents_refresh:
+    if hasattr(app.state, "on_agents_refresh") and app.state.on_agents_refresh:
         try:
             await app.state.on_agents_refresh(agents)
         except Exception as e:

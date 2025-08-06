@@ -22,8 +22,8 @@ test: # run tests
 build-image: # build and push container image to ECR
 	@test -n "$(ECR_REPOSITORY_URL)" || (echo "Error: ECR_REPOSITORY_URL not set" && exit 1)
 	aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(ECR_REPOSITORY_URL)
-	docker build -t $(ECR_REPOSITORY_URL)/$(AGENT_NAME):$(IMAGE_TAG) .
-	docker push $(ECR_REPOSITORY_URL)/$(AGENT_NAME):$(IMAGE_TAG)
+	docker build -t $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(IMAGE_TAG) .
+	docker push $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(IMAGE_TAG)
 
 .PHONY: install
 install: build-image # build image and deploy agent to AWS Bedrock AgentCore
@@ -31,7 +31,7 @@ install: build-image # build image and deploy agent to AWS Bedrock AgentCore
 	uv run --with boto3==1.40.1 ../../scripts/manage-agent.py deploy \
 		--agent-name "$(AGENT_NAME)" \
 		--execution-role-arn $(AWS_OPERATIONS_ROLE_ARN) \
-		--image-uri $(ECR_REPOSITORY_URL)/$(AGENT_NAME):$(IMAGE_TAG) \
+		--image-uri $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(IMAGE_TAG) \
 		--region $(AWS_REGION)
 
 .PHONY: uninstall

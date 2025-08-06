@@ -141,7 +141,7 @@ class AgentCoreClient:
     def _get_agent_arn(self, agent_id: str) -> str:
         # Use the actual runtime ARN format from agent discovery
         # Get account ID dynamically from STS
-        account_id = boto3.client('sts').get_caller_identity()['Account']
+        account_id = boto3.client("sts").get_caller_identity()["Account"]
         return f"arn:aws:bedrock-agentcore:{self.region}:{account_id}:runtime/{agent_id}"
 
     async def get_agent_details(self, agent_id: str) -> Optional[Dict[str, Any]]:

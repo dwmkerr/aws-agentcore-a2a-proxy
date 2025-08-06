@@ -94,8 +94,11 @@ class AgentCoreExecutor:
     ) -> None:
         """Send task status update using A2A SDK types"""
         try:
-            # Create task status
-            task_status = TaskStatus(state=state, timestamp="2024-01-01T00:00:00Z")  # TODO: Use actual timestamp
+            # Create task status with current timestamp
+            from datetime import datetime
+
+            current_timestamp = datetime.utcnow().isoformat() + "Z"
+            task_status = TaskStatus(state=state, timestamp=current_timestamp)
 
             # Add error message if failed
             if state == TaskState.failed and error_message:

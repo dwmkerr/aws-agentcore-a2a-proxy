@@ -134,5 +134,6 @@ def create_app(on_agents_refresh: Optional[Callable] = None):
 # For programmatic startup
 if __name__ == "__main__":
     import uvicorn
+
     app = create_app()
     uvicorn.run(app, host=config.host, port=config.port)

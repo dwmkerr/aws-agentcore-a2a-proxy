@@ -34,7 +34,7 @@ def main():
     deploy_parser = subparsers.add_parser('deploy', help='Deploy an agent runtime')
     deploy_parser.add_argument('--agent-name', required=True, help='Name of the agent')
     deploy_parser.add_argument('--execution-role-arn', required=True, help='IAM execution role ARN')
-    deploy_parser.add_argument('--image-uri', help='Container image URI (optional, defaults to agent-name:latest)')
+    deploy_parser.add_argument('--image-uri', required=True, help='Container image URI')
     deploy_parser.add_argument('--region', default='us-east-1', help='AWS region (default: us-east-1)')
     deploy_parser.add_argument('--description', help='Agent description (optional)')
     
@@ -182,7 +182,7 @@ def deploy_agent(args):
     """Deploy an agent runtime"""
     agent_name = args.agent_name
     execution_role_arn = args.execution_role_arn
-    image_uri = args.image_uri or f"{agent_name}:latest"
+    image_uri = args.image_uri
     region = args.region
     description = args.description
     
