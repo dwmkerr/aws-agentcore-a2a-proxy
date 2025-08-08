@@ -1,15 +1,3 @@
 {
-  "release-type": "python",
-  "packages": {
-    ".": {
-      "release-type": "python",
-      "extra-files": [
-        {
-          "type": "toml",
-          "path": "aws-bedrock-a2a-proxy/pyproject.toml",
-          "jsonpath": "$.project.version"
-        }
-      ]
-    }
-  }
+  "release-type": "python"
 }
