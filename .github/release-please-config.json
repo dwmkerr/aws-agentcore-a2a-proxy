@@ -1,7 +1,16 @@
 {
+  "release-type": "simple",
+  "bump-minor-pre-major": true,
   "packages": {
-    "aws-bedrock-a2a-proxy": {
-      "release-type": "python"
+    ".": {
+      "release-type": "simple",
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "aws-bedrock-a2a-proxy/pyproject.toml",
+          "jsonpath": "project.version"
+        }
+      ]
     }
   }
 }
