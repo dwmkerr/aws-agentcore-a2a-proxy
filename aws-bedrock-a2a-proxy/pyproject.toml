@@ -1,6 +1,6 @@
 [project]
 name = "aws-agentcore-a2a-proxy"
-version = "0.1.3"
+version = "0.1.4"
 description = "A2A server for AWS Bedrock AgentCore agents"
 authors = [
     {name = "Dave Kerr"}
