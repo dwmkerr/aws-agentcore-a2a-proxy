@@ -6,7 +6,7 @@ A2A proxy server for AWS Bedrock AgentCore agents.
 
 - Polls AWS Agentcore to discover agents
 - Exposes an A2A Agent Card for each agent
-- Operates as proxy, transformaing A2A calls to AWS Bedrock invocation
+- Operates as proxy, transforming A2A calls to AWS Bedrock invocation
 
 The screenshot below shows some agents in Agentcore, the proxy discovering and exposing them, and the A2A Inspector connected to one of the agents:
 
