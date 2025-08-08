@@ -26,6 +26,7 @@ jobs:
       run: uv python install ${{ matrix.python-version }}
 
     - name: Install dependencies
+      working-directory: aws-bedrock-a2a-proxy
       run: uv sync --extra dev
 
     - name: Lint
@@ -39,7 +40,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: coverage-reports
-        path: artifacts/coverage/
+        path: aws-bedrock-a2a-proxy/artifacts/coverage/
 
   build:
     name: Build & Upload
@@ -58,16 +59,18 @@ jobs:
       run: uv python install 3.12
 
     - name: Install dependencies
+      working-directory: aws-bedrock-a2a-proxy
       run: uv sync --extra dev
 
     - name: Build package
+      working-directory: aws-bedrock-a2a-proxy
       run: uv build
 
     - name: Download coverage reports
       uses: actions/download-artifact@v4
       with:
         name: coverage-reports
-        path: artifacts/coverage/
+        path: aws-bedrock-a2a-proxy/artifacts/coverage/
 
     # Codecov upload disabled - uncomment and configure CODECOV_TOKEN secret if needed
     # - name: Upload coverage to Codecov
@@ -81,7 +84,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: python-package-distributions
-        path: dist/
+        path: aws-bedrock-a2a-proxy/dist/
 
   release:
     name: Create Release
