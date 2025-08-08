@@ -298,4 +298,4 @@ Requires IAM permissions:
 ## Next Steps
 
 - Streaming test end to end
-- OIDC
+- OIDC integration
