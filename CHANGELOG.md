@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.5](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.4...v0.1.5) (2025-08-08)
+
+
+### Bug Fixes
+
+* correct release-please config to update pyproject.toml versions ([c0e5528](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/c0e55282843ea596d37d05b2a1ea16ac9ae06540))
+* correct release-please config to update pyproject.toml versions ([d2881b5](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/d2881b5dc76c08e4b4b1d350fb2243a1147a5f5a))
+* restructure release-please config to properly update pyproject.toml ([cccf27b](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/cccf27be01f9fe67a182c46f004cdc1f769a6d9c))
+* restructure release-please config to properly update pyproject.toml ([1957bb5](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/1957bb57717b9c023dc47ff265387c81efaa9673))
+* sync release-please manifest and pyproject.toml versions to 0.1.4 ([45f1d02](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/45f1d02bfd13d58cb8e52b02521be1ef56735a7d))
+* sync release-please manifest and pyproject.toml versions to 0.1.4 ([c6e9dd8](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/c6e9dd88b724941b695fcb579bfd7e1770a62f83))
+
 ## [0.1.4](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.2...v0.1.4) (2025-08-07)
 
 
