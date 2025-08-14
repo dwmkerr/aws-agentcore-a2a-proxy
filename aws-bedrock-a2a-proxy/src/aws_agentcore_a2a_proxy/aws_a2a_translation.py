@@ -116,14 +116,18 @@ def a2a_request_to_agentcore_payload(a2a_request: Dict[str, Any]) -> Dict[str, A
     if not parts or not isinstance(parts, list) or len(parts) == 0:
         raise ValueError("Invalid A2A request: empty message parts")
 
-    first_part = parts[0]
-    if not isinstance(first_part, dict) or "text" not in first_part:
-        raise ValueError("Invalid A2A request: missing text in first message part")
+    # Concatenate all text parts to form complete message
+    message_parts = []
+    for part in parts:
+        if isinstance(part, dict) and "text" in part:
+            text_content = part["text"]
+            if text_content:
+                message_parts.append(text_content)
 
-    message_text = first_part["text"]
-    if not message_text:
-        raise ValueError("Invalid A2A request: empty message text")
+    if not message_parts:
+        raise ValueError("Invalid A2A request: no text content in message parts")
 
+    message_text = " ".join(message_parts)
     return {"prompt": message_text}
 
 

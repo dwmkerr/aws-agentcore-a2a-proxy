@@ -63,7 +63,7 @@ wheels = [
 
 [[package]]
 name = "aws-agentcore-a2a-proxy"
-version = "0.1.5"
+version = "0.1.6"
 source = { editable = "." }
 dependencies = [
     { name = "a2a-sdk", extra = ["sqlite"] },
