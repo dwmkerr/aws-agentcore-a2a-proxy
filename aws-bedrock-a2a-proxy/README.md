@@ -1,6 +1,6 @@
-# AWS Bedrock A2A Proxy
+# AWS AgentCore A2A Proxy
 
-A Python server that provides an A2A (Agent-to-Agent) proxy for AWS Bedrock AgentCore agents.
+A Python server that provides an A2A (Agent-to-Agent) proxy for AWS AgentCore agents.
 
 ## Quick Start
 
