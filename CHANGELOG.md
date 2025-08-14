@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.5...v0.1.6) (2025-08-14)
+
+
+### Bug Fixes
+
+* correct package name and add artifacts to gitignore ([#21](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/issues/21)) ([55e6f47](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/55e6f47f876b64f10f19e7d3dedd11542804407f))
+
 ## [0.1.5](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.4...v0.1.5) (2025-08-08)
 
 
