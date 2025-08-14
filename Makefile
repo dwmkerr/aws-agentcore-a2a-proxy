@@ -9,12 +9,12 @@ PORT ?= 2972
 
 .PHONY: dev
 dev: # run in development mode
-	cd aws-bedrock-a2a-proxy && uv run uvicorn aws_bedrock_a2a_proxy.main:create_app --factory --host $(HOST) --port $(PORT) --reload
+	cd aws-bedrock-a2a-proxy && uv run uvicorn aws_agentcore_a2a_proxy.main:create_app --factory --host $(HOST) --port $(PORT) --reload
 
 .PHONY: test
 test: # run tests with coverage
 	mkdir -p aws-bedrock-a2a-proxy/artifacts/coverage
-	cd aws-bedrock-a2a-proxy && uv run --extra dev pytest tests/ -v --cov=src/aws_bedrock_a2a_proxy --cov-report=term-missing --cov-report=html:artifacts/coverage/html --cov-report=lcov:artifacts/coverage/coverage.lcov
+	cd aws-bedrock-a2a-proxy && uv run --extra dev pytest tests/ -v --cov=src/aws_agentcore_a2a_proxy --cov-report=term-missing --cov-report=html:artifacts/coverage/html --cov-report=lcov:artifacts/coverage/coverage.lcov
 
 .PHONY: lint
 lint: # run linting and type checking

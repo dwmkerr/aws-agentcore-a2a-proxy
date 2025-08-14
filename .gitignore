@@ -201,3 +201,4 @@ terraform.tfvars
 # Project specific
 *.pid
 server.log
+artifacts/
