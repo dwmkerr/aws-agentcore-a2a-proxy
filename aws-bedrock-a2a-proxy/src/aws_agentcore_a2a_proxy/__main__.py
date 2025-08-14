@@ -3,8 +3,8 @@
 Entry point for running the AWS Bedrock A2A Proxy as a module.
 
 Usage:
-    python -m aws_bedrock_a2a_proxy
-    uv run -m aws_bedrock_a2a_proxy
+    python -m aws_agentcore_a2a_proxy
+    uv run -m aws_agentcore_a2a_proxy
 """
 
 import uvicorn

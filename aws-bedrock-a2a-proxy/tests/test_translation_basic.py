@@ -10,7 +10,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import pytest  # noqa: E402
-from aws_bedrock_a2a_proxy.aws_a2a_translation import (  # noqa: E402
+from aws_agentcore_a2a_proxy.aws_a2a_translation import (  # noqa: E402
     agentcore_agent_to_agentcard,
     a2a_request_to_agentcore_payload,
 )

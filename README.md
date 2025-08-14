@@ -103,16 +103,16 @@ pip install aws-agentcore-a2a-proxy
 Run directly:
 
 ```bash
-python -m aws_bedrock_a2a_proxy
+python -m aws_agentcore_a2a_proxy
 
 # Or run with uv - note that 'pip install' is not needed in this case.
-uv run --with aws-agentcore-a2a-proxy python -m aws_bedrock_a2a_proxy
+uv run --with aws-agentcore-a2a-proxy python -m aws_agentcore_a2a_proxy
 ```
 
 Or use in your Python scripts:
 
 ```python
-from aws_bedrock_a2a_proxy.main import create_app
+from aws_agentcore_a2a_proxy.main import create_app
 import uvicorn
 
 app = create_app()
