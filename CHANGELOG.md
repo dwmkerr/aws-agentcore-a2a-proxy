@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.7](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.6...v0.1.7) (2025-08-14)
+
+
+### Features
+
+* restore enhanced agent with improved tool output handling ([#24](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/issues/24)) ([9468ccc](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/9468ccc6280d1bac09838f5e4b9227d3d642c396))
+
+
+### Bug Fixes
+
+* update package README title from 'Bedrock' to 'AgentCore' ([#23](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/issues/23)) ([169cece](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/169cecefd698bda448c9343d1c2efe9ca8e44aa3))
+
+
+### Miscellaneous Chores
+
+* release 0.1.7 ([6eaf49f](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/6eaf49fb2a90b2bc57466e932974570ffc028708))
+
 ## [0.1.6](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.5...v0.1.6) (2025-08-14)
 
 
