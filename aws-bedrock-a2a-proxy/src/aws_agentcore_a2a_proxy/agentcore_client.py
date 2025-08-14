@@ -99,11 +99,13 @@ class AgentCoreClient:
                 logger.info("Received JSON response from AWS")
                 content = []
                 for chunk in response.get("response", []):
-                    content.append(chunk.decode("utf-8"))
+                    decoded_chunk = chunk.decode("utf-8")
+                    content.append(decoded_chunk)
 
                 if content:
+                    joined_content = "".join(content)
                     try:
-                        json_response = json.loads("".join(content))
+                        json_response = json.loads(joined_content)
                         logger.debug(f"Parsed JSON response: {str(json_response)[:100]}...")
                         return {"streaming": False, "content_type": "application/json", "result": json_response}
                     except json.JSONDecodeError as e:
@@ -112,7 +114,7 @@ class AgentCoreClient:
                             "streaming": False,
                             "content_type": "application/json",
                             "error": "Failed to parse JSON response",
-                            "raw": "".join(content),
+                            "raw": joined_content,
                         }
                 else:
                     # Handle empty content
