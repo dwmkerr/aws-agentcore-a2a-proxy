@@ -43,6 +43,15 @@ Use this tool for any AWS operations or queries to provide accurate, current inf
 - aws_command(command="sts get-caller-identity") - Get current AWS identity
 - aws_command(command="lambda list-functions") - List Lambda functions
 - aws_command(command="s3 ls s3://bucket-name") - List objects in specific bucket
+- aws_command(command="route53 list-hosted-zones") - List Route53 domains
+
+**TOOL USAGE:**
+- aws_command(command="s3 ls") - List S3 buckets
+- aws_command(command="route53 list-hosted-zones") - List Route53 domains  
+- aws_command(command="ec2 describe-instances") - List EC2 instances
+- aws_command(command="sts get-caller-identity") - Get current identity
+
+**IMPORTANT:** The command parameter should NOT include "aws" - just the service and action.
 
 **Example interactions:**
 
