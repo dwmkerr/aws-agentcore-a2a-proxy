@@ -35,8 +35,10 @@ Each exposed agent has its own agent card and A2A address. This allows systems t
     - [Running from Source](#running-from-source)
     - [Using as a Python Package](#using-as-a-python-package)
 - [Calling Agentcore Agents via A2A](#calling-agentcore-agents-via-a2a)
+- [Testing with A2A Inspector](#testing-with-a2a-inspector)
 - [Direct AgentCore Access (Non-A2A)](#direct-agentcore-access-non-a2a)
 - [Additional Features](#additional-features)
+    - [External URL Configuration](#external-url-configuration)
     - [Streaming Responses](#streaming-responses)
     - [OIDC](#oidc)
 - [How It Works](#how-it-works)
@@ -160,6 +162,19 @@ curl -X POST http://localhost:2972/a2a/agent/$AGENT_ID/jsonrpc \
 # Output: {"result": "Hello! I'd be happy to help you with your order..."}
 ```
 
+## Testing with A2A Inspector
+
+You can test your A2A proxy using the A2A Inspector tool:
+
+```bash
+git clone https://github.com/a2aproject/a2a-inspector.git
+cd a2a-inspector
+chmod +x run.sh
+./run.sh
+```
+
+Open http://localhost:5001 and enter your A2A agent URL (e.g., `http://localhost:2972/a2a/agent/YOUR_AGENT_ID`) to interact with your agents through a web interface.
+
 ## Direct AgentCore Access (Non-A2A)
 
 For debugging or direct integration, you can also call AgentCore agents directly without the A2A protocol.
@@ -190,6 +205,17 @@ curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke \
 ```
 
 ## Additional Features
+
+### External URL Configuration
+
+Configure external URLs when running behind proxies or load balancers:
+
+```bash
+export EXPOSE_HOST=my-domain.com
+export EXPOSE_PORT=443
+```
+
+The server binds to `host:port` internally but advertises `expose_host:expose_port` in A2A agent cards. This can be useful In scenarios where the host and the agent card url differs - for example the host in a Kubernetes Pod will be `0.0.0.0` but it will be advertised via its external address such as `http://aws-agentcore-bridge.default.svc.cluster.local:80`.
 
 ### Streaming Responses
 
