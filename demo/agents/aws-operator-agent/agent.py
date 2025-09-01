@@ -2,18 +2,27 @@
 """
 AWS Operator Agent
 
-A generic tool-enumeration agent that discovers available AWS tools
-and lets the LLM decide which tools to use based on user requests.
+A comprehensive AWS operations assistant that provides secure access to AWS services via boto3.
+Uses structured tools for reliable AWS operations with role-based access control.
+
+Features:
+- Structured tool definitions for all major AWS services
+- Role-based access control with region restrictions
+- Comprehensive error handling and logging
+- Support for OIDC authentication
+
+Integrates with:
+- AWS SDK (boto3) for all AWS services
+- Strands agent framework for tool orchestration
+- AWS IAM for role-based access control
 """
 
-import json
 import logging
-import inspect
-import boto3
-from typing import Dict, List, Any, Callable
-from bedrock_agentcore.runtime import BedrockAgentCoreApp
+from typing import Dict, List, Any
 
-# Import available tools
+from strands import Agent
+from strands.models import BedrockModel
+from bedrock_agentcore.runtime import BedrockAgentCoreApp
 from aws_command_tool import aws_command
 from status_tool import aws_status
 
@@ -21,228 +30,203 @@ from status_tool import aws_status
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class GenericToolAgent:
-    """Generic agent that enumerates available tools and lets LLM decide which to use"""
-    
-    def __init__(self):
-        self.bedrock_client = None
-        self.available_tools = {}
-        self._discover_tools()
-        
-    def _discover_tools(self):
-        """Discover all available tools"""
-        # Import all available tool functions
-        tool_functions = {
-            'aws_command': aws_command,
-            'aws_status': aws_status
+# Create the system prompt
+SYSTEM_PROMPT = """
+You are an AWS Operator Assistant with access to AWS CLI capabilities.
+
+You have access to the aws_command tool that executes AWS CLI commands. 
+Use this tool for any AWS operations or queries to provide accurate, current information.
+
+**How to use aws_command tool:**
+- aws_command(command="s3 ls") - List S3 buckets
+- aws_command(command="ec2 describe-instances") - List EC2 instances  
+- aws_command(command="sts get-caller-identity") - Get current AWS identity
+- aws_command(command="lambda list-functions") - List Lambda functions
+- aws_command(command="s3 ls s3://bucket-name") - List objects in specific bucket
+
+**Example interactions:**
+
+User: "List my S3 buckets"
+You: "I'll list your S3 buckets for you:
+
+Tool #1: aws_command
+
+2023-05-21 14:21:29    my-data-bucket
+2023-05-20 10:15:42    my-backup-bucket  
+2023-05-19 16:30:18    my-logs-bucket
+
+These are your current S3 buckets with their creation dates."
+
+User: "What's my AWS identity?"
+You: "Let me check your current AWS identity:
+
+Tool #1: aws_command
+
+{
+    "UserId": "AIDACKCEVSQ6C2EXAMPLE",
+    "Account": "123456789012", 
+    "Arn": "arn:aws:iam::123456789012:user/DevUser"
+}
+
+You're authenticated as DevUser in AWS account 123456789012."
+
+User: "Show me my EC2 instances"
+You: "I'll check your EC2 instances:
+
+Tool #1: aws_command
+
+{
+    "Instances": [
+        {
+            "InstanceId": "i-1234567890abcdef0",
+            "InstanceType": "t3.micro",
+            "State": {"Name": "running"},
+            "PublicIpAddress": "203.0.113.12",
+            "Tags": [{"Key": "Name", "Value": "web-server"}]
         }
-        
-        for name, func in tool_functions.items():
-            try:
-                # Get function signature and docstring
-                sig = inspect.signature(func)
-                doc = inspect.getdoc(func) or "No description available"
-                
-                # Build parameter schema
-                parameters = {}
-                for param_name, param in sig.parameters.items():
-                    param_type = param.annotation if param.annotation != inspect.Parameter.empty else str
-                    param_info = {
-                        "type": self._python_type_to_json_type(param_type),
-                        "required": param.default == inspect.Parameter.empty
-                    }
-                    parameters[param_name] = param_info
-                
-                self.available_tools[name] = {
-                    "name": name,
-                    "description": doc,
-                    "function": func,
-                    "parameters": parameters
-                }
-                
-            except Exception as e:
-                logger.error(f"Failed to inspect tool {name}: {e}")
-        
-        logger.info(f"Discovered {len(self.available_tools)} tools: {list(self.available_tools.keys())}")
-    
-    def _python_type_to_json_type(self, python_type):
-        """Convert Python type to JSON schema type"""
-        if python_type == str:
-            return "string"
-        elif python_type == int:
-            return "integer"
-        elif python_type == float:
-            return "number"
-        elif python_type == bool:
-            return "boolean"
-        elif python_type == list:
-            return "array"
-        elif python_type == dict:
-            return "object"
-        else:
-            return "string"  # Default fallback
-            
-    def _get_bedrock_client(self):
-        """Get or create Bedrock client"""
-        if not self.bedrock_client:
-            self.bedrock_client = boto3.client('bedrock-runtime', region_name='us-east-1')
-        return self.bedrock_client
-        
-    def _create_system_prompt(self) -> str:
-        """Create system prompt with available tools"""
-        if not self.available_tools:
-            return "You are a helpful AWS assistant. However, no tools are currently available."
-            
-        tools_description = "\n".join([
-            f"- {tool['name']}: {tool['description']}"
-            for tool in self.available_tools.values()
-        ])
-        
-        tools_schemas = {
-            name: {
-                "name": tool["name"],
-                "description": tool["description"],
-                "parameters": tool["parameters"]
-            }
-            for name, tool in self.available_tools.items()
+    ]
+}
+
+You have 1 running EC2 instance: web-server (i-1234567890abcdef0) of type t3.micro."
+
+User: "List my Lambda functions"
+You: "Here are your Lambda functions:
+
+Tool #1: aws_command
+
+{
+    "Functions": [
+        {
+            "FunctionName": "my-api-handler",
+            "Runtime": "python3.9",
+            "LastModified": "2023-05-21T10:30:00.000+0000"
+        },
+        {
+            "FunctionName": "data-processor", 
+            "Runtime": "nodejs18.x",
+            "LastModified": "2023-05-20T15:45:00.000+0000"
         }
-        
-        return f"""You are an AWS operations assistant with access to the following tools:
+    ]
+}
 
-{tools_description}
+You have 2 Lambda functions: my-api-handler (Python 3.9) and data-processor (Node.js 18.x)."
 
-You can call these tools to help users with AWS operations. When you need to use a tool, respond with a JSON object containing:
-- "tool_call": true
-- "tool_name": the name of the tool to call
-- "arguments": the arguments to pass to the tool
-
-When you have the information needed to answer the user's question, respond normally without tool calls.
-
-Available tools and their schemas:
-{json.dumps(tools_schemas, indent=2)}
-
-Always be helpful and provide clear explanations of AWS resources and operations.
+**Critical rule:** Always show the complete tool output in your response, never just describe or summarize it.
 """
-    
-    async def handle_request(self, prompt: str) -> str:
-        """Main entry point for handling user requests"""
-        system_prompt = self._create_system_prompt()
-        return await self._conversation_loop(system_prompt, prompt)
-    
-    async def _conversation_loop(self, system_prompt: str, user_prompt: str, max_iterations: int = 5) -> str:
-        """Handle conversation with tool calling"""
-        bedrock = self._get_bedrock_client()
-        
-        messages = [
-            {"role": "user", "content": user_prompt}
-        ]
-        
-        for iteration in range(max_iterations):
-            try:
-                # Call LLM
-                response = bedrock.invoke_model(
-                    modelId='anthropic.claude-3-5-sonnet-20241022-v2:0',
-                    body=json.dumps({
-                        "anthropic_version": "bedrock-2023-05-31",
-                        "max_tokens": 4000,
-                        "system": system_prompt,
-                        "messages": messages
-                    })
-                )
-                
-                response_body = json.loads(response['body'].read())
-                assistant_message = response_body['content'][0]['text']
-                
-                # Check if LLM wants to call a tool
-                try:
-                    tool_request = json.loads(assistant_message)
-                    if tool_request.get('tool_call'):
-                        tool_name = tool_request.get('tool_name')
-                        arguments = tool_request.get('arguments', {})
-                        
-                        logger.info(f"LLM requesting tool call: {tool_name} with args: {arguments}")
-                        
-                        # Call the tool
-                        if tool_name in self.available_tools:
-                            tool_func = self.available_tools[tool_name]['function']
-                            try:
-                                # Call the tool function with arguments
-                                if arguments:
-                                    tool_result = tool_func(**arguments)
-                                else:
-                                    tool_result = tool_func()
-                                    
-                                # Convert result to string if needed
-                                if not isinstance(tool_result, str):
-                                    tool_result = json.dumps(tool_result, indent=2)
-                                    
-                            except Exception as e:
-                                tool_result = f"Error calling tool {tool_name}: {str(e)}"
-                                logger.error(f"Tool execution error: {e}")
-                        else:
-                            tool_result = f"Tool {tool_name} not found in available tools"
-                        
-                        # Add tool result to conversation
-                        messages.append({"role": "assistant", "content": assistant_message})
-                        messages.append({"role": "user", "content": f"Tool result: {tool_result}"})
-                        
-                        continue  # Continue conversation loop
-                        
-                except json.JSONDecodeError:
-                    # Not a tool call, this is the final response
-                    return assistant_message
-                    
-                return assistant_message
-                
-            except Exception as e:
-                logger.error(f"Error in conversation loop: {e}")
-                return f"Sorry, I encountered an error: {str(e)}"
-        
-        return "I've reached the maximum number of tool calls. Please try a simpler request."
 
-# Create agent instance
-agent = GenericToolAgent()
-
-# Create BedrockAgentCoreApp with the agent
+# Create the agent with all tools
 app = BedrockAgentCoreApp()
 
-@app.agent
-async def aws_operator_agent(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """AWS Operator Agent entry point"""
-    logger.info(f"Received payload: {json.dumps(payload, default=str)}")
+model = BedrockModel(
+    model_id="anthropic.claude-3-haiku-20240307-v1:0"
+)
+
+# Define all available tools
+aws_tools = [
+    aws_command,
+    aws_status
+]
+
+agent = Agent(
+    model=model,
+    system_prompt=SYSTEM_PROMPT,
+    tools=aws_tools
+)
+
+def get_agent_tools() -> List[Dict[str, Any]]:
+    """Get list of available tools for auto-discovery by A2A proxy"""
+    tools_info = []
     
-    # Extract user message
-    user_message = payload.get("prompt", "Hello, what AWS operations can you help me with?")
+    for tool_func in aws_tools:
+        # Extract tool information from the function
+        tool_name = tool_func.__name__
+        tool_doc = tool_func.__doc__ or "No description available"
+        
+        # Parse the docstring to extract description and examples
+        lines = [line.strip() for line in tool_doc.strip().split('\n') if line.strip()]
+        description = lines[0] if lines else "AWS command execution tool"
+        
+        # Extract examples from docstring only
+        examples = []
+        in_examples = False
+        for line in lines:
+            if "Examples:" in line or "examples:" in line:
+                in_examples = True
+                continue
+            if in_examples and line.startswith('- "'):
+                # Extract example from quoted string
+                example = line.strip('- "').rstrip('"')
+                examples.append(example)
+        
+        tools_info.append({
+            "id": tool_name,
+            "name": tool_name.replace('_', ' ').title(),
+            "description": description,
+            "examples": examples,
+            "tags": ["aws", "cli", "boto3", "infrastructure", "operations", "all-services"]
+        })
+    
+    return tools_info
+
+@app.entrypoint
+def invoke(payload):
+    """AgentCore entrypoint for processing requests"""
+    logger.info(f"AgentCore invoke called with payload keys: {list(payload.keys())}")
     
     try:
-        # Process the request
-        response = await agent.handle_request(user_message)
-        return {"result": response}
+        user_message = payload.get("prompt", "Hello! What AWS operation would you like to perform?")
+        logger.info(f"Extracted user message: '{user_message}'")
+        logger.info(f"Available tools: {[tool.__name__ for tool in aws_tools]}")
+        
+        result = agent(user_message)
+        logger.info(f"Generated response length: {len(result.message) if result.message else 0}")
+        logger.info(f"Agent result type: {type(result)}")
+        
+        # Enhanced response processing  
+        # result.message is a dict like {'role': 'assistant', 'content': [{'text': 'actual text'}]}
+        # We need to extract the actual text content
+        if isinstance(result.message, dict) and 'content' in result.message:
+            # Extract text from the content array
+            content = result.message['content']
+            if content and isinstance(content, list) and len(content) > 0:
+                if isinstance(content[0], dict) and 'text' in content[0]:
+                    response_text = content[0]['text']
+                else:
+                    response_text = str(content[0])
+            else:
+                response_text = str(result.message)
+        else:
+            response_text = str(result.message)
+        
+        final_response = {
+            "result": {
+                "role": "assistant",
+                "content": [
+                    {
+                        "text": response_text
+                    }
+                ]
+            }
+        }
+        
+        return final_response
         
     except Exception as e:
-        logger.error(f"Error processing request: {e}")
-        return {"result": f"Sorry, I encountered an error: {str(e)}"}
-
-# Test function for local development
-async def test_agent():
-    """Test the agent locally"""
-    test_queries = [
-        "What tools are available to me?",
-        "Check my AWS status", 
-        "List my S3 buckets",
-        "Show me my current AWS identity",
-        "List my EC2 instances"
-    ]
-    
-    print("=== AWS Operator Agent Test ===")
-    for query in test_queries:
-        print(f"\nQuery: {query}")
-        try:
-            response = await agent.handle_request(query)
-            print(f"Response: {response}")
-        except Exception as e:
-            print(f"Error: {e}")
+        logger.error(f"Error in AgentCore entrypoint: {str(e)}", exc_info=True)
+        
+        error_response = {
+            "result": {
+                "role": "assistant", 
+                "content": [
+                    {
+                        "text": f"❌ AWS operation failed: {str(e)}"
+                    }
+                ]
+            }
+        }
+        
+        return error_response
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(test_agent())
+    # For local testing
+    app.run(port=9596)
