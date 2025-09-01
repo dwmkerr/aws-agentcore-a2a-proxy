@@ -145,8 +145,10 @@ def create_agent_runtime(client, agent_name, image_uri, role_arn, description=No
         return None
 
 
-def update_agent_runtime(client, agent_id, image_uri, role_arn, description=None):
+def update_agent_runtime(client, agent_id, image_uri, role_arn, agent_name, description=None):
     """Update existing agent runtime"""
+    agent_description = description or f"{agent_name.replace('_', ' ').replace('-', ' ').title()} agent"
+    
     update_params = {
         'agentRuntimeId': agent_id,
         'agentRuntimeArtifact': {
@@ -157,11 +159,9 @@ def update_agent_runtime(client, agent_id, image_uri, role_arn, description=None
         'networkConfiguration': {
             'networkMode': 'PUBLIC'
         },
-        'roleArn': role_arn
+        'roleArn': role_arn,
+        'description': agent_description
     }
-    
-    if description:
-        update_params['description'] = description
     
     try:
         response = client.update_agent_runtime(**update_params)
@@ -196,7 +196,7 @@ def deploy_agent(args):
         log_info(f"agent '{agent_name}' already exists (id: {agent_id}), updating with new image")
         
         # Update existing agent
-        update_result = update_agent_runtime(client, agent_id, image_uri, execution_role_arn, description)
+        update_result = update_agent_runtime(client, agent_id, image_uri, execution_role_arn, agent_name, description)
         
         if not update_result:
             log_error("failed to update agent runtime")

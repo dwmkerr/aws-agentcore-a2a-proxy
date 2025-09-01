@@ -6,9 +6,8 @@ bedrock-agentcore
 # Core HTTP client for MCP server communication
 httpx>=0.27.0
 
-# OIDC/JWT handling for authentication
-PyJWT>=2.8.0
-cryptography>=41.0.0
+# FastMCP client for GitHub MCP server
+fastmcp>=2.0.0
 
 # Environment management
 python-dotenv>=1.0.0

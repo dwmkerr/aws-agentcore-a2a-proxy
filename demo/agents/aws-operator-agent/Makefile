@@ -14,9 +14,13 @@ AWS_REGION ?= us-east-1
 help: # show help for each of the Makefile recipes
 	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
 
+.PHONY: dev
+dev: # start agent in development mode
+	uv run python agent.py
+
 .PHONY: test
 test: # run tests
-	python -m pytest tests/ -v
+	uv run python -m pytest tests/ -v
 
 .PHONY: build-image
 build-image: # build and push container image to ECR

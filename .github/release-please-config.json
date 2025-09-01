@@ -9,6 +9,16 @@
           "type": "toml",
           "path": "aws-bedrock-a2a-proxy/pyproject.toml",
           "jsonpath": "project.version"
+        },
+        {
+          "type": "toml",
+          "path": "demo/agents/github-dev-assistant/pyproject.toml",
+          "jsonpath": "project.version"
+        },
+        {
+          "type": "toml",
+          "path": "demo/agents/aws-operator-agent/pyproject.toml",
+          "jsonpath": "project.version"
         }
       ]
     }

@@ -238,4 +238,4 @@ def invoke(payload):
 
 if __name__ == "__main__":
     # For local testing
-    app.run()
+    app.run(port=9596)
