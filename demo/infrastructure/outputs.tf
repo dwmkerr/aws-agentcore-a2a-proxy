@@ -15,12 +15,22 @@ output "agentcore_user_policy_arn" {
 
 output "aws_operator_agent_role_arn" {
   description = "ARN of the AWS Operator Agent role"
-  value       = aws_iam_role.aws_operator_agent.arn
+  value       = module.aws_operator_agent.aws_operator_agent_role_arn
 }
 
 output "aws_operator_agent_role_name" {
   description = "Name of the AWS Operator Agent role"
-  value       = aws_iam_role.aws_operator_agent.name
+  value       = module.aws_operator_agent.aws_operator_agent_role_name
+}
+
+output "github_dev_assistant_role_arn" {
+  description = "ARN of the GitHub Development Assistant role"
+  value       = module.github_dev_assistant.github_dev_assistant_role_arn
+}
+
+output "github_dev_assistant_role_name" {
+  description = "Name of the GitHub Development Assistant role"
+  value       = module.github_dev_assistant.github_dev_assistant_role_name
 }
 
 output "bedrock_log_group_name" {
@@ -56,6 +66,11 @@ output "ecr_repository_url" {
 output "ecr_repository_name" {
   description = "ECR repository name"
   value       = aws_ecr_repository.agentcore_agents.name
+}
+
+output "github_oidc_provider_arn" {
+  description = "ARN of the GitHub OIDC provider"
+  value       = aws_iam_openid_connect_provider.github_actions.arn
 }
 
 output "console_urls" {

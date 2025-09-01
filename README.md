@@ -40,11 +40,8 @@ Each exposed agent has its own agent card and A2A address. This allows systems t
 - [Additional Features](#additional-features)
     - [External URL Configuration](#external-url-configuration)
     - [Streaming Responses](#streaming-responses)
-    - [OIDC](#oidc)
-- [How It Works](#how-it-works)
-- [Demo Setup (Complete Infrastructure + Agents)](#demo-setup-complete-infrastructure--agents)
-- [Custom Infrastructure Setup](#custom-infrastructure-setup)
-- [Permissions](#permissions)
+- [Demo Setup](#demo-setup)
+    - [Demo Agent - GitHub Dev Assistant](#demo-agent---github-dev-assistant)
 - [Next Steps](#next-steps)
 
 <!-- vim-markdown-toc -->
@@ -258,15 +255,7 @@ curl -X POST http://localhost:2972/agentcore/agents/$AGENT_RUNTIME_ID/invoke-str
 # data: [DONE]
 ```
 
-### OIDC
-
-An OIDC demo agent that connects to GitHub is currently in progress. Raise tickets screaming for it if you want me to speed up.
-
-## How It Works
-
-Uses direct HTTPS calls to AgentCore (boto3 SDK not available yet). Discovers agents via `bedrock-agentcore-control` client and exposes them through standard A2A protocol endpoints. Supports both explicit credentials and default AWS credential chain.
-
-## Demo Setup (Complete Infrastructure + Agents)
+## Demo Setup
 
 If you want to try the complete demo with managed infrastructure and agents:
 
@@ -277,6 +266,11 @@ make install-demo-infrastructure
 # Deploy demo agents using the infrastructure
 make install-demo-agents
 
+# Or deploy specific agents only, e.g:
+# cd demo/agents/customer-support-agents
+# make install    # deploy agent
+# make uninstall  # remove agent
+
 # Clean up everything when done
 make uninstall-demo-infrastructure
 ```
@@ -284,42 +278,39 @@ make uninstall-demo-infrastructure
 The demo infrastructure includes:
 - IAM execution role for AgentCore agents
 - ECR repository for container images
-- User policies for agent invocation  
+- User policies for agent invocation
 - CloudWatch log groups with retention
 - Bedrock model logging configuration
 
 Configure resources by editing `./demo/infrastructure/terraform.tfvars`. Note these resources incur AWS costs.
 
-## Custom Infrastructure Setup
+### Demo Agent - GitHub Dev Assistant
 
-If you have your own AWS infrastructure and want to deploy agents to it:
+GitHub Development Assistant Agent using GitHub's MCP server for PR management, issue tracking, and CI/CD monitoring.
 
-1. **Set environment variables:**
-   ```bash
-   export AWS_ACCESS_KEY_ID=your_key
-   export AWS_SECRET_ACCESS_KEY=your_secret
-   export AWS_REGION=us-east-1
-   export IAM_ROLE_ARN=arn:aws:iam::123456789012:role/YourAgentRole
-   export ECR_REPOSITORY_URL=123456789012.dkr.ecr.us-east-1.amazonaws.com/your-repo
-   ```
+Run the agent locally:
 
-2. **Deploy specific agents:**
-   ```bash
-   cd demo/agents/customer-support-agents
-   make install    # deploy agent
-   make uninstall  # remove agent
-   ```
+```bash
+# Create GitHub token: https://github.com/settings/tokens
+export GITHUB_TOKEN=ghp_your_token_here
+cd demo/agents/github-dev-assistant
+make dev
+```
 
-This creates a customer support agent with order lookup and knowledge base capabilities.
+Test with commands:
 
+```bash
+# Basic test
+curl -X POST http://localhost:9595/invocations \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Hello, what can you help me with?"}'
 
-## Permissions
-
-Requires IAM permissions:
-
-- `bedrock-agentcore:ListAgentRuntimes`
-- `bedrock-agentcore:DescribeAgentRuntime` 
-- `bedrock-agentcore:InvokeAgentRuntime`
+# With Authorization header (overrides env token)  
+curl -X POST http://localhost:9595/invocations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ghp_your_token" \
+  -d '{"prompt": "Show me my pull requests"}'
+```
 
 ## Next Steps
 

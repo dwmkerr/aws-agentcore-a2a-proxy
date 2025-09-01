@@ -31,9 +31,9 @@ install: build-image # build image and deploy agent to AWS Bedrock AgentCore
 test: # run tests
 	python -m pytest tests/ -v
 
-.PHONY: run
-run: # run agent locally (optionally set GITHUB_TOKEN for testing)
-	GITHUB_TOKEN=$(GITHUB_TOKEN) python agent.py
+.PHONY: dev
+dev: # start agent in development mode
+	uv run python agent.py
 
 .PHONY: build-image
 build-image: # build and push container image to ECR

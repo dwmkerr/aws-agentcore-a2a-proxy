@@ -1,3 +1,17 @@
+# GitHub OIDC provider for GitHub Actions
+resource "aws_iam_openid_connect_provider" "github_actions" {
+  url = "https://token.actions.githubusercontent.com"
+  
+  client_id_list = ["sts.amazonaws.com"]
+  
+  thumbprint_list = [
+    "6938fd4d98bab03faadb97b34396831e3780aea1",
+    "1c58a3a8518e8759bf075b76b750d4f2df264fcd"
+  ]
+  
+  tags = var.tags
+}
+
 # Trust policy for AgentCore execution role
 data "aws_iam_policy_document" "agentcore_trust" {
   statement {
@@ -16,6 +30,25 @@ data "aws_iam_policy_document" "agentcore_trust" {
       identifiers = ["lambda.amazonaws.com"]
     }
     actions = ["sts:AssumeRole"]
+  }
+
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "Federated"
+      identifiers = [aws_iam_openid_connect_provider.github_actions.arn]
+    }
+    actions = ["sts:AssumeRole"]
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = ["repo:${var.github_repo_owner}/${var.github_repo_name}:*"]
+    }
   }
 }
 
@@ -120,22 +153,3 @@ resource "aws_iam_policy" "agentcore_user" {
   tags        = var.tags
 }
 
-# AWS Operator Agent specific role
-resource "aws_iam_role" "aws_operator_agent" {
-  name               = "AwsOperatorAgentRole"
-  assume_role_policy = data.aws_iam_policy_document.agentcore_trust.json
-  description        = "Execution role for AWS Operator Agent with read-only AWS access"
-  tags               = var.tags
-}
-
-# Attach AWS managed ReadOnlyAccess policy to AWS Operator Agent role
-resource "aws_iam_role_policy_attachment" "aws_operator_agent_readonly" {
-  role       = aws_iam_role.aws_operator_agent.name
-  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
-}
-
-# Attach basic AgentCore execution policy to AWS Operator Agent role
-resource "aws_iam_role_policy_attachment" "aws_operator_agent_execution" {
-  role       = aws_iam_role.aws_operator_agent.name
-  policy_arn = aws_iam_policy.agentcore_execution.arn
-}

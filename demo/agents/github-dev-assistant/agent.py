@@ -2,16 +2,14 @@
 """
 GitHub Development Assistant Agent
 
-This agent helps developers with GitHub workflows using GitHub's hosted MCP server.
-Provides personalized, role-aware assistance for:
+This agent helps developers with GitHub workflows using GitHub's MCP server.
+Provides assistance for:
 - PR management and reviews
 - Issue tracking and assignment
 - Repository insights and metrics
 - CI/CD pipeline monitoring
 
-Integrates with:
-- GitHub's hosted MCP server (https://api.githubcopilot.com/mcp/)
-- OIDC for user authentication and role-based access
+Uses GitHub's MCP server for GitHub API access.
 """
 
 import os
@@ -21,6 +19,7 @@ import asyncio
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 import httpx
+from fastmcp import Client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -28,91 +27,92 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class GitHubUser:
-    """Represents an authenticated GitHub user with OIDC claims"""
+    """Represents an authenticated GitHub user"""
     username: str
-    email: str
-    name: str
-    role: str = "developer"  # developer, team_lead, admin
-    teams: List[str] = None
-    repositories: List[str] = None
-    
-    def __post_init__(self):
-        if self.teams is None:
-            self.teams = []
-        if self.repositories is None:
-            self.repositories = []
+    email: str = ""
+    name: str = ""
 
 class GitHubMCPClient:
-    """Client for interacting with GitHub's hosted MCP server"""
+    """Client for interacting with GitHub MCP server using FastMCP"""
     
     def __init__(self, github_token: str = None):
         self.github_token = github_token
-        self.mcp_url = "https://api.githubcopilot.com/mcp/"
-        self.headers = {
-            "Content-Type": "application/json"
-        }
-        if github_token:
-            self.headers["Authorization"] = f"Bearer {github_token}"
-    
+        self.client = None
+        
     def update_token(self, github_token: str):
         """Update the GitHub token for API calls"""
         self.github_token = github_token
-        self.headers["Authorization"] = f"Bearer {github_token}"
+        # Recreate client with new token
+        self.client = None
     
-    async def _make_mcp_request(self, method: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
-        """Make a request to GitHub's hosted MCP server"""
-        payload = {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": f"tools/call",
-            "params": {
-                "name": method,
-                "arguments": params or {}
-            }
-        }
+    def _get_client(self) -> Client:
+        """Get or create FastMCP client for hosted GitHub MCP server"""
+        if not self.client and self.github_token:
+            # Use GitHub's hosted MCP endpoint
+            self.client = Client("https://api.githubcopilot.com/mcp/")
+        return self.client
+    
+    async def get_available_tools(self) -> List[Dict[str, Any]]:
+        """Get list of available GitHub MCP tools"""
+        client = self._get_client()
+        if not client:
+            return []
         
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(self.mcp_url, json=payload, headers=self.headers)
-                response.raise_for_status()
-                data = response.json()
-                
-                if "error" in data:
-                    logger.error(f"MCP error: {data['error']}")
-                    return {}
-                
-                return data.get("result", {}).get("content", [{}])[0].get("data", {})
-            except Exception as e:
-                logger.error(f"MCP request failed: {e}")
-                return {}
+        async with client:
+            tools = await client.list_tools()
+            return [{"name": tool.name, "description": tool.description} for tool in tools]
     
-    async def get_me(self) -> Dict[str, Any]:
-        """Get current user profile"""
-        return await self._make_mcp_request("get_me")
+    async def call_tool(self, tool_name: str, arguments: Dict[str, Any] = None) -> Any:
+        """Call a GitHub MCP tool"""
+        client = self._get_client()
+        if not client:
+            return None
+        
+        async with client:
+            result = await client.call_tool(tool_name, arguments or {})
+            return result.content[0].text if result.content else None
     
     async def search_repositories(self, query: str, per_page: int = 10) -> List[Dict[str, Any]]:
         """Search repositories accessible to the user"""
-        result = await self._make_mcp_request("search_repositories", {
-            "query": query,
-            "perPage": per_page
-        })
-        return result.get("items", [])
+        client = self._get_client()
+        if not client:
+            return []
+            
+        async with client:
+            result = await client.call_tool("github_search_repositories", {
+                "query": query,
+                "per_page": per_page
+            })
+            data = json.loads(result.content[0].text) if result.content else {}
+            return data.get("items", [])
     
     async def list_pull_requests(self, owner: str, repo: str, state: str = "open") -> List[Dict[str, Any]]:
         """Get pull requests for a repository"""
-        return await self._make_mcp_request("list_pull_requests", {
-            "owner": owner,
-            "repo": repo,
-            "state": state
-        })
+        client = self._get_client()
+        if not client:
+            return []
+            
+        async with client:
+            result = await client.call_tool("github_list_pull_requests", {
+                "owner": owner,
+                "repo": repo,
+                "state": state
+            })
+            return json.loads(result.content[0].text) if result.content else []
     
     async def list_issues(self, owner: str, repo: str, state: str = "open") -> List[Dict[str, Any]]:
         """Get issues for a repository"""
-        return await self._make_mcp_request("list_issues", {
-            "owner": owner,
-            "repo": repo,
-            "state": state
-        })
+        client = self._get_client()
+        if not client:
+            return []
+            
+        async with client:
+            result = await client.call_tool("github_list_issues", {
+                "owner": owner,
+                "repo": repo,
+                "state": state
+            })
+            return json.loads(result.content[0].text) if result.content else []
     
     async def create_issue(self, owner: str, repo: str, title: str, body: str, assignees: List[str] = None) -> Dict[str, Any]:
         """Create a new issue"""
@@ -167,58 +167,19 @@ class GitHubDevelopmentAssistant:
         self.mcp_client = GitHubMCPClient()
         self.current_user: Optional[GitHubUser] = None
     
-    def authenticate_user(self, oidc_claims: Dict[str, Any]) -> GitHubUser:
-        """Authenticate user from OIDC claims and extract GitHub info"""
-        # Extract user info from OIDC claims
-        username = oidc_claims.get("preferred_username", "unknown")
-        email = oidc_claims.get("email", "")
-        name = oidc_claims.get("name", username)
-        
-        # Extract GitHub access token from OIDC claims
-        # This could be in different claim fields depending on OIDC provider configuration
-        github_token = (
-            oidc_claims.get("github_token") or  # Custom claim
-            oidc_claims.get("access_token") or  # Standard OAuth claim
-            oidc_claims.get("token") or         # Alternative claim name
-            os.getenv("GITHUB_TOKEN")           # Fallback to env var for testing
-        )
-        
-        if not github_token:
-            logger.warning("No GitHub token found in OIDC claims or environment")
-            # Continue without token - agent will handle gracefully
-        else:
-            # Update MCP client with user's GitHub token
-            self.mcp_client.update_token(github_token)
-            logger.info(f"Updated GitHub token for user: {username}")
-        
-        # Extract role from groups or custom claims
-        groups = oidc_claims.get("groups", [])
-        role = "developer"
-        if "team-leads" in groups:
-            role = "team_lead"
-        elif "admins" in groups:
-            role = "admin"
-        
-        # Extract team memberships
-        teams = [group for group in groups if group.startswith("team-")]
-        
-        self.current_user = GitHubUser(
-            username=username,
-            email=email,
-            name=name,
-            role=role,
-            teams=teams
-        )
-        
-        logger.info(f"Authenticated user: {name} ({username}) with role: {role}")
+    def set_github_token(self, github_token: str, username: str = "user") -> GitHubUser:
+        """Set GitHub token for API access"""
+        self.mcp_client.update_token(github_token)
+        self.current_user = GitHubUser(username=username)
+        logger.info(f"Set GitHub token for user: {username}")
         return self.current_user
     
-    async def handle_request(self, prompt: str, oidc_claims: Dict[str, Any] = None) -> str:
+    async def handle_request(self, prompt: str, github_token: str = None) -> str:
         """Main entry point for handling user requests"""
         
-        # Authenticate user if OIDC claims provided
-        if oidc_claims:
-            self.authenticate_user(oidc_claims)
+        # Set GitHub token if provided
+        if github_token:
+            self.set_github_token(github_token)
         
         # Parse user intent and route to appropriate handler
         prompt_lower = prompt.lower()
@@ -469,16 +430,26 @@ app = BedrockAgentCoreApp()
 assistant = GitHubDevelopmentAssistant()
 
 @app.entrypoint
-async def invoke(payload):
+async def invoke(payload, context=None):
     """AgentCore entrypoint for processing requests"""
     # Extract prompt from payload
     user_message = payload.get("prompt", "Hello, what can you help me with?")
     
-    # Extract OIDC claims if available (would come from AgentCore)
-    oidc_claims = payload.get("oidc_claims")
+    # Get GitHub token from Authorization header or environment
+    github_token = None
+    if hasattr(context, 'request') and context.request and hasattr(context.request, 'headers'):
+        auth_header = context.request.headers.get("authorization", "").strip()
+        if auth_header.lower().startswith("bearer "):
+            github_token = auth_header[7:].strip()  # Remove "Bearer " prefix (case insensitive)
+    
+    if not github_token:
+        github_token = os.getenv("GITHUB_TOKEN")
+    
+    if not github_token:
+        logger.error("No GitHub token provided. Set GITHUB_TOKEN environment variable or pass Authorization: Bearer header.")
     
     # Process the request
-    response = await assistant.handle_request(user_message, oidc_claims)
+    response = await assistant.handle_request(user_message, github_token)
     
     return {"result": response}
 
@@ -513,4 +484,4 @@ async def main():
 
 if __name__ == "__main__":
     # Start AgentCore web service
-    app.run()
+    app.run(port=9595)
