@@ -237,5 +237,5 @@ def invoke(payload):
         return error_response
 
 if __name__ == "__main__":
-    # For local testing
-    app.run(port=9596)
+    # AWS AgentCore requires port 8080
+    app.run(port=8080)
