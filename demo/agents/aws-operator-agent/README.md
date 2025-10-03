@@ -131,6 +131,12 @@ The agent is deployed as an AWS Bedrock AgentCore service with:
 - IAM role-based execution
 - CloudWatch logging
 
+> [!NOTE]
+> The demo aws-operator-agent uses the Anthropic model anthropic.claude-3-haiku-20240307-v1 from AWS Bedrock.
+> By default, AWS accounts do not always have access to every model.
+> To get access to models, see [https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html).
+
+
 ## Testing
 
 Test the agent locally:
