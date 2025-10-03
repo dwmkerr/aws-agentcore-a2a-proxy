@@ -91,6 +91,10 @@ make install-demo-infrastructure
 make install-demo-agents
 ```
 
+> [!NOTE]
+> The demo aws-operator-agent uses the Anthropic model anthropic.claude-3-haiku-20240307-v1 from AWS Bedrock. By default, AWS accounts do not always have access to every model. To get access to models, see [https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html).
+
+
 ### Using as a Python Package
 
 Install the package:
@@ -263,7 +267,7 @@ If you want to try the complete demo with managed infrastructure and agents:
 # Set up demo infrastructure (IAM roles, ECR, CloudWatch, etc.)
 make install-demo-infrastructure
 
-# Deploy demo agents using the infrastructure
+# Deploy demo agents using the infrastructure.
 make install-demo-agents
 
 # Or deploy specific agents only, e.g:
@@ -281,6 +285,10 @@ The demo infrastructure includes:
 - User policies for agent invocation
 - CloudWatch log groups with retention
 - Bedrock model logging configuration
+
+Note that you will need to manually ensure you have access to the EAnthropic model anthropic.claude-3-haiku-20240307-v1 from AWS Bedrock. By default, AWS accounts do not always have access to every model. 
+
+To get access to models, see [https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html).
 
 Configure resources by editing `./demo/infrastructure/terraform.tfvars`. Note these resources incur AWS costs.
 
