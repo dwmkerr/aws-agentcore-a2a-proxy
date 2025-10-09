@@ -8,6 +8,9 @@ environment variables with appropriate defaults and type conversion.
 import os
 from dataclasses import dataclass
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 @dataclass(frozen=True)
@@ -25,6 +28,7 @@ class Config:
     expose_host: str  # Advertised host (for external URLs)
     expose_port: int  # Advertised port (for external URLs)
     base_path: str  # Base path for URLs
+    log_level: str  # Logging level
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -41,9 +45,10 @@ class Config:
             # Server Configuration
             host=host,
             port=port,
-            expose_host=os.getenv("EXPOSE_HOST", host),  # Defaults to host if not specified
-            expose_port=int(os.getenv("EXPOSE_PORT", str(port))),  # Defaults to port if not specified
+            expose_host=os.getenv("EXPOSE_HOST", host),
+            expose_port=int(os.getenv("EXPOSE_PORT", str(port))),
             base_path=os.getenv("BASE_PATH", ""),
+            log_level=os.getenv("LOG_LEVEL", "INFO").upper(),
         )
 
     def get_base_url(self) -> str:
