@@ -99,6 +99,9 @@ async def handle_a2a_agent_messages(agent_id: str, request: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid JSON: {e}")
 
+    method = request_data.get("method", "message") if isinstance(request_data, dict) else "message"
+    logger.info(f"A2A request: agent={agent_id} method={method}")
+
     # Check if this is a streaming request
     if isinstance(request_data, dict) and request_data.get("method") == "message/stream":
         # Handle streaming A2A request

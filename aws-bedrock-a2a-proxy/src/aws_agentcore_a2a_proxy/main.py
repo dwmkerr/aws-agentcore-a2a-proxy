@@ -22,6 +22,12 @@ BRIGHT_WHITE = "\033[1;37m"
 DIM_GREY = "\033[90m"
 RESET = "\033[0m"
 
+# Configure logging for the entire package
+logging.basicConfig(
+    level=getattr(logging, config.log_level, logging.INFO),
+    format="%(levelname)s:     %(message)s",
+)
+
 # Configure our application logger with uvicorn's style
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
