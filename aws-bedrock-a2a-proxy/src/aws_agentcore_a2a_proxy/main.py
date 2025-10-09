@@ -1,10 +1,12 @@
 import logging
 import asyncio
+import time
 from typing import Optional, Callable
 from contextlib import asynccontextmanager
 
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
+from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi import Request
 from uvicorn.logging import DefaultFormatter
 
 from .agentcore_client import AgentCoreClient
@@ -12,7 +14,8 @@ from .a2a_proxy_server import refresh_agents
 from .a2a_proxy_server import app as base_app
 from .config import get_config
 
-load_dotenv()
+# Load configuration
+config = get_config()
 
 # ANSI color codes for logging
 BRIGHT_WHITE = "\033[1;37m"
@@ -24,11 +27,23 @@ logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
 handler.setFormatter(DefaultFormatter("%(levelprefix)s %(message)s"))
 logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+logger.setLevel(getattr(logging, config.log_level, logging.INFO))
 logger.propagate = False
 
-# Load configuration
-config = get_config()
+
+class AccessLogMiddleware(BaseHTTPMiddleware):
+    """Middleware for HTTP access logging"""
+    async def dispatch(self, request: Request, call_next):
+        start_time = time.time()
+        try:
+            response = await call_next(request)
+            duration = time.time() - start_time
+            logger.info(f'{request.method} {request.url.path} {response.status_code} {duration:.3f}s')
+            return response
+        except Exception as e:
+            duration = time.time() - start_time
+            logger.error(f'{request.method} {request.url.path} failed after {duration:.3f}s: {e}')
+            raise
 
 
 def log_startup_config():
@@ -115,6 +130,9 @@ def create_app(on_agents_refresh: Optional[Callable] = None):
 
     # Set up lifespan
     base_app.router.lifespan_context = lifespan
+
+    # Add access logging middleware
+    base_app.add_middleware(AccessLogMiddleware)
 
     # Add CORS middleware to support web-based A2A clients
     base_app.add_middleware(
