@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.8](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.7...v0.1.8) (2025-10-09)
+
+
+### Features
+
+* add .env configuration and HTTP access logging ([#33](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/issues/33)) ([865688e](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/865688e31bcd1a529f3cd60a7caaaef451e6e84b))
+* add terraform infrastructure for individual agent deployment ([#29](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/issues/29)) ([075f07c](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/075f07c63ed0411e1bf376bb369ea38a82a0bf38))
+
+
+### Miscellaneous Chores
+
+* release 0.1.8 ([f960a28](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/f960a281e88adca10ff0059553e8c7331c6c7a1d))
+
 ## [0.1.7](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.6...v0.1.7) (2025-08-14)
 
 
