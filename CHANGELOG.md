@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.9](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.8...v0.1.9) (2025-10-13)
+
+
+### Features
+
+* use AWS agent descriptions without fallback ([#34](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/issues/34)) ([6f67b94](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/commit/6f67b941fba1d5f887c2cf4d678142545fff8597))
+
 ## [0.1.8](https://github.com/dwmkerr/aws-agentcore-a2a-proxy/compare/v0.1.7...v0.1.8) (2025-10-09)
 
 
