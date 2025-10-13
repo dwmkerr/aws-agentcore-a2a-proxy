@@ -352,7 +352,7 @@ wheels = [
 
 [[package]]
 name = "github-dev-assistant"
-version = "0.1.7"
+version = "0.1.8"
 source = { virtual = "." }
 dependencies = [
     { name = "bedrock-agentcore" },
