@@ -34,6 +34,7 @@ install: build-image # build image and deploy agent to AWS Bedrock AgentCore
 	@test -n "$(AWS_OPERATIONS_ROLE_ARN)" || (echo "Error: AWS_OPERATIONS_ROLE_ARN not set" && exit 1)
 	uv run --with boto3==1.40.1 ../../scripts/manage-agent.py deploy \
 		--agent-name "$(AGENT_NAME)" \
+		--description "AWS operations agent with read-only access to AWS services" \
 		--execution-role-arn $(AWS_OPERATIONS_ROLE_ARN) \
 		--image-uri $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(IMAGE_TAG) \
 		--region $(AWS_REGION)

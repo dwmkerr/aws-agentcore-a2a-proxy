@@ -254,12 +254,14 @@ async def refresh_agents() -> List[Dict[str, Any]]:
     app.state.agents.clear()
     await initialize_agents(agents)
 
-    # Call callback if provided
+    # Call callback if provided. A bit like a HTTP server request handler or
+    # middleware, if it throws then we'll log an error but not terminate the
+    # process.
     if hasattr(app.state, "on_agents_refresh") and app.state.on_agents_refresh:
         try:
             await app.state.on_agents_refresh(agents)
         except Exception as e:
-            logger.error(f"Failed to call external handler: {e}")
+            logger.error(f"Error on agent refresh handler: {e}")
 
     return agents
 

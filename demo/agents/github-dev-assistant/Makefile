@@ -23,6 +23,7 @@ install: build-image # build image and deploy agent to AWS Bedrock AgentCore
 	@test -n "$(GITHUB_OPERATIONS_ROLE_ARN)" || (echo "Error: GITHUB_OPERATIONS_ROLE_ARN not set" && exit 1)
 	uv run --with boto3==1.40.1 ../../scripts/manage-agent.py deploy \
 		--agent-name "$(AGENT_NAME)" \
+		--description "GitHub development assistant for PR management, issue tracking, and CI/CD monitoring" \
 		--execution-role-arn $(GITHUB_OPERATIONS_ROLE_ARN) \
 		--image-uri $(ECR_REPOSITORY_URL):$(AGENT_NAME)-$(IMAGE_TAG) \
 		--region $(AWS_REGION)
