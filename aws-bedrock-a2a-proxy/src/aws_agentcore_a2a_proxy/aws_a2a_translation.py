@@ -66,7 +66,7 @@ def agentcore_agent_to_agentcard(
     agent_card = AgentCard(
         protocol_version="0.2.6",
         name=agent.agent_runtime_name,
-        description=agent.description or f"AgentCore agent: {agent.agent_runtime_name}",
+        description=agent.description,
         url=f"{base_url}/a2a/agent/{agent_id}",
         preferred_transport="JSONRPC",
         version=agent.version,
